@@ -12,8 +12,12 @@ const channelPatterns = {
   call: /\b(?:call(?:ing)?|phone|telephone|mobile number)\b/,
   email: /\b(?:e[ -]?mail|mail address)\b/,
 };
-const serviceTopic = /\b(?:apis?|integrat\w*|automat\w*|chatbots?|webhooks?|develop\w*|build|add|features?|notifications?|otp|plugins?|campaigns?|marketing|templates?|verification)\b/;
+const serviceTopic = /\b(?:apis?|integrat\w*|automat\w*|chatbots?|webhooks?|develop\w*|build|add|features?|notifications?|otp|plugins?|campaigns?|marketing|templates?|verification|customers?|users?|providers?|mailboxes?|inboxes?|newsletters?|smtp|imap|spf|dkim|dmarc|deliverability|(?:business|professional|custom|own|domain) e[ -]?mail|contact forms?|e[ -]?mail (?:hosting|accounts?|setup))\b/;
 const contactRequest = /\b(?:contact (?:you|hich|the team)|get in touch|reach (?:you|hich|the team)|(?:talk|speak) to (?:you|hich|the team)|(?:your|hich(?:s)?) (?:contact details|number|email address)|(?:whats?\s*app?|phone|telephone|contact) (?:number|details)|(?:call|email|message) (?:you|hich|the team|me)|(?:give|share|show|send|provide) (?:me )?(?:your )?(?:number|contact details|email address))\b/;
+const companyContactRequest = /\b(?:(?:your|hichs?|the teams?) (?:whats?\s*app?|phone|telephone|email|e-mail|contact|number)|(?:call|email|message|contact|reach) (?:you|hich|the team|me)|(?:talk|speak) to (?:you|hich|the team))\b/;
+const sendContactRequest = /^(?:please )?(?:(?:can|could|would) you (?:please )?)?(?:send|write) me (?:an? )?(?:e[ -]?mail|message)\b/;
+const channelRequest = /\b(?:can|could|may) i (?:have|get) (?:your |the )?(?:whats?\s*app?|phone|telephone|email|e-mail|number)\b/;
+const channelShorthand = /^(?:(?:whats?\s*app?|whatsaap|watsapp|phone|telephone|call|e[ -]?mail|mail address|and|or|also|please|not|no|without|instead of|dont want|dont use|your|number|address|details)\b[\s.!?,;-]*)+$/;
 
 // Treat structured model output as intent only. Destinations, numbers and labels
 // always come from the site's own company data, never an arbitrary model URL.
@@ -35,10 +39,13 @@ export function getContactActions({ messages = [], content = '' } = {}) {
     .replace(/\bcall to action\b/g, '')
     .replace(/\bcall (?:your|our|the|a|this) (?:company|business|website|app|product)\b/g, '');
   const channels = Object.entries(channelPatterns).filter(([, pattern]) => pattern.test(channelQuestion) && !new RegExp(`\\b(?:not|no|without|instead of|dont want|dont use)\\s+(?:a\\s+)?(?:${pattern.source.replace(/^\\b|\\b$/g, '')})`).test(latest)).map(([id]) => id);
-  const direct = contactRequest.test(question);
-  const discussingService = serviceTopic.test(question) && !direct;
+  const explicitCompanyContact = companyContactRequest.test(channelQuestion) || sendContactRequest.test(channelQuestion);
+  const direct = explicitCompanyContact || contactRequest.test(question) || channelRequest.test(question);
+  const discussingService = serviceTopic.test(question) && !explicitCompanyContact;
   if (discussingService) return [];
-  if (channels.length) return cleanContactActions(channels.map(id => ({ id })));
+  // Mentioning email or a phone in a project question is not itself a request
+  // for HICH's contact details. Keep short requests such as "And email?" useful.
+  if (channels.length && (direct || channelShorthand.test(question))) return cleanContactActions(channels.map(id => ({ id })));
   if (direct || /\b(?:contact|contact details|contact number|get in touch|reach out|speak to someone|talk to someone)\b/.test(question)) {
     return cleanContactActions(['whatsapp', 'call', 'email'].map(id => ({ id })));
   }

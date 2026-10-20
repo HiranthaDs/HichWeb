@@ -1,6 +1,26 @@
 import { company, services, projects, faqs, insights } from './data.js';
 import { termsSections } from './termsContent.js';
 import { getContactActions } from './assistant-actions.js';
+import { practicalKnowledge } from './assistant-practical-knowledge.js';
+
+export const ASSISTANT_MAX_WORDS = 150;
+
+export function limitReplyWords(value, maxWords = ASSISTANT_MAX_WORDS) {
+  const text = String(value || '').trim();
+  const limit = Math.max(1, Math.min(ASSISTANT_MAX_WORDS, Math.floor(Number(maxWords) || ASSISTANT_MAX_WORDS)));
+  const words = [...text.matchAll(/\S+/g)];
+  if (words.length <= limit) return text;
+  let clipped = text.slice(0, words[limit].index).trimEnd();
+  const boundaries = [...clipped.matchAll(/[.!?](?:\*\*)?(?=\s|$)/g)];
+  const lastBoundary = boundaries.at(-1);
+  if (lastBoundary && lastBoundary.index >= clipped.length * 0.65) {
+    clipped = clipped.slice(0, lastBoundary.index + lastBoundary[0].length);
+  } else {
+    clipped = `${clipped.replace(/[,:;—-]+$/, '')}…`;
+  }
+  if ((clipped.match(/\*\*/g) || []).length % 2) clipped += '**';
+  return clipped;
+}
 
 const normalise = value => String(value || '').toLowerCase().replace(/e-commerce/g, 'ecommerce').replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
 const stopWords = new Set('a an the and or of to for in on with is are was be been can could would should will do does did you your i my me we our us it this that these those they them have has had what which who where when why how about more tell please need want get know help hich website project'.split(' '));
@@ -24,6 +44,8 @@ const startProjectPattern = /\b(?:(?:how (?:do|can|should) i|ready to) (?:start|
 const projectContinuationPattern = /^(?:my|our)\s+(?:audience|budget|business|company|customers?|deadline|features?|goal|launch|project|store|users?)\b|^(?:the )?(?:audience|budget|deadline|features?|goal|launch date|timeline)\s+(?:is|are|would be)\b/i;
 const instructionAttackPattern = /\b(?:ignore (?:all |the |your )?(?:previous|prior|system|developer) instructions?|reveal (?:the |your )?(?:prompt|instructions?|context)|show (?:me )?(?:the )?(?:system prompt|hidden instructions?)|developer message|jailbreak)\b/i;
 const assistantIdentityPattern = /\b(?:what(?:'s| is) your name|who are you|what should i call you|are you chathu|your name)\b/i;
+const projectTopicPattern = /\b(?:hich|accessibility|analytics|apps?|authentication|automation|booking|brand|business|capabilities|checkout|cms|content|conversion|crm|customers?|database|design|digital|domains?|ecommerce|email|erp|features?|hosting|integration|inventory|marketing|migration|mobile|multilingual|notifications?|payments?|performance|platform|portfolio|portal|pricing|products?|reservation|security|seo|services|shop|software|store|subscription|systems?|technology|users?|website|workflow)\b/i;
+const unrelatedTopicPattern = /\b(?:weather|raining|forecast|football|cricket|sports scores?|recipe|cook|quantum|gravity|horoscope|celebrity|president|election|homework|lyrics)\b/i;
 const termSummaries = {
   6: 'The accepted written project agreement defines deliverables, exclusions, timing, fees, ownership, support and responsibilities. Where it conflicts with the public Website Terms about contracted services, the project agreement controls that conflict. Work and reserved dates depend on its acceptance and deposit conditions.',
   7: 'HICH may accept authorised physical or electronic signatures, including clear electronic approval. When the relevant document provides these Terms before payment, paying an invoice, deposit or instalment can also record acceptance. Any specifically required signing method still applies, and mandatory rights remain protected.',
@@ -66,6 +88,7 @@ const siteRecords = [
 
 export const knowledgeRecords = [
   ...siteRecords,
+  ...practicalKnowledge.map(record => ({ ...record, kind: 'guidance' })),
   ...services.map(service => ({ id: service.slug, kind: 'service', title: service.title, href: `/${service.slug}.html`, aliases: serviceAliases[service.slug] || [], text: `${service.description}\n\n${service.deliverables.map(item => `- ${item}`).join('\n')}\n\n${service.faqs.map(item => `${item.question} ${item.answer}`).join('\n')}`, service })),
   ...projects.map(project => ({ id: project.slug, kind: 'project', title: project.name, href: '/allprojects.html', aliases: [project.name, project.slug.replace(/-/g, ' ')], text: `${project.name} — ${project.type}${project.concept ? ' (concept work)' : ''}. ${project.description} Services: ${project.services.join(', ')}. No measured commercial results are published.`, project })),
   ...insights.map(item => ({ id: item.slug, kind: 'insight', title: item.title, href: `/${item.slug}.html`, aliases: [item.slug.replace(/-/g, ' ')], text: `${item.excerpt}\n${item.body.map(section => `${section.heading}: ${section.text}`).join('\n')}` })),
@@ -75,8 +98,8 @@ export const knowledgeRecords = [
 export function resolveQuestion(messages) {
   const questions = (Array.isArray(messages) ? messages : []).filter(message => message?.role === 'user' && typeof message.content === 'string').map(message => message.content.trim());
   const question = questions.at(-1) || '';
-  const followUp = /^(and\b|what about\b|how about\b|tell me more\b|explain\b|more details\b|yes\b|why\b)|\b(it|that|those|them|same|simpler|shorter|summari[sz]e|example)\b/i.test(question) || projectContinuationPattern.test(question) || tokens(question).length < 2;
-  const isContinuation = value => /^(and\b|what about\b|how about\b|tell me more\b|more details\b|yes\b|why\b)|\b(it|that|those|them|same|simpler|shorter|summari[sz]e)\b/i.test(value) || projectContinuationPattern.test(value) || tokens(value).length < 2;
+  const isContinuation = value => /^(and\b|what about\b|how about\b|tell me more\b|more details\b|yes\b|why\b)|\b(it|that|those|them|same|simpler|shorter|summari[sz]e|example)\b/i.test(value) || projectContinuationPattern.test(value) || /^(?:cost|price|pricing|budget|timeline|how much|how long|which one|what next|more)\W*$/i.test(value);
+  const followUp = isContinuation(question) && !(unrelatedTopicPattern.test(question) && !projectTopicPattern.test(question));
   const earlier = questions.slice(0, -1).reverse();
   const prior = earlier.find(value => tokens(value).length > 0 && !isContinuation(value)) || earlier.find(value => tokens(value).length > 0) || '';
   return { question, query: followUp && prior ? `${question} ${prior}` : question, prior: followUp ? prior : '' };
@@ -85,12 +108,15 @@ export function resolveQuestion(messages) {
 export function retrieveKnowledge({ mode = 'site', messages = [] }) {
   const { question, query } = resolveQuestion(messages);
   const queryTokens = tokens(query);
+  const latestTokens = tokens(question);
   const explicitTerms = /\b(terms|agreement|contract|ownership|source code|refunds?|signature|chargeback|legal|licen[cs]e|deposit)\b/i.test(query);
   const useTerms = mode === 'terms' || explicitTerms;
   const rules = useTerms ? termRules.filter(([, pattern]) => pattern.test(query)).map(([number]) => number) : [];
   return knowledgeRecords.map(record => {
     let score = queryTokens.reduce((sum, token) => sum + (record.titleTokens.includes(token) ? 5 : record.searchTokens.includes(token) ? 1 : 0), 0);
+    score += latestTokens.reduce((sum, token) => sum + (record.titleTokens.includes(token) ? 5 : 0), 0);
     score += record.aliases.reduce((sum, alias) => sum + (hasPhrase(query, alias) ? 10 + alias.split(' ').length : 0), 0);
+    if (record.kind === 'guidance' && record.match.test(question)) score += 45;
     if (record.kind === 'terms') score = useTerms ? score + (rules.includes(record.number) ? 30 : 0) : 0;
     if (record.kind === 'insight') score *= 0.6;
     if (mode === 'terms' && record.kind !== 'terms') score *= 0.4;
@@ -111,12 +137,13 @@ const shortExtract = (text, query) => {
 
 function buildGuideReply({ mode = 'site', messages = [] }) {
   const { question, query, prior } = resolveQuestion(messages);
+  if (instructionAttackPattern.test(question) || (unrelatedTopicPattern.test(question) && !projectTopicPattern.test(question))) return { text: 'I can help with HICH, websites, online stores, applications and project planning. Ask about a feature, a technical choice or the published project terms, and I’ll focus on that.', sources: [] };
   if (/^(hi|hello|hey|good (morning|afternoon|evening))[!.\s]*$/i.test(question)) return { text: mode === 'terms' ? 'Hello! I’m Chathu. Ask me a question about HICH’s published terms, and I’ll find the relevant clauses and explain the wording in context.' : 'Hello! I’m Chathu. I can help you explore HICH’s services, selected work, project process and terms. What are you hoping to build?', sources: [] };
   if (/^(thanks|thank you|great|perfect|ok|okay)[!.\s]*$/i.test(question)) return { text: 'You’re welcome. You can ask a follow-up, or tell me what you would like to explore next.', sources: [] };
   if (assistantIdentityPattern.test(question)) return { text: mode === 'terms' ? 'I’m **Chathu**, HICH’s website assistant. Here, I can help you understand HICH’s published terms and find the relevant clauses.' : 'I’m **Chathu**, HICH’s website assistant. I can answer questions about HICH, help shape your project idea, explain services and connect you with the team.', sources: [] };
   if (mode !== 'terms' && startProjectPattern.test(question)) {
     return {
-      text: `Start by preparing a short project brief for HICH. It does not need to be technical—just make these points clear:\n\n- **Your business and audience** — what you offer and who the project is for.\n- **The goal** — the problem to solve or result you want.\n- **Essential features** — what people must be able to do in the first release.\n- **What already exists** — your current website, brand assets, content and connected tools.\n- **Practical limits** — your target launch date and a comfortable budget range.\n\nHICH then works through **Discover → Design → Develop → Launch & evolve**. The scope, price and schedule are confirmed from the brief rather than guessed in chat.\n\nUse the **Start a project** page to prepare the brief; it stays in your browser until you choose to copy, download, email or open it in WhatsApp.\n\nWhat are you hoping to build, and who is it for?`,
+      text: `Prepare a short brief with:\n\n- **Your business and audience**.\n- **The goal** and problem to solve.\n- **Essential features** for the first release.\n- Existing content, brand assets and connected tools.\n- Your **target launch date** and **budget range**.\n\nHICH’s process is **Discover → Design → Develop → Launch & evolve**. Scope, price and schedule are confirmed from the brief.\n\nThe **Start a project** page helps prepare it. Your draft stays in your browser until you choose to copy, download, email or open it in WhatsApp.\n\nWhat are you hoping to build, and who is it for?`,
       sources: [{ title: 'Start a project', href: '/contact.html' }, { title: 'How a HICH project works', href: '/process.html' }],
     };
   }
@@ -137,10 +164,20 @@ function buildGuideReply({ mode = 'site', messages = [] }) {
   if ((mode === 'terms' || explicitTerms) && sections.length) {
     const selected = sections.slice(0, /\b(and|also|both)\b/i.test(question) ? 3 : 2);
     const simple = /\b(simpler|shorter|summary|summari[sz]e|brief)\b/i.test(question);
-    const text = selected.map(record => `**${record.title}**\n${simple ? shortExtract(record.summary || record.text, query) : record.summary || shortExtract(record.text, query)}`).join('\n\n');
+    const perSection = selected.length > 2 ? 27 : selected.length > 1 ? 43 : 95;
+    const text = selected.map(record => `**${record.title}**\n${limitReplyWords(simple ? shortExtract(record.summary || record.text, query) : record.summary || shortExtract(record.text, query), perSection)}`).join('\n\n');
     return { text: `${prior ? 'For the point we were discussing:\n\n' : ''}${text}\n\nThis explains the published wording. Your accepted project agreement and any mandatory rights determine how it applies to your project.`, sources: uniqueSources(selected) };
   }
   if (mode === 'terms') return { text: 'I couldn’t find a clear match in the published terms. Try describing the agreement point in a little more detail, or include a clause number. For a project-specific answer, contact HICH at info@hichweb.com with the relevant agreement wording.', sources: [{ title: 'Read the terms', href: '/terms-and-conditions.html' }, { title: 'Contact HICH', href: '/contact.html' }] };
+
+  // Match the latest question first so a new topic does not repeat the service
+  // paragraph from an earlier turn. These records are explicitly general advice.
+  const practicalMatches = records.filter(record => record.kind === 'guidance' && record.match.test(question));
+  if (practicalMatches.length) {
+    const selected = practicalMatches.slice(0, /\b(and|also|both)\b/i.test(question) ? 2 : 1);
+    const text = selected.length === 1 ? selected[0].text : selected.map(record => `**${record.title}**\n${limitReplyWords(record.text.replace(/\s+[^.!?]*\?$/, ''), 58)}`).join('\n\n');
+    return { text: `General guidance:\n\n${text}`, sources: uniqueSources(selected) };
+  }
 
   let directServices = services.filter(service => (serviceAliases[service.slug] || []).some(alias => hasPhrase(query, alias)));
   // A store or portal is usually the actual requirement when someone asks for
@@ -159,7 +196,7 @@ function buildGuideReply({ mode = 'site', messages = [] }) {
     }
   }
   if (/\b(services|capabilities|what (can|do) you (do|offer)|what do you build)\b/i.test(question) && !directServices.length) {
-    blocks.push(`HICH helps with the strategy, design, build and ongoing care of digital products. The services include:\n\n${services.map(service => `- **${service.title}** — ${service.short}`).join('\n')}\n\nTell me what your business needs people to do, and I can narrow down a useful starting point.`);
+    blocks.push(`HICH helps plan, design, build and maintain digital products. Services include:\n\n${services.map(service => `- **${service.title}**`).join('\n')}\n\nWhat do you need customers or your team to do? I can suggest a suitable starting point.`);
     include({ id: 'services', title: 'Explore all services', href: '/services.html' });
   }
   const price = /\b(cost|price|pricing|budget|how much|rate|quote)\b/i.test(question);
@@ -207,49 +244,55 @@ function buildGuideReply({ mode = 'site', messages = [] }) {
 
 export function createGuideReply(options = {}) {
   const reply = buildGuideReply(options);
-  return { ...reply, actions: getContactActions({ messages: options.messages || [], content: reply.text }) };
+  const text = limitReplyWords(reply.text);
+  return { ...reply, text, actions: getContactActions({ messages: options.messages || [], content: text }) };
 }
 
-// Keep factual and commonly requested HICH answers on-device. Gemini is only
-// useful when a visitor asks the assistant to synthesise a recommendation or
-// reason across several pieces of published HICH content.
+// Give relevant questions to grounded AI whenever the server budget permits.
+// Greetings and unrelated requests still have useful zero-token local answers.
 export function chooseAssistantEngine({ mode = 'site', messages = [] } = {}) {
   const { question, query } = resolveQuestion(messages);
   if (!question) return { engine: 'guide', reason: 'empty' };
   if (/^(hi|hello|hey|good (morning|afternoon|evening)|thanks|thank you|great|perfect|ok|okay)[!.\s]*$/i.test(question)) return { engine: 'guide', reason: 'conversation' };
   if (assistantIdentityPattern.test(question)) return { engine: 'guide', reason: 'identity' };
-  if (startProjectPattern.test(question)) return { engine: 'guide', reason: 'project_start' };
   if (instructionAttackPattern.test(question)) return { engine: 'guide', reason: 'outside_scope' };
-  if (getContactActions({ messages }).length) return { engine: 'guide', reason: 'contact' };
-  if (/\b(?:registered|registration|registeration|regested|regestered|registred|legitimate|legit)\b/i.test(question)) return { engine: 'guide', reason: 'company_fact' };
+  if (unrelatedTopicPattern.test(question) && !projectTopicPattern.test(question)) return { engine: 'guide', reason: 'outside_scope' };
+  if (startProjectPattern.test(question) || getContactActions({ messages }).length || /\b(?:registered|registration|registeration|regested|regestered|registred|legitimate|legit)\b/i.test(question)) return { engine: 'ai', reason: 'grounded_answer' };
 
   const records = retrieveKnowledge({ mode, messages });
   const termsRecords = records.filter(record => record.kind === 'terms');
-  const asksForSynthesis = /\b(?:advise|advice|approach|audit|best|choose|compare|design|evaluate|fix|how (?:can|should|would)|idea|improve|optim(?:ise|ize)|plan|recommend|roadmap|strategy|suggest|which|what should)\b/i.test(question);
-  const recentUserContext = (Array.isArray(messages) ? messages : []).filter(message => message?.role === 'user' && typeof message.content === 'string').slice(-4).map(message => message.content).join(' ');
-  const projectContext = /\b(?:accessibility|analytics|app|authentication|automation|booking|brand|business|checkout|cms|content|conversion|crm|customer|database|design|digital|domain|ecommerce|email|erp|feature|hosting|integration|inventory|marketing|migration|mobile|multilingual|notification|payment|performance|platform|portal|product|reservation|security|seo|shop|software|store|subscription|system|technology|user|website|workflow)\b/i.test(`${query} ${recentUserContext}`);
-  const detailedBrief = question.length >= 110 || tokens(question).length >= 15;
-  const multiTopic = new Set(records.filter(record => record.kind === 'service').map(record => record.id)).size >= 2;
+  const projectContext = projectTopicPattern.test(query);
 
   if (mode === 'terms') {
-    const complexTermsQuestion = termsRecords.length > 0 && (detailedBrief || /\b(?:compare|conflict|means for|appl(?:y|ies)|scenario|what if)\b/i.test(question));
-    return complexTermsQuestion ? { engine: 'ai', reason: 'terms_synthesis' } : { engine: 'guide', reason: termsRecords.length ? 'terms_match' : 'terms_unknown' };
+    return termsRecords.length ? { engine: 'ai', reason: 'terms_answer' } : { engine: 'guide', reason: 'terms_unknown' };
   }
 
   const hasRelevantHichContent = records.some(record => record.score >= 5);
   if (!projectContext && !hasRelevantHichContent) return { engine: 'guide', reason: 'outside_scope' };
-  if ((asksForSynthesis && projectContext) || (detailedBrief && projectContext) || (multiTopic && asksForSynthesis)) return { engine: 'ai', reason: 'project_synthesis' };
-  return { engine: 'guide', reason: 'local_match' };
+  return { engine: 'ai', reason: 'grounded_answer' };
 }
 
 export function buildGrounding({ mode, messages }) {
   const records = retrieveKnowledge({ mode, messages });
   const selected = records.slice(0, 5);
   const compactText = record => {
-    if (record.kind === 'service') return `${record.service.description}\nTypical scope: ${record.service.deliverables.slice(0, 5).join('; ')}.`;
-    if (record.kind === 'terms' && record.summary) return `${record.summary}\nPublished clause excerpt: ${record.text.slice(0, 1800)}`;
-    return record.text.slice(0, 1800);
+    if (record.kind === 'service') {
+      const queryTokens = tokens(resolveQuestion(messages).question);
+      const relevantFaq = record.service.faqs.map(faq => ({ ...faq, score: queryTokens.filter(token => tokens(faq.question).includes(token)).length })).sort((a, b) => b.score - a.score)[0];
+      return `${record.service.description}\nTypical scope: ${record.service.deliverables.slice(0, 4).join('; ')}.${relevantFaq?.score ? `\nFAQ: ${relevantFaq.question} ${relevantFaq.answer}` : ''}`;
+    }
+    if (record.kind === 'terms' && record.summary) return record.summary;
+    return record.text.slice(0, 850);
   };
   const base = `${company.description}\nCompany registration: ${company.registrationStatus} No registration number, certificate, registered legal name, incorporation date or company suffix is supplied; do not invent those details.\nCanonical contact details: WhatsApp ${company.phoneDisplay} (https://wa.me/${company.phone.replace(/\D/g, '')}); telephone ${company.phoneDisplay} (tel:${company.phone}); email ${company.email} (mailto:${company.email}). Never substitute other contact details or claim to have placed a call or sent a message.\nHICH services: ${services.map(service => `${service.title} — ${service.short}`).join('; ')}.\nNo fixed prices or universal delivery time is published. Concept portfolio work must be identified as concept work.\n${siteRecords.find(record => record.id === 'process').text}`;
-  return { context: `${base}\n\n${selected.map(record => `SOURCE: ${record.title}\nURL: ${record.href}\n${compactText(record)}`).join('\n\n')}`, sources: uniqueSources(selected.slice(0, 4)) };
+  const grounding = `${base}\n\nLOCAL KNOWLEDGE\nRecords marked GENERAL GUIDANCE are planning advice, not published HICH promises, package inclusions or verified provider availability. Published facts come from HICH site records. Answer the latest question directly using only relevant context; do not repeat a service overview on every follow-up.`;
+  let context = grounding;
+  const included = [];
+  for (const record of selected) {
+    const block = `\n\nSOURCE: ${record.title}\nKIND: ${record.kind === 'guidance' ? 'GENERAL GUIDANCE' : `PUBLISHED HICH ${record.kind.toUpperCase()}`}\nURL: ${record.href}\n${compactText(record)}`;
+    if (context.length + block.length > 6000) continue;
+    context += block;
+    included.push(record);
+  }
+  return { context, sources: uniqueSources(included) };
 }

@@ -1,13 +1,25 @@
 # Chathu — HICH hybrid chat assistant
 
-The homepage, floating assistant and terms view use Chathu’s shared chat interface. Chathu is retrieval-first:
+The homepage, floating assistant and terms view use Chathu’s shared chat interface. On screens up to 760px wide, the homepage uses the floating popup without a dedicated chat section. Desktop home keeps the inline section. Site conversation history is shared across these views; the terms conversation stays separate.
 
-- **HICH knowledge** answers greetings, HICH facts, contact requests, services, portfolio, pricing factors and straightforward terms questions directly in the browser. These replies do not call an AI provider or consume model tokens.
-- **AI assistant** uses Gemini for complex, in-scope recommendations across websites, ecommerce, apps, UX, accessibility, SEO, analytics, content, integrations, automation, architecture, performance, security and maintenance.
+Chathu tries grounded AI first for relevant HICH, project and terms questions, including basic service, contact and pricing questions:
 
-Unrelated general-knowledge questions stay in HICH knowledge and receive a scoped response instead of being sent to Gemini. Chathu routes known questions locally before making a network request. If the Worker/function or Gemini is unavailable, misconfigured, timed out or over quota, Chathu quietly falls back to bundled HICH knowledge. Contact cards always use canonical HICH data, and no reply can claim that a call or message was placed.
+- **Gemini + HICH** combines relevant local records with Gemini’s reasoning to answer the actual question and recent follow-ups. General digital-project guidance is distinguished from confirmed company facts.
+- **HICH knowledge** supplies a local reply when the API key is missing, the endpoint or provider is unavailable, a limit is reached, or an availability cooldown is active. Greetings, assistant identity and unrelated general-knowledge questions are handled locally without a provider request.
 
-The Gemini request contains only limited recent conversation and compact, retrieved HICH records. The model may use broad professional knowledge for general digital-project advice, but must treat the supplied content as the sole source of claims about HICH. This is runtime grounding, not model fine-tuning.
+Contact cards always use canonical HICH data, and no reply can claim that a call or message was placed. Company facts, planning guidance and fallback answers live in `src/assistant-knowledge.js`. This is local knowledge and runtime grounding, not model fine-tuning.
+
+## Reply and usage limits
+
+Replies target 60–120 words, with a maximum of 150 words. The default provider completion allowance is 800 tokens with `minimal` thinking; configured output allowances are clamped to 256–1,000 tokens. Token counts and visible word counts are different limits.
+
+Each eligible question makes at most one provider call. There is no automatic retry and no larger token allowance on a retry. If Gemini reports `MAX_TOKENS`, the endpoint returns `reason: "answer_limit"` and the browser supplies local knowledge instead of the incomplete answer. Other provider errors also fall back locally. A visitor can ask again or regenerate after a cooldown expires.
+
+Provider input includes up to 6,000 characters of retrieved HICH context and at most six recent messages totaling 4,800 characters. The proxy limits AI requests to six per client per minute within each running instance.
+
+There is no separate quota-balance check before every answer. The app first checks its local rate limit and known provider availability, then tries the generation request. A quota response (`429`) starts a cooldown using `Retry-After` or Google’s `RetryInfo` delay, or 60 seconds if neither is provided. Retry delays are bounded to 1–3,600 seconds. Provider outages default to 15 seconds; configuration errors such as `400`, `401`, `403` or `404` default to 300 seconds. The server shares availability within its running instance, and the browser remembers it for the current page session.
+
+During cooldowns, visitors continue receiving local answers without repeatedly calling Gemini. After expiry, the next relevant question can try AI again. These guards reduce usage but are not a global hard billing cap: separate Worker/function instances and other applications can share the API key. Google’s project quota remains authoritative.
 
 ## Enable the hybrid assistant on Cloudflare
 
@@ -21,7 +33,7 @@ The repository now includes the complete Cloudflare runtime: `wrangler.jsonc`, `
    npm run preview:cloudflare
    ```
 
-3. Open the printed local `/api/chat` URL. It must report `"mode":"hybrid"`.
+3. Open the printed local `/api/chat` URL. It must report `"mode":"hybrid"`. This confirms a key is configured; it does not test the key, model, quota or a live generation.
 4. Authenticate and create the Worker:
 
    ```sh
@@ -41,9 +53,9 @@ The repository now includes the complete Cloudflare runtime: `wrangler.jsonc`, `
    { "ok": true, "mode": "hybrid", "provider": "gemini", "model": "gemini-3.5-flash-lite" }
    ```
 
-7. Test one simple contact question and one detailed project recommendation in the visible chatbot. The simple question should be instant and local; the detailed question should make one `POST /api/chat` request and remain usable if that request fails.
+7. Test a contact question and a project recommendation in the visible chatbot. Both should try one `POST /api/chat` request when AI is available. In the browser Network panel, a successful AI reply has `Content-Type: text/event-stream` and an event containing `{"type":"mode","mode":"ai"}`. The visible assistant and every answer are labeled only as **Chathu**; provider and fallback modes remain internal. If the request fails or returns guide mode, the chat remains usable with a local answer.
 
-The optional tuning values are already non-secret `vars` in `wrangler.jsonc`. `gemini-3.5-flash-lite` is the low-latency, lower-cost default. Change `GEMINI_MODEL` to `gemini-3.5-flash` and `GEMINI_THINKING_LEVEL` to `medium` if answer quality matters more than latency and cost, then redeploy. The server caps output at 2,400 tokens and retries once at that ceiling if Gemini reports a token-limited response, so visitors never receive a knowingly truncated answer.
+The non-secret `vars` in `wrangler.jsonc` default to `GEMINI_MODEL=gemini-3.5-flash-lite`, `GEMINI_MAX_OUTPUT_TOKENS=800` and `GEMINI_THINKING_LEVEL=minimal`. Redeploy after changing them. The server enforces the limits described above even if a larger output allowance is configured.
 
 See [Cloudflare deployment](DEPLOYMENT.md#cloudflare) for custom-domain, HTTPS, www redirect, cache and production verification steps.
 
@@ -56,11 +68,11 @@ See [Cloudflare deployment](DEPLOYMENT.md#cloudflare) for custom-domain, HTTPS, 
 
    ```text
    GEMINI_MODEL=gemini-3.5-flash-lite
-   GEMINI_MAX_OUTPUT_TOKENS=1600
-   GEMINI_THINKING_LEVEL=low
+   GEMINI_MAX_OUTPUT_TOKENS=800
+   GEMINI_THINKING_LEVEL=minimal
    ```
 
-   `gemini-3.5-flash-lite` is the default low-cost model. `low` gives complex requests some reasoning while limiting latency and token use; use `minimal` for the smallest reasoning budget. The larger completion allowance prevents reasoning tokens from cutting off the concise visible answer. The server caps output at 2,400 tokens even if a larger value is configured.
+   These are the same defaults used by Cloudflare and local development. The server clamps output allowances to 256–1,000 tokens and limits visible replies to 150 words. Increasing thinking can consume more of the completion allowance; a token-limited result uses the local fallback without another generation.
 5. Remove obsolete `OPENAI_*` variables from Netlify so the project configuration is unambiguous.
 6. Trigger a fresh production deploy after saving the variables.
 7. Open `https://YOUR-DOMAIN/api/chat`. A configured deployment returns:
@@ -69,7 +81,7 @@ See [Cloudflare deployment](DEPLOYMENT.md#cloudflare) for custom-domain, HTTPS, 
    { "ok": true, "mode": "hybrid", "provider": "gemini", "model": "gemini-3.5-flash-lite" }
    ```
 
-   `"mode":"guide"` means the function is running without `GEMINI_API_KEY`. HTML or a 404 means the function was not deployed.
+   `"mode":"guide"` on this health endpoint means the function is running without `GEMINI_API_KEY`. HTML or a 404 means the chat endpoint is not available at that URL. `"mode":"hybrid"` only confirms configuration. Verify an actual chatbot `POST` returns the AI stream event described above to confirm a working generation.
 
 Google recommends keeping Gemini keys in server-side environment variables and using a backend proxy for browser applications: [Gemini API key security](https://ai.google.dev/gemini-api/docs/api-key).
 
@@ -85,6 +97,6 @@ npm run test:chat-unit
 npm run test:chat
 ```
 
-The server applies same-origin checks, payload and history limits, per-instance AI rate limiting, a 30-second provider timeout, one retry for transient provider failures, compact retrieval grounding and a conservative output cap. Provider errors are recorded in Worker/function logs without exposing the key or breaking the guide.
+The server applies same-origin checks, payload and history limits, per-instance AI rate limiting, a 30-second provider timeout, availability cooldowns, compact retrieval grounding and reply caps. It never automatically retries a generation. Provider errors are recorded in Worker/function logs without exposing the key or breaking the guide.
 
-Company facts and retrieval live in `src/assistant-knowledge.js`, the provider proxy in `server/chat.js`, canonical contact actions in `src/assistant-actions.js`, the Cloudflare entrypoint in `worker/index.js`, and the Netlify entrypoint in `netlify/functions/chat.mjs`.
+Company facts and retrieval live in `src/assistant-knowledge.js`; the additional practical Q&A records live in `src/assistant-practical-knowledge.js`. The provider proxy is in `server/chat.js`, canonical contact actions in `src/assistant-actions.js`, the Cloudflare entrypoint in `worker/index.js`, and the Netlify entrypoint in `netlify/functions/chat.mjs`.

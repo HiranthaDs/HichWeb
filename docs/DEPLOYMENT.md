@@ -116,7 +116,7 @@ After deployment, verify:
 - `www` and HTTP requests redirect once to the same path on `https://hichweb.com`.
 - HTML revalidates, while hashed `/assets/*` responses have the immutable cache policy supplied in `_headers`.
 
-For account-level abuse protection, add a Cloudflare WAF rate-limiting rule for `POST /api/chat` after observing normal traffic. The Worker already validates same-origin JSON requests, limits payload/history size, applies a short per-instance AI limit, retries transient Gemini failures once, and falls back to the local guide if Gemini is unavailable. Avoid caching `/api/chat`; its responses already use `Cache-Control: no-store`.
+For account-level abuse protection, add a Cloudflare WAF rate-limiting rule for `POST /api/chat` after observing normal traffic. The Worker already validates same-origin JSON requests, limits payload/history size, applies a short per-instance AI limit and makes at most one capped Gemini call per question. Quota and provider errors activate a cooldown with local knowledge replies; later questions can try AI again after it expires. Avoid caching `/api/chat`; its responses already use `Cache-Control: no-store`.
 
 ## What the contact experience does
 

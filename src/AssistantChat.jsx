@@ -193,7 +193,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
   const lastAssistant = [...messages].reverse().find(message => message.role === 'assistant' && message.content);
   const lastUser = [...messages].reverse().find(message => message.role === 'user');
   const title = mode === 'terms' ? 'Chathu — Terms' : 'Chathu';
-  const status = busy ? messages.at(-1)?.content ? 'Writing a response' : 'Thinking about your question' : engine === 'ai' ? 'Gemini-powered answer' : mode === 'terms' ? 'HICH terms guide' : 'HICH website guide';
+  const status = busy ? messages.at(-1)?.content ? 'Writing a response' : 'Thinking about your question' : 'Ready to help';
   latest.current = { messages, engine, ready, busy };
   conversationCallback.current = onConversationChange;
 
@@ -362,7 +362,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
   return <section className={`assistant-chat assistant-chat-${mode}${compact ? ' assistant-chat-compact' : ''}`} data-assistant={mode} data-generating={busy ? 'true' : 'false'} aria-label={title}>
     <header className="assistant-chat-header">
       <span className="assistant-chat-avatar" aria-hidden="true"><Sparkles size={19} strokeWidth={1.6} /></span>
-      <div className="assistant-chat-identity"><h3>{title}<span>by HICH</span></h3><p><i aria-hidden="true" />{status}</p></div>
+      <div className="assistant-chat-identity"><h3>{title}</h3><p><i aria-hidden="true" />{status}</p></div>
       <div className="assistant-chat-header-actions">
         <button type="button" className="assistant-chat-new" onClick={reset} title="New chat" aria-label="New chat"><Plus size={17} /><span>New chat</span></button>
         {onClose && <button type="button" onClick={onClose} title="Close assistant" aria-label="Close assistant"><X size={19} /></button>}
@@ -384,10 +384,10 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
         </div>}
 
         {messages.map((message, index) => <article key={message.id} className={`assistant-chat-message assistant-chat-message-${message.role}`} data-message-role={message.role} data-streaming={busy && index === messages.length - 1 && message.role === 'assistant' ? 'true' : undefined}>
-          <div className="assistant-chat-message-label">{message.role === 'assistant' ? <><Sparkles size={13} /><span>Chathu</span>{message.engine && <span className="assistant-chat-answer-mode">{message.engine === 'ai' ? 'Gemini + HICH' : mode === 'terms' ? 'HICH terms' : 'HICH knowledge'}</span>}</> : <span>You</span>}</div>
+          <div className="assistant-chat-message-label">{message.role === 'assistant' ? <><Sparkles size={13} /><span>Chathu</span></> : <span>You</span>}</div>
           {message.role === 'user' ? <div className="assistant-chat-user-text">{message.content}</div> : <div className="assistant-chat-answer">
             {message.content && <Markdown content={message.content} streaming={busy && index === messages.length - 1} />}
-            {busy && index === messages.length - 1 && !message.content && <div className="assistant-chat-thinking" aria-hidden="true"><span className="assistant-chat-thinking-orbit"><Sparkles size={16} strokeWidth={1.5} /></span><span className="assistant-chat-thinking-copy"><small>Thinking it through</small><span>Connecting your question with HICH</span></span><span className="assistant-chat-thinking-dots"><i /><i /><i /></span></div>}
+            {busy && index === messages.length - 1 && !message.content && <div className="assistant-chat-thinking" aria-hidden="true"><span className="assistant-chat-thinking-orbit"><Sparkles size={16} strokeWidth={1.5} /></span><span className="assistant-chat-thinking-copy"><small>Thinking it through</small><span>Understanding your question</span></span><span className="assistant-chat-thinking-dots"><i /><i /><i /></span></div>}
             {!(busy && index === messages.length - 1) && !message.stopped && !message.failed && <ContactCards actions={message.actions} />}
             {message.sources?.length > 0 && <div className="assistant-chat-sources"><span>Explore the details</span><div>{message.sources.map((source, sourceIndex) => <Link key={`${source.href}-${sourceIndex}`} href={source.href}><span>{source.title}</span><ArrowUpRight size={12} /></Link>)}</div></div>}
             {message.stopped && <p className="assistant-chat-stopped">Response stopped.</p>}

@@ -21,7 +21,7 @@
 .site-chat-dialog>*{width:100%;min-height:0}
 @keyframes site-chat-enter{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:1000px){.home-assistant-layout{gap:4vw;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}.home-assistant-copy h2{font-size:clamp(45px,5.4vw,65px)}}
-@media(max-width:760px){.home-assistant{padding:60px 0}.home-assistant-layout{grid-template-columns:minmax(0,1fr);gap:30px}.home-assistant-copy{padding-top:0}.home-assistant-copy h2{font-size:clamp(45px,10vw,70px);margin:22px 0 20px}.home-assistant-copy>p:not(.home-assistant-eyebrow){max-width:520px;font-size:13px}.home-assistant-detail,.home-assistant-art{display:none}.site-chat-trigger{right:16px;bottom:calc(83px + env(safe-area-inset-bottom,0px));min-height:48px;padding:8px 15px 8px 10px;gap:7px;font-size:11px}.site-chat-trigger-spark{display:none}.site-chat-dialog{inset:12px 12px auto;width:calc(100vw - 24px);max-width:none;height:calc(100dvh - 24px);max-height:calc(100dvh - 24px);border-radius:18px}}
-@media(max-width:360px){.home-assistant-copy h2{font-size:41px}.site-chat-trigger{right:12px}}
+@media(max-width:760px){.home-assistant{display:none}.site-chat-trigger{right:16px;bottom:calc(83px + env(safe-area-inset-bottom,0px));min-height:48px;padding:8px 15px 8px 10px;gap:7px;font-size:11px}.site-chat-trigger-spark{display:none}.site-chat-dialog{inset:12px 12px auto;width:calc(100vw - 24px);max-width:none;height:calc(100dvh - 24px);max-height:calc(100dvh - 24px);border-radius:18px}}
+@media(max-width:360px){.site-chat-trigger{right:12px}}
 @media(prefers-reduced-motion:reduce){.site-chat-trigger{transition:none}.site-chat-dialog[open]{animation:none}}
 @media print{.home-assistant,.site-chat-trigger,.site-chat-dialog{display:none!important}}

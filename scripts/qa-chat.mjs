@@ -36,6 +36,22 @@ async function send(chat, question) {
   await chat.getByRole('button', { name: 'Send message', exact: true }).click();
 }
 
+async function openHomeChat(page) {
+  const trigger = page.getByRole('button', { name: 'Open Chathu', exact: true });
+  if (page.viewportSize().width <= 760) {
+    assert.equal(await page.locator('.home-assistant').count(), 0, 'Mobile home has no dedicated chat section');
+    assert.equal(await trigger.getAttribute('aria-haspopup'), 'dialog', 'Mobile launcher opens a popup');
+    await trigger.click();
+    await page.locator('.site-chat-dialog[open]').waitFor();
+  } else {
+    assert.equal(await page.locator('.home-assistant').count(), 1, 'Desktop home retains its inline section');
+    assert.equal(await trigger.getAttribute('aria-controls'), 'hich-assistant');
+  }
+  const chat = chatFor(page, 'site');
+  assert.equal(await chat.count(), 1, 'Only one site conversation is mounted');
+  return chat;
+}
+
 async function settled(chat, pattern) {
   if (pattern) await messageFor(chat).filter({ hasText: pattern }).waitFor();
   await chat.getByRole('button', { name: 'Stop response', exact: true }).waitFor({ state: 'hidden', timeout: 20000 });
@@ -128,7 +144,7 @@ try {
     await page.route('**/api/chat', route => route.fulfill({ json: { mode: 'guide' } }));
     await check(`${width}px home assistant answers, remembers context and shows sources`, async () => {
       await page.goto(`${base}/`, { waitUntil: 'networkidle' });
-      const chat = chatFor(page, 'site');
+      const chat = await openHomeChat(page);
       await chat.scrollIntoViewIfNeeded();
       await checkLayout(page, chat);
       await send(chat, 'I need an online store with checkout and inventory. What can HICH build?');
@@ -146,7 +162,7 @@ try {
     });
     await check(`${width}px contact requests show the right icon, number and action`, async () => {
       await page.goto(`${base}/`, { waitUntil: 'networkidle' });
-      const chat = chatFor(page, 'site');
+      const chat = await openHomeChat(page);
       await chat.getByRole('button', { name: 'New chat', exact: true }).click();
       for (const [question, actions] of [
         ['What is your WhatsApp number?', ['whatsapp']],
@@ -209,7 +225,7 @@ try {
     } finally { await context.close(); }
   });
 
-  await check('Starting a project returns the complete brief and HICH workflow without AI', async () => {
+  await check('Starting a project tries AI first and preserves a useful local brief on fallback', async () => {
     const { context, page } = await contextFor();
     try {
       let networkRequests = 0;
@@ -221,8 +237,8 @@ try {
       const answer = await messageFor(chat).innerText();
       for (const expected of ['business and audience', 'essential features', 'target launch date', 'budget range', 'stays in your browser']) assert.match(answer, new RegExp(expected, 'i'));
       assert.equal((await messageFor(chat).locator('.assistant-chat-sources a').evaluateAll(links => links.map(link => link.getAttribute('href')))).join(','), '/contact.html,/process.html');
-      assert.match(await messageFor(chat).locator('.assistant-chat-answer-mode').innerText(), /HICH knowledge/i);
-      assert.equal(networkRequests, 0, 'Known HICH questions are answered without Netlify or Gemini');
+      assert.equal(await messageFor(chat).locator('.assistant-chat-answer-mode').count(), 0, 'Answers are presented only as Chathu');
+      assert.equal(networkRequests, 1, 'Ordinary HICH questions now try the AI endpoint first');
     } finally { await context.close(); }
   });
 
@@ -256,7 +272,7 @@ try {
     try {
       await fixture(page, { burst: true, text: 'A practical website starts with your audience and a clear next step. '.repeat(24), actions: [{ id: 'whatsapp' }, { id: 'call' }] });
       await page.goto(base, { waitUntil: 'networkidle' });
-      const chat = chatFor(page, 'site');
+      const chat = await openHomeChat(page);
       await send(chat, 'Plan my website.');
       await page.waitForFunction(() => window.__chatStreamsFinished === 1);
       await chat.locator('.assistant-chat-stream-cursor').waitFor();
@@ -351,7 +367,7 @@ try {
     } finally { await context.close(); }
   });
 
-  await check('Provider errors fall back to HICH knowledge and regeneration can try Gemini again', async () => {
+  await check('Provider errors use local knowledge during cooldown and recover afterward', async () => {
     const { context, page } = await contextFor();
     try {
       await fixture(page, { failFirst: true });
@@ -360,14 +376,22 @@ try {
       await send(chat, 'How should I start my online store?');
       await settled(chat, /commerce|online store|products|catalogue/i);
       assert.equal(await chat.getByRole('button', { name: 'Retry response', exact: true }).count(), 0, 'Provider failure does not leave Chathu unusable');
-      assert.match(await messageFor(chat).locator('.assistant-chat-answer-mode').innerText(), /HICH knowledge/i);
+      assert.equal(await messageFor(chat).locator('.assistant-chat-answer-mode').count(), 0, 'Fallback answers are presented only as Chathu');
       assert.equal(await chat.locator('[data-message-role="user"]').count(), 1);
       assert.equal(await page.evaluate(() => window.__chatRequests.length), 1);
+      await chat.getByRole('button', { name: 'Regenerate response', exact: true }).click();
+      await settled(chat, /commerce|online store|products|catalogue/i);
+      assert.equal(await page.evaluate(() => window.__chatRequests.length), 1, 'Regeneration respects the outage cooldown');
+      // Advance wall time only; keep streaming/animation timers running normally.
+      await page.evaluate(() => {
+        const originalNow = Date.now;
+        Date.now = () => originalNow() + 16000;
+      });
       await chat.getByRole('button', { name: 'Regenerate response', exact: true }).click();
       await settled(chat, /fulfilment/);
       assert.equal(await chat.locator('[data-message-role="user"]').count(), 1);
       assert.equal(await page.evaluate(() => window.__chatRequests.length), 2);
-      assert.match(await messageFor(chat).locator('.assistant-chat-answer-mode').innerText(), /Gemini \+ HICH/i);
+      assert.equal(await messageFor(chat).locator('.assistant-chat-answer-mode').count(), 0, 'AI answers are presented only as Chathu');
     } finally { await context.close(); }
   });
 
@@ -376,6 +400,7 @@ try {
     try {
       await page.route('**/api/chat', route => route.fulfill({ json: { mode: 'guide' } }));
       await page.goto(base, { waitUntil: 'networkidle' });
+      await openHomeChat(page);
       await send(chatFor(page, 'site'), 'Tell me about HICH and where you work');
       await settled(chatFor(page, 'site'), /Sri Lanka|HICH/i);
       await send(chatFor(page, 'site'), 'Show me your WhatsApp number and phone number so I can call you.');
@@ -403,6 +428,39 @@ try {
       assert.match(await chatFor(page, 'site').innerText(), /Tell me about HICH and where you work/);
       await checkContacts(messageFor(chatFor(page, 'site')), ['whatsapp', 'call']);
       await page.locator('.site-chat-dialog').screenshot({ path: 'qa/chat-mobile-dialog.png' });
+    } finally { await context.close(); }
+  });
+
+  await check('Home popup switches to desktop inline chat without losing history or locking scrolling', async () => {
+    const { context, page } = await contextFor(760, 900);
+    try {
+      await fixture(page, { burst: true, text: 'A concise plan starts with your customers and the main task they need to complete.' });
+      await page.goto(base, { waitUntil: 'networkidle' });
+      const chat = await openHomeChat(page);
+      const trigger = page.getByRole('button', { name: 'Open Chathu', exact: true });
+      await checkLayout(page, chat);
+      await send(chat, 'Compare a simple launch plan with a phased digital platform roadmap.');
+      await settled(chat, /concise plan/);
+      assert.equal(await page.evaluate(() => document.body.style.overflow), 'hidden', 'An open mobile popup locks background scrolling');
+
+      await page.setViewportSize({ width: 1440, height: 1000 });
+      await page.locator('.home-assistant').waitFor();
+      await page.waitForFunction(() => document.body.style.overflow !== 'hidden');
+      assert.equal(await chatFor(page, 'site').count(), 1, 'Resizing never leaves duplicate chat instances');
+      assert.equal(await page.locator('.site-chat-dialog').count(), 0, 'Desktop home uses the inline assistant');
+      assert.match(await chatFor(page, 'site').innerText(), /concise plan/);
+      await trigger.click();
+      assert.equal(await chatFor(page, 'site').getByRole('textbox', { name: 'Your message' }).evaluate(el => el === document.activeElement), true, 'Desktop launcher focuses the inline composer');
+
+      await page.setViewportSize({ width: 390, height: 780 });
+      await page.locator('.home-assistant').waitFor({ state: 'detached' });
+      const reopened = await openHomeChat(page);
+      assert.match(await reopened.innerText(), /concise plan/, 'Returning to mobile keeps the conversation');
+      await checkLayout(page, reopened);
+      await page.keyboard.press('Escape');
+      await page.locator('.site-chat-dialog[open]').waitFor({ state: 'hidden' });
+      await page.waitForFunction(() => document.body.style.overflow !== 'hidden');
+      assert.equal(await trigger.evaluate(el => el === document.activeElement), true, 'Closing the home popup restores launcher focus');
     } finally { await context.close(); }
   });
 
