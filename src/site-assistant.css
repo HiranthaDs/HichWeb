@@ -1,0 +1,27 @@
+.home-assistant{padding:100px 0;background:#efefeb;scroll-margin-top:32px;border-block:1px solid #deded7}
+.home-assistant-layout{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:6vw;align-items:start}
+.home-assistant-copy{padding-top:10px;min-width:0}
+.home-assistant-eyebrow{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:600;letter-spacing:.1em;color:#1043f9}
+.home-assistant-copy h2{font-family:var(--display);font-size:clamp(48px,5.8vw,88px);font-weight:400;line-height:1.1;letter-spacing:-.025em;margin:28px 0 24px}
+.home-assistant-copy h2>span{color:#1043f9}
+.home-assistant-copy>p:not(.home-assistant-eyebrow){max-width:390px;color:#5e5e5b;font-size:14px;line-height:1.85}
+.home-assistant-detail{display:flex;align-items:center;gap:45px;margin-top:35px;font-size:10px;line-height:1.6;font-weight:600;letter-spacing:.06em}
+.home-assistant-detail>svg{color:#1043f9}
+.home-assistant-art{display:flex;align-items:center;gap:27px;margin-top:48px;padding-top:27px;border-top:1px solid #d3d3cc;max-width:360px}
+.home-assistant-art .brand-spark{width:80px;height:80px;color:#1043f9;transform:rotate(12deg)}
+.home-assistant-art>span{font-size:11px;letter-spacing:.07em;line-height:1.7;color:#71716a}
+.site-chat-trigger{position:fixed;right:26px;bottom:26px;z-index:35;display:flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:10px 20px 10px 13px;border-radius:50px;border:1px solid #ffffff50;background:#1043f9;color:#fff;box-shadow:0 6px 26px #08287836;font-size:12px;font-weight:600;transition:transform .2s,box-shadow .2s}
+.site-chat-trigger:hover{transform:translateY(-3px);box-shadow:0 10px 30px #0828784a}
+.site-chat-trigger-icon{position:relative;display:grid;place-items:center;width:30px;height:30px}
+.site-chat-trigger-icon>i{position:absolute;width:7px;height:7px;right:0;top:1px;border-radius:50%;background:#d5ff88;border:2px solid #1043f9}
+.site-chat-trigger-spark{opacity:.75;margin-left:8px}
+.site-chat-dialog{position:fixed;inset:auto 24px 24px auto;margin:0;padding:0;border:0;width:440px;max-width:calc(100vw - 32px);height:min(710px,calc(100dvh - 48px));max-height:calc(100dvh - 48px);overflow:hidden;border-radius:22px;background:#fff;box-shadow:0 24px 100px #0004;color:#151515}
+.site-chat-dialog[open]{display:flex;animation:site-chat-enter .22s cubic-bezier(.2,.7,.3,1)}
+.site-chat-dialog::backdrop{background:#10172842;backdrop-filter:blur(3px)}
+.site-chat-dialog>*{width:100%;min-height:0}
+@keyframes site-chat-enter{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:1000px){.home-assistant-layout{gap:4vw;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}.home-assistant-copy h2{font-size:clamp(45px,5.4vw,65px)}}
+@media(max-width:760px){.home-assistant{padding:60px 0}.home-assistant-layout{grid-template-columns:minmax(0,1fr);gap:30px}.home-assistant-copy{padding-top:0}.home-assistant-copy h2{font-size:clamp(45px,10vw,70px);margin:22px 0 20px}.home-assistant-copy>p:not(.home-assistant-eyebrow){max-width:520px;font-size:13px}.home-assistant-detail,.home-assistant-art{display:none}.site-chat-trigger{right:16px;bottom:calc(83px + env(safe-area-inset-bottom,0px));min-height:48px;padding:8px 15px 8px 10px;gap:7px;font-size:11px}.site-chat-trigger-spark{display:none}.site-chat-dialog{inset:12px 12px auto;width:calc(100vw - 24px);max-width:none;height:calc(100dvh - 24px);max-height:calc(100dvh - 24px);border-radius:18px}}
+@media(max-width:360px){.home-assistant-copy h2{font-size:41px}.site-chat-trigger{right:12px}}
+@media(prefers-reduced-motion:reduce){.site-chat-trigger{transition:none}.site-chat-dialog[open]{animation:none}}
+@media print{.home-assistant,.site-chat-trigger,.site-chat-dialog{display:none!important}}

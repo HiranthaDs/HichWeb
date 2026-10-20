@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22.12.0"
+  # Keep Vite and the other build-only packages available even if a
+  # project-level Netlify variable sets NODE_ENV=production.
+  NPM_FLAGS = "--include=dev"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[build.processing.html]
+  pretty_urls = false

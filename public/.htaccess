@@ -1,0 +1,63 @@
+# Apache 2.4 / cPanel. Upload this hidden file with the contents of dist/.
+# This configuration expects the site at the domain root.
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Canonical host; named production hosts only, so localhost/preview are untouched.
+  RewriteCond %{HTTP_HOST} ^www\.hichweb\.com(?::\d+)?$ [NC]
+  RewriteRule ^ https://hichweb.com%{REQUEST_URI} [R=301,L,NE]
+
+  # For direct HTTPS hosting or a proxy using TLS to the origin (e.g. Full Strict).
+  # A proxy terminating HTTPS over HTTP needs trusted server-level configuration.
+  RewriteCond %{HTTP_HOST} ^hichweb\.com(?::\d+)?$ [NC]
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^ https://hichweb.com%{REQUEST_URI} [R=301,L,NE]
+
+  # THE_REQUEST avoids redirecting Apache's internal DirectoryIndex resolution.
+  RewriteCond %{THE_REQUEST} \s/+(?:index|i)\.html(?:[?\s]) [NC]
+  RewriteRule ^(?:index|i)\.html$ / [R=301,L,NC]
+  RewriteRule ^(?:Terms\.html|terms/?)$ /terms-and-conditions.html [R=301,L]
+
+  # Redirect only paths with an actual HTML destination. Preserve existing .html URLs.
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+  RewriteRule ^([A-Za-z0-9-]+)/?$ /$1.html [R=301,L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Content-Security-Policy "base-uri 'self'; object-src 'none'; frame-ancestors 'self'"
+
+  <FilesMatch "\.(html|xml|txt)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+  # Only content-hashed JavaScript/CSS get immutable caching.
+  <FilesMatch "-[A-Za-z0-9_-]{8,}\.(js|css)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(png|jpe?g|webp|avif|svg|ico|ttf|woff2?)$">
+    Header set Cache-Control "public, max-age=86400"
+  </FilesMatch>
+  <Files "404.html">
+    Header always set X-Robots-Tag "noindex, follow"
+    Header always set Cache-Control "no-cache"
+  </Files>
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType text/javascript .js .mjs
+  AddType image/svg+xml .svg
+  AddType image/webp .webp
+  AddType font/ttf .ttf
+  AddType font/woff2 .woff2
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json application/xml image/svg+xml
+</IfModule>

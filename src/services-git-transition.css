@@ -1,0 +1,965 @@
+/* Route-specific native-navigation handoff for the capabilities overview. */
+.services-git-transition {
+  --sg-level-0: #ebedf0;
+  --sg-level-1: #9be9a8;
+  --sg-level-2: #40c463;
+  --sg-level-3: #30a14e;
+  --sg-level-4: #216e39;
+  --sg-ink: #1f2328;
+  --sg-muted: #656d76;
+  --sg-line: #d0d7de;
+  --sg-paper: #f6f8fa;
+  position: fixed;
+  inset: 0;
+  z-index: 1010;
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+  isolation: isolate;
+  contain: strict;
+  touch-action: none;
+  color: var(--sg-ink);
+  font-family: var(--sans, Arial, sans-serif);
+}
+
+.services-git-transition__gate {
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  height: calc(50% + 1px);
+  z-index: 0;
+  background-color: var(--sg-paper);
+  background-image:
+    linear-gradient(90deg, #1f23280a 1px, transparent 1px),
+    linear-gradient(#1f23280a 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, #40c46322, transparent 64%);
+  background-size: clamp(54px, 7vw, 104px) clamp(54px, 7vw, 104px), clamp(54px, 7vw, 104px) clamp(54px, 7vw, 104px), 100% 100%;
+  backface-visibility: hidden;
+}
+
+.services-git-transition__gate::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  width: 6px;
+  background: var(--sg-level-2);
+  box-shadow: 0 0 26px #40c46366;
+}
+
+.services-git-transition__gate--top {
+  top: 0;
+  transform: translate3d(-102%, 0, 0);
+}
+
+.services-git-transition__gate--top::after { right: 0; }
+
+.services-git-transition__gate--bottom {
+  bottom: 0;
+  transform: translate3d(102%, 0, 0);
+}
+
+.services-git-transition__gate--bottom::after { left: 0; }
+
+.services-git-transition__stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  padding: clamp(22px, 4vw, 64px);
+  opacity: 0;
+  transform: translate3d(0, 24px, 0) scale(.965) rotateX(3deg);
+  transform-origin: 50% 58%;
+  perspective: 1400px;
+}
+
+.services-git-transition__aura {
+  position: absolute;
+  width: min(82vw, 1240px);
+  aspect-ratio: 2 / 1;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #40c4632b 0, #9be9a818 42%, transparent 72%);
+  pointer-events: none;
+}
+
+.services-git-transition__panel {
+  position: relative;
+  width: min(1240px, 100%);
+  overflow: hidden;
+  border: 1px solid var(--sg-line);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 34px 92px #1f23282b, 0 0 0 1px #ffffffcc;
+}
+
+.services-git-transition__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 50px;
+  padding: 0 25px;
+  border-bottom: 1px solid var(--sg-line);
+  background: var(--sg-paper);
+  color: #57606a;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.services-git-transition__identity,
+.services-git-transition__status {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.services-git-transition__identity { gap: 12px; }
+
+.services-git-transition__dots {
+  display: flex;
+  gap: 5px;
+  font-style: normal;
+}
+
+.services-git-transition__dots b {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sg-level-0);
+  box-shadow: inset 0 0 0 1px #1f232812;
+}
+
+.services-git-transition__dots b:nth-child(2) { background: var(--sg-level-1); }
+.services-git-transition__dots b:nth-child(3) { background: var(--sg-level-3); }
+
+.services-git-transition__status {
+  gap: 8px;
+  color: #3d444d;
+  font-size: 8px;
+}
+
+.services-git-transition__status > i {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--sg-level-3);
+  box-shadow: 0 0 0 4px #30a14e17;
+}
+
+.services-git-transition__content {
+  display: grid;
+  grid-template-columns: minmax(290px, .76fr) minmax(520px, 1.24fr);
+  align-items: center;
+  gap: clamp(38px, 5vw, 78px);
+  padding: clamp(34px, 4.2vw, 62px) clamp(29px, 4.1vw, 58px);
+}
+
+.services-git-transition__story { min-width: 0; }
+
+.services-git-transition__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 17px;
+  color: var(--sg-level-4);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.services-git-transition__eyebrow > span {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 1px solid var(--sg-level-1);
+  border-radius: 50%;
+  background: #f0fff4;
+  font-size: 7px;
+}
+
+.services-git-transition__story h2 {
+  margin: 0;
+  color: #181818;
+  font-family: var(--display, Impact, sans-serif);
+  font-size: clamp(66px, 6.55vw, 100px);
+  font-weight: 400;
+  letter-spacing: -.025em;
+  line-height: .79;
+  text-transform: uppercase;
+}
+
+.services-git-transition__story h2 > span { display: block; }
+
+.services-git-transition__outline {
+  color: #fff;
+  -webkit-text-stroke: 2px var(--sg-level-3);
+  text-shadow: 0 0 0 var(--sg-level-3);
+}
+
+.services-git-transition__lede {
+  margin: 22px 0 0;
+  color: #3d444d;
+  font-size: 10px;
+  line-height: 1.75;
+}
+
+.services-git-transition__lede > span { color: var(--sg-muted); }
+
+.services-git-transition__workflow {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--sg-line);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 14px 34px #1f23280b;
+}
+
+.services-git-transition__terminal {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--sg-line);
+  background: var(--sg-paper);
+  color: #3d444d;
+}
+
+.services-git-transition__terminal > span {
+  color: var(--sg-level-3);
+  font: 800 13px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.services-git-transition__terminal > code {
+  color: var(--sg-ink);
+  font: 700 10px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace;
+  white-space: nowrap;
+}
+
+.services-git-transition__terminal > i {
+  width: 6px;
+  height: 14px;
+  flex: none;
+  background: var(--sg-level-2);
+}
+
+.services-git-transition__terminal > small {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+  padding: 6px 9px;
+  border: 1px solid var(--sg-line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--sg-muted);
+  font: 700 7px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+  white-space: nowrap;
+}
+
+.services-git-transition__terminal > small b {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--sg-level-2);
+}
+
+.services-git-transition__terminal > small em {
+  color: var(--sg-level-3);
+  font-style: normal;
+}
+
+.services-git-transition__workflow-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 31px;
+  padding: 0 18px;
+  border-bottom: 1px solid #d8dee4;
+  color: var(--sg-muted);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.services-git-transition__workflow-meta > span:last-child {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--sg-level-4);
+}
+
+.services-git-transition__workflow-meta > span:last-child::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--sg-level-2);
+}
+
+.services-git-transition__path {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  min-width: 0;
+  margin: 0;
+  padding: 29px 16px 26px;
+  list-style: none;
+}
+
+.services-git-transition__path::before,
+.services-git-transition__path::after {
+  content: "";
+  position: absolute;
+  top: 37px;
+  right: 12.5%;
+  left: 12.5%;
+  height: 2px;
+  background: var(--sg-level-0);
+}
+
+.services-git-transition__path::after {
+  background: linear-gradient(90deg, var(--sg-level-1), var(--sg-level-2) 36%, var(--sg-level-3) 68%, var(--sg-level-4));
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+.services-git-transition__path > li {
+  --sg-step-color: var(--sg-level-1);
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-width: 0;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.services-git-transition__path > li:nth-child(2) { --sg-step-color: var(--sg-level-2); }
+.services-git-transition__path > li:nth-child(3) { --sg-step-color: var(--sg-level-3); }
+.services-git-transition__path > li:nth-child(4) { --sg-step-color: var(--sg-level-4); }
+
+.services-git-transition__node {
+  display: grid;
+  width: 17px;
+  height: 17px;
+  place-items: center;
+  margin-bottom: 3px;
+  border: 2px solid var(--sg-step-color);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 4px #fff;
+}
+
+.services-git-transition__node > b {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sg-step-color);
+}
+
+.services-git-transition__path code {
+  color: #8c959f;
+  font: 600 7px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.services-git-transition__path strong {
+  color: #24292f;
+  font-size: 9px;
+  letter-spacing: .08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.services-git-transition__path small {
+  overflow: hidden;
+  color: var(--sg-muted);
+  font-size: 7px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.services-git-transition__path > li > span {
+  margin-top: 3px;
+  padding: 5px 8px;
+  border: 1px solid var(--sg-step-color);
+  border-radius: 999px;
+  background: #f0fff4;
+  color: var(--sg-level-4);
+  font: 700 6px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+  white-space: nowrap;
+}
+
+.services-git-transition__complete {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr minmax(44px, .55fr);
+  align-items: center;
+  gap: 11px;
+  min-height: 58px;
+  margin: 0 18px 18px;
+  padding: 9px 14px;
+  overflow: hidden;
+  border-left: 3px solid var(--sg-level-3);
+  border-radius: 3px;
+  background: #f0fff4;
+}
+
+.services-git-transition__complete > svg {
+  width: 25px;
+  height: 25px;
+  padding: 5px;
+  border-radius: 50%;
+  background: var(--sg-level-1);
+  stroke: var(--sg-level-4);
+  stroke-width: 2.5;
+  fill: none;
+}
+
+.services-git-transition__complete > span {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.services-git-transition__complete strong {
+  color: #24292f;
+  font-size: 8px;
+  letter-spacing: .1em;
+  line-height: 1.1;
+}
+
+.services-git-transition__complete small {
+  color: var(--sg-muted);
+  font: 600 7px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.services-git-transition__complete small i {
+  margin: 0 4px;
+  color: var(--sg-level-3);
+  font-style: normal;
+}
+
+.services-git-transition__complete > b {
+  position: relative;
+  height: 2px;
+  overflow: hidden;
+  background: var(--sg-level-0);
+}
+
+.services-git-transition__complete > b::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--sg-level-1), var(--sg-level-4));
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+.services-git-transition__footer {
+  display: grid;
+  grid-template-columns: auto auto minmax(30px, 1fr) auto;
+  align-items: center;
+  gap: 13px;
+  min-height: 45px;
+  padding: 0 clamp(24px, 3vw, 42px);
+  border-top: 1px solid var(--sg-line);
+  background: var(--sg-paper);
+  color: #6e7781;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.services-git-transition__footer strong {
+  overflow: hidden;
+  color: #24292f;
+  font-size: 8px;
+  letter-spacing: .12em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.services-git-transition__footer > i {
+  height: 1px;
+  background: linear-gradient(90deg, var(--sg-level-2), #40c46355);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.services-git-transition__footer small { font-size: 7px; }
+
+.services-git-transition__scan {
+  position: absolute;
+  z-index: 4;
+  inset-block: -8%;
+  left: 0;
+  width: 18%;
+  opacity: 0;
+  transform: translate3d(-130%, 0, 0);
+  background: linear-gradient(90deg, transparent, #9be9a814 22%, #40c4632b 76%, #30a14e73 98%, transparent);
+  border-right: 1px solid #30a14e66;
+  pointer-events: none;
+}
+
+.services-git-transition[data-phase="cover"],
+.services-git-transition[data-phase="reveal"],
+html[data-hich-services-arriving] .services-git-transition {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.services-git-transition[data-phase="cover"] .services-git-transition__gate,
+.services-git-transition[data-phase="reveal"] .services-git-transition__gate,
+.services-git-transition[data-phase="cover"] .services-git-transition__stage,
+.services-git-transition[data-phase="reveal"] .services-git-transition__stage,
+.services-git-transition[data-phase="cover"] .services-git-transition__scan {
+  will-change: transform, opacity;
+}
+
+.services-git-transition[data-phase="cover"] .services-git-transition__gate--top {
+  animation: services-git-gate-in-left .34s cubic-bezier(.76, 0, .24, 1) both;
+}
+
+.services-git-transition[data-phase="cover"] .services-git-transition__gate--bottom {
+  animation: services-git-gate-in-right .38s cubic-bezier(.76, 0, .24, 1) both;
+}
+
+.services-git-transition[data-phase="cover"] .services-git-transition__stage {
+  animation: services-git-stage-in .42s .08s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.services-git-transition[data-phase="cover"] .services-git-transition__bar,
+.services-git-transition[data-phase="cover"] .services-git-transition__eyebrow,
+.services-git-transition[data-phase="cover"] .services-git-transition__lede,
+.services-git-transition[data-phase="cover"] .services-git-transition__workflow-meta {
+  animation: services-git-detail-in .32s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.services-git-transition[data-phase="cover"] .services-git-transition__bar { animation-delay: .11s; }
+.services-git-transition[data-phase="cover"] .services-git-transition__eyebrow { animation-delay: .14s; }
+.services-git-transition[data-phase="cover"] .services-git-transition__lede { animation-delay: .26s; }
+.services-git-transition[data-phase="cover"] .services-git-transition__workflow-meta { animation-delay: .22s; }
+
+.services-git-transition[data-phase="cover"] .services-git-transition__story h2 > span {
+  animation: services-git-copy-in .4s calc(.15s + var(--line) * .045s) cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.services-git-transition[data-phase="cover"] .services-git-transition__workflow {
+  animation: services-git-workflow-in .4s .14s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.services-git-transition[data-phase="cover"] .services-git-transition__terminal > span,
+.services-git-transition[data-phase="cover"] .services-git-transition__terminal > code,
+.services-git-transition[data-phase="cover"] .services-git-transition__terminal > i,
+.services-git-transition[data-phase="cover"] .services-git-transition__terminal > small {
+  animation: services-git-terminal-in .3s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.services-git-transition[data-phase="cover"] .services-git-transition__terminal > span { animation-delay: .2s; }
+.services-git-transition[data-phase="cover"] .services-git-transition__terminal > code { animation-delay: .23s; }
+.services-git-transition[data-phase="cover"] .services-git-transition__terminal > i { animation: services-git-caret-in .38s .28s steps(2, jump-none) both; }
+.services-git-transition[data-phase="cover"] .services-git-transition__terminal > small { animation-delay: .27s; }
+
+.services-git-transition[data-phase="cover"] .services-git-transition__path::after {
+  animation: services-git-path-in .49s .24s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.services-git-transition[data-phase="cover"] .services-git-transition__path > li {
+  animation: services-git-commit-in .34s calc(.28s + var(--step) * .055s) cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.services-git-transition[data-phase="cover"][data-direction="exit"] .services-git-transition__path > li {
+  animation-delay: calc(.28s + var(--reverse-step) * .055s);
+}
+
+.services-git-transition[data-phase="cover"] .services-git-transition__complete {
+  animation: services-git-complete-in .35s .48s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.services-git-transition[data-phase="cover"] .services-git-transition__complete > b::after,
+.services-git-transition[data-phase="cover"] .services-git-transition__footer > i {
+  animation: services-git-path-in .46s .34s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.services-git-transition[data-phase="cover"] .services-git-transition__status > i {
+  animation: services-git-status-pulse .62s .18s ease-out both;
+}
+
+.services-git-transition[data-phase="cover"] .services-git-transition__scan {
+  animation: services-git-scan-in .62s .21s cubic-bezier(.4, 0, .16, 1) both;
+}
+
+.services-git-transition[data-phase="cover"][data-direction="exit"] .services-git-transition__scan {
+  animation-direction: reverse;
+}
+
+html[data-hich-services-arriving] .services-git-transition__gate { transform: translate3d(0, 0, 0); }
+
+html[data-hich-services-arriving] .services-git-transition__stage {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1) rotateX(0);
+}
+
+html[data-hich-services-arriving] .services-git-transition__scan,
+.services-git-transition[data-phase="reveal"] .services-git-transition__scan {
+  opacity: 0;
+  transform: translate3d(650%, 0, 0);
+}
+
+html[data-hich-services-arriving] .services-git-transition__footer > i,
+.services-git-transition[data-phase="reveal"] .services-git-transition__footer > i {
+  transform: scaleX(1);
+}
+
+.services-git-transition[data-phase="reveal"] .services-git-transition__stage {
+  animation: services-git-stage-out .34s cubic-bezier(.55, 0, 1, .45) both;
+}
+
+.services-git-transition[data-phase="reveal"] .services-git-transition__workflow,
+.services-git-transition[data-phase="reveal"] .services-git-transition__story {
+  animation: services-git-detail-out .24s cubic-bezier(.55, 0, 1, .45) both;
+}
+
+.services-git-transition[data-phase="reveal"] .services-git-transition__gate--top {
+  animation: services-git-gate-out-right .68s .04s cubic-bezier(.76, 0, .24, 1) both;
+}
+
+.services-git-transition[data-phase="reveal"] .services-git-transition__gate--bottom {
+  animation: services-git-gate-out-left .72s cubic-bezier(.76, 0, .24, 1) both;
+}
+
+@keyframes services-git-gate-in-left {
+  from { transform: translate3d(-102%, 0, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes services-git-gate-in-right {
+  from { transform: translate3d(102%, 0, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes services-git-gate-out-right {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(102%, 0, 0); }
+}
+
+@keyframes services-git-gate-out-left {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-102%, 0, 0); }
+}
+
+@keyframes services-git-stage-in {
+  from { opacity: 0; transform: translate3d(0, 24px, 0) scale(.965) rotateX(3deg); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1) rotateX(0); }
+}
+
+@keyframes services-git-stage-out {
+  from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  to { opacity: 0; transform: translate3d(0, -15px, 0) scale(.985); }
+}
+
+@keyframes services-git-detail-in {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes services-git-copy-in {
+  from { opacity: 0; transform: translate3d(-24px, 0, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes services-git-workflow-in {
+  from { opacity: 0; transform: translate3d(24px, 0, 0) scale(.975); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes services-git-terminal-in {
+  from { opacity: 0; transform: translate3d(0, 7px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes services-git-caret-in {
+  0%, 32% { opacity: 0; }
+  33%, 70% { opacity: 1; }
+  71%, 100% { opacity: .35; }
+}
+
+@keyframes services-git-path-in {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes services-git-commit-in {
+  from { opacity: 0; transform: translate3d(0, 12px, 0) scale(.82); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes services-git-complete-in {
+  from { opacity: 0; transform: translate3d(0, 10px, 0) scale(.975); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes services-git-detail-out {
+  from { opacity: 1; transform: translate3d(0, 0, 0); }
+  to { opacity: .25; transform: translate3d(0, -9px, 0); }
+}
+
+@keyframes services-git-scan-in {
+  0% { opacity: 0; transform: translate3d(-130%, 0, 0); }
+  12% { opacity: .56; }
+  76% { opacity: .82; }
+  100% { opacity: 0; transform: translate3d(650%, 0, 0); }
+}
+
+@keyframes services-git-status-pulse {
+  0% { box-shadow: 0 0 0 0 #30a14e66; }
+  100% { box-shadow: 0 0 0 9px transparent; }
+}
+
+@media (max-width: 700px) {
+  .services-git-transition__gate { background-size: 66px 66px, 66px 66px, 100% 100%; }
+  .services-git-transition__gate::after { width: 4px; }
+
+  .services-git-transition__stage {
+    padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+  }
+
+  .services-git-transition__aura { width: 145vw; }
+
+  .services-git-transition__panel {
+    width: 100%;
+    max-width: 430px;
+    border-radius: 18px;
+    box-shadow: 0 24px 62px #1f23282b;
+  }
+
+  .services-git-transition__bar {
+    min-height: 42px;
+    gap: 8px;
+    padding: 0 13px;
+    font-size: 7px;
+    letter-spacing: .07em;
+  }
+
+  .services-git-transition__identity { gap: 7px; }
+  .services-git-transition__dots { gap: 3px; }
+  .services-git-transition__dots b { width: 5px; height: 5px; }
+
+  .services-git-transition__status {
+    gap: 5px;
+    font-size: 5.5px;
+    letter-spacing: .06em;
+  }
+
+  .services-git-transition__status > i { width: 5px; height: 5px; }
+
+  .services-git-transition__content {
+    display: block;
+    padding: 16px 13px 14px;
+  }
+
+  .services-git-transition__story { margin-bottom: 15px; }
+
+  .services-git-transition__eyebrow {
+    margin-bottom: 9px;
+    font-size: 6px;
+  }
+
+  .services-git-transition__eyebrow > span { width: 18px; height: 18px; font-size: 6px; }
+
+  .services-git-transition__story h2 {
+    font-size: clamp(43px, 13.5vw, 58px);
+    line-height: .78;
+  }
+
+  .services-git-transition__outline { -webkit-text-stroke-width: 1.4px; }
+
+  .services-git-transition__lede {
+    margin-top: 12px;
+    font-size: 7px;
+    line-height: 1.55;
+  }
+
+  .services-git-transition__workflow { border-radius: 13px; }
+
+  .services-git-transition__terminal {
+    min-height: 40px;
+    gap: 7px;
+    padding: 0 11px;
+  }
+
+  .services-git-transition__terminal > span { font-size: 11px; }
+  .services-git-transition__terminal > code { font-size: 8px; }
+  .services-git-transition__terminal > i { width: 5px; height: 12px; }
+
+  .services-git-transition__terminal > small {
+    gap: 4px;
+    padding: 5px 7px;
+    font-size: 5.5px;
+  }
+
+  .services-git-transition__terminal > small em,
+  .services-git-transition__terminal > small b { display: none; }
+
+  .services-git-transition__workflow-meta {
+    min-height: 27px;
+    padding: 0 11px;
+    font-size: 5.5px;
+    letter-spacing: .07em;
+  }
+
+  .services-git-transition__path {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, minmax(46px, auto));
+    padding: 9px 10px 7px;
+  }
+
+  .services-git-transition__path::before,
+  .services-git-transition__path::after {
+    top: 18px;
+    bottom: 18px;
+    left: 18px;
+    width: 2px;
+    height: auto;
+  }
+
+  .services-git-transition__path::after {
+    background: linear-gradient(var(--sg-level-1), var(--sg-level-2) 36%, var(--sg-level-3) 68%, var(--sg-level-4));
+    transform: scaleY(1);
+    transform-origin: center top;
+  }
+
+  .services-git-transition__path > li {
+    grid-template-columns: 18px 49px minmax(0, 1fr) auto;
+    grid-template-rows: 18px 16px;
+    align-items: center;
+    justify-items: start;
+    gap: 0 7px;
+    min-height: 46px;
+    text-align: left;
+  }
+
+  .services-git-transition__node {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    box-shadow: 0 0 0 3px #fff;
+  }
+
+  .services-git-transition__node > b { width: 5px; height: 5px; }
+
+  .services-git-transition__path code {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    font-size: 5.5px;
+  }
+
+  .services-git-transition__path strong {
+    grid-column: 3;
+    grid-row: 1;
+    font-size: 7px;
+  }
+
+  .services-git-transition__path small {
+    grid-column: 3;
+    grid-row: 2;
+    max-width: 100%;
+    font-size: 5.5px;
+  }
+
+  .services-git-transition__path > li > span {
+    grid-column: 4;
+    grid-row: 1 / span 2;
+    margin: 0;
+    padding: 4px 6px;
+    font-size: 5px;
+  }
+
+  .services-git-transition[data-phase="cover"] .services-git-transition__path::after {
+    animation-name: services-git-path-in-mobile;
+  }
+
+  .services-git-transition__complete {
+    grid-template-columns: auto 1fr;
+    min-height: 48px;
+    margin: 0 9px 9px;
+    padding: 7px 10px;
+  }
+
+  .services-git-transition__complete > svg { width: 22px; height: 22px; }
+  .services-git-transition__complete strong { font-size: 6.5px; }
+  .services-git-transition__complete small { font-size: 5.5px; }
+  .services-git-transition__complete > b { display: none; }
+
+  .services-git-transition__footer {
+    grid-template-columns: auto minmax(0, auto) minmax(18px, 1fr);
+    min-height: 38px;
+    gap: 8px;
+    padding: 0 13px;
+    font-size: 5.5px;
+    letter-spacing: .09em;
+  }
+
+  .services-git-transition__footer strong { font-size: 6.5px; letter-spacing: .07em; }
+  .services-git-transition__footer small { display: none; }
+  .services-git-transition__scan { width: 32%; }
+
+  html[data-hich-services-arriving] .services-git-transition__scan,
+  .services-git-transition[data-phase="reveal"] .services-git-transition__scan {
+    transform: translate3d(430%, 0, 0);
+  }
+
+  @keyframes services-git-path-in-mobile {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+
+  @keyframes services-git-scan-in {
+    0% { opacity: 0; transform: translate3d(-130%, 0, 0); }
+    12% { opacity: .5; }
+    76% { opacity: .76; }
+    100% { opacity: 0; transform: translate3d(430%, 0, 0); }
+  }
+}
+
+@media (max-width: 350px) {
+  .services-git-transition__terminal > small { display: none; }
+  .services-git-transition__path > li { grid-template-columns: 18px 43px minmax(0, 1fr) auto; gap-inline: 5px; }
+  .services-git-transition__path > li > span { padding-inline: 5px; }
+}
+
+@media (max-width: 340px), (max-height: 610px) {
+  .services-git-transition__stage { padding: 8px; }
+  .services-git-transition__panel { border-radius: 14px; }
+  .services-git-transition__bar { min-height: 34px; padding-inline: 10px; font-size: 6px; }
+  .services-git-transition__status { font-size: 5px; }
+  .services-git-transition__dots { display: none; }
+  .services-git-transition__content { gap: 24px; padding: 11px 10px 9px; }
+  .services-git-transition__story { margin-bottom: 9px; }
+  .services-git-transition__eyebrow { margin-bottom: 7px; }
+  .services-git-transition__story h2 { font-size: clamp(38px, 11vw, 76px); }
+  .services-git-transition__lede { display: none; }
+  .services-git-transition__terminal { min-height: 34px; }
+  .services-git-transition__workflow-meta { min-height: 23px; }
+  .services-git-transition__path { grid-template-rows: repeat(4, minmax(39px, auto)); padding-block: 6px 4px; }
+  .services-git-transition__path > li { min-height: 39px; }
+  .services-git-transition__complete { min-height: 40px; margin-bottom: 7px; }
+  .services-git-transition__footer { min-height: 33px; padding-inline: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .services-git-transition,
+  html[data-hich-services-arriving] .services-git-transition { display: none !important; }
+}
+
+@media print { .services-git-transition { display: none !important; } }

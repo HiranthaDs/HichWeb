@@ -1,0 +1,37 @@
+/* Page changes keep native URLs, history and link behavior. */
+.hich-transition{position:fixed;inset:0;z-index:1000;visibility:hidden;pointer-events:none;overflow:hidden;isolation:isolate;contain:layout paint style;border-radius:0;touch-action:none}
+.hich-transition-accent,.hich-transition-sheet{position:absolute;inset:-1px;transform:translate3d(0,101%,0)}
+.hich-transition-accent{background:var(--pink,#ff3454)}
+.hich-transition-sheet{display:grid;place-items:center;background:#080808;color:#f5f5f3;overflow:hidden}
+.hich-transition-grid{position:absolute;inset:0;background-image:radial-gradient(ellipse at center,transparent 24%,#080808 76%),linear-gradient(#ffffff06 1px,transparent 1px),linear-gradient(90deg,#ffffff06 1px,transparent 1px);background-size:auto,11vw 11vw,11vw 11vw;pointer-events:none;contain:strict}
+.hich-transition-brand{position:relative;width:max-content;max-width:90vw}
+.hich-transition-kicker{display:block;font-size:9px;letter-spacing:.24em;color:#acacac;margin:0 0 17px 5px}
+.hich-transition-wordmark{font-family:var(--display,Impact,sans-serif);font-size:clamp(110px,17vw,250px);letter-spacing:-.03em;line-height:1;display:flex;overflow:hidden;padding-bottom:6px}
+.hich-transition-wordmark>span{display:block;transform-origin:center bottom}
+.hich-transition-dot{color:var(--pink,#ff3454)}
+.hich-transition-caption{display:flex;align-items:center;justify-content:space-between;font-size:9px;font-weight:600;letter-spacing:.14em;margin:16px 4px 23px}
+.hich-transition-spark{width:30px;height:30px;flex:none;color:var(--pink,#ff3454)}
+.hich-transition-route{display:grid;gap:6px;text-transform:uppercase;max-width:260px;line-height:1.3}
+.hich-transition-route small{color:#8c8c8c;font-size:7px;letter-spacing:.22em}
+.hich-transition-line{display:block;height:2px;background:var(--pink,#ff3454);transform-origin:left center}
+.hich-transition-foot{position:absolute;bottom:max(6vh,30px);font-size:8px;letter-spacing:.16em;color:#808080}
+.hich-transition[data-phase=cover],.hich-transition[data-phase=reveal],html[data-hich-arriving] .hich-transition{visibility:visible;pointer-events:auto}
+.hich-transition[data-phase=cover] .hich-transition-accent,.hich-transition[data-phase=cover] .hich-transition-sheet,.hich-transition[data-phase=reveal] .hich-transition-accent,.hich-transition[data-phase=reveal] .hich-transition-sheet,html[data-hich-arriving] .hich-transition-accent,html[data-hich-arriving] .hich-transition-sheet{will-change:transform;backface-visibility:hidden}
+.hich-transition[data-phase=cover] .hich-transition-accent{animation:hich-curtain-cover .29s cubic-bezier(.78,0,.22,1) both}
+.hich-transition[data-phase=cover] .hich-transition-sheet{animation:hich-curtain-cover .33s .025s cubic-bezier(.78,0,.22,1) both}
+.hich-transition[data-phase=cover] .hich-transition-wordmark>span{animation:hich-letter-in .24s cubic-bezier(.22,1,.36,1) both;animation-delay:calc(.045s + var(--letter,4) * .025s)}
+.hich-transition[data-phase=cover] .hich-transition-spark{animation:hich-spark-turn .4s cubic-bezier(.22,1,.36,1) both}
+.hich-transition[data-phase=cover] .hich-transition-line{animation:hich-line-in .34s .08s cubic-bezier(.22,1,.36,1) both}
+html[data-hich-arriving] .hich-transition-sheet,html[data-hich-arriving] .hich-transition-accent{transform:translate3d(0,0,0)}
+.hich-transition[data-phase=reveal] .hich-transition-sheet{animation:hich-curtain-reveal .46s .02s cubic-bezier(.78,0,.22,1) both}
+.hich-transition[data-phase=reveal] .hich-transition-accent{animation:hich-curtain-reveal .48s .045s cubic-bezier(.78,0,.22,1) both}
+.hich-transition[data-phase=reveal] .hich-transition-brand{animation:hich-brand-out .44s cubic-bezier(.78,0,.22,1) both;will-change:transform,opacity}
+@keyframes hich-curtain-cover{from{transform:translate3d(0,101%,0)}to{transform:translate3d(0,0,0)}}
+@keyframes hich-curtain-reveal{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,-101%,0)}}
+@keyframes hich-letter-in{from{transform:translate3d(0,110%,0) rotate(8deg)}to{transform:translate3d(0,0,0) rotate(0)}}
+@keyframes hich-spark-turn{from{transform:translateZ(0) rotate(-120deg) scale(.65)}to{transform:translateZ(0) rotate(0) scale(1)}}
+@keyframes hich-line-in{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes hich-brand-out{from{opacity:1;transform:translate3d(0,0,0)}to{opacity:.35;transform:translate3d(0,-22px,0)}}
+@media(max-width:760px){.hich-transition-wordmark{font-size:clamp(108px,35vw,145px)}.hich-transition-kicker,.hich-transition-caption{font-size:8px}.hich-transition-grid{background-image:linear-gradient(#ffffff07 1px,transparent 1px),linear-gradient(90deg,#ffffff07 1px,transparent 1px);background-size:24vw 24vw;opacity:.52}.hich-transition[data-phase=cover] .hich-transition-wordmark>span{animation-duration:.2s;animation-delay:calc(.04s + var(--letter,4) * .02s)}.hich-transition[data-phase=cover] .hich-transition-spark{animation-duration:.34s}.hich-transition[data-phase=reveal] .hich-transition-brand{animation-duration:.38s}}
+@media(prefers-reduced-motion:reduce){.hich-transition,html[data-hich-arriving] .hich-transition{display:none!important}}
+@media print{.hich-transition{display:none!important}}

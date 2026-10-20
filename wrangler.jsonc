@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "hich-web",
+  "main": "./worker/index.js",
+  "compatibility_date": "2026-10-20",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"],
+    "html_handling": "none",
+    "not_found_handling": "404-page"
+  },
+  "vars": {
+    "GEMINI_MODEL": "gemini-3.5-flash-lite",
+    "GEMINI_MAX_OUTPUT_TOKENS": "1600",
+    "GEMINI_THINKING_LEVEL": "low"
+  }
+}

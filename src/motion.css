@@ -1,0 +1,26 @@
+/* Keep motion local to the object being explored, with native focus behavior. */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:hidden}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+@media(prefers-reduced-motion:no-preference){
+  .wordmark .brand-dot{transition:transform .5s cubic-bezier(.22,1,.36,1),color .3s;transform-origin:center bottom}
+  .wordmark:hover .brand-dot{transform:translateY(-5px) rotate(12deg);color:var(--blue)}
+  .menu-lines i{transition:transform .25s cubic-bezier(.22,1,.36,1)}
+  .menu-trigger:hover .menu-lines i:first-child{transform:translateX(4px)}
+  .menu-trigger:hover .menu-lines i:last-child{transform:translateX(-4px)}
+  .filter-bar button,.process-tabs button,.industry-tabs button{transition:background .25s,border-color .3s,color .25s}
+  .faq-list details>p{animation:hich-answer-in .32s cubic-bezier(.22,1,.36,1)}
+  .faq-list summary>svg{transition:transform .3s cubic-bezier(.22,1,.36,1)}
+  .faq-list details[open] summary>svg{transform:rotate(45deg)}
+  .footer-column a svg,.related-services>a svg{transition:transform .3s cubic-bezier(.22,1,.36,1)}
+  .footer-column a:hover svg,.related-services>a:hover svg{transform:translate(3px,-3px)}
+  .insight-art .insight-symbol{transition:transform .6s cubic-bezier(.22,1,.36,1)}
+  .insight-card:hover .insight-symbol{transform:rotate(-8deg) scale(1.06)}
+  .demo-paused *,.demo-paused *::before,.demo-paused *::after,[data-motion-paused=true] *{animation-play-state:paused!important}
+}
+@media(min-width:900px) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+  [data-depth-active]{transform:perspective(1100px) rotateX(var(--depth-x,0deg)) rotateY(var(--depth-y,0deg));transition:transform .5s cubic-bezier(.22,1,.36,1)}
+}
+@keyframes hich-answer-in{from{opacity:.3;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){[data-depth-active]{transform:none!important}.lenis.lenis-smooth{scroll-behavior:auto!important}}

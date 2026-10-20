@@ -1,0 +1,16 @@
+/* The identity has its own stage on phones, giving both the H and copy space. */
+.intro-section .identity-scene[data-ready="true"] .identity-fallback{opacity:0!important}
+@media(max-width:760px){
+  .intro-section{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto auto;min-height:0;padding:38px 6vw 44px}
+  .intro-section .intro-content{display:contents}
+  .intro-section .intro-content>.section-label{grid-column:1;grid-row:1;margin:0}
+  .intro-section .intro-statement{grid-column:1;grid-row:2;margin:0;padding:36px 0 0;font-size:clamp(49px,12.8vw,84px);line-height:1.04;max-width:100%}
+  .intro-section .identity-scene{position:relative;grid-column:1;grid-row:3;inset:auto;z-index:0;height:clamp(260px,79vw,420px);width:calc(100% + 12vw);margin:0 -6vw;overflow:hidden;background:radial-gradient(ellipse at 50% 56%,#6d15202a,transparent 62%)}
+  .intro-section .identity-scene::after{content:"";position:absolute;bottom:10%;left:26%;right:26%;height:12%;border-radius:50%;background:radial-gradient(ellipse,#ff34542b,transparent 68%);filter:blur(9px);pointer-events:none}
+  .intro-section .identity-scene canvas{z-index:1}
+  .intro-section .identity-fallback{position:relative;top:auto;left:auto;font-size:clamp(230px,67vw,350px);line-height:1;opacity:1!important;transform:perspective(650px) rotateY(-22deg) rotate(-9deg);color:#e02c49;text-shadow:1px 1px #ba1a35,2px 2px #a71830,3px 3px #951329,4px 4px #891124,5px 5px #790f21,6px 6px #680d1c,7px 7px #570c19;filter:drop-shadow(12px 15px 12px #0007)}
+  .intro-section .intro-bottom{grid-column:1;grid-row:4;position:relative;padding-top:8px}
+  .intro-section .intro-bottom p{max-width:40ch;font-size:13px;line-height:1.85}
+}
+@media(prefers-reduced-motion:reduce){.intro-section .identity-fallback{transition:none}}
+@media print{.intro-section .identity-scene{display:none!important}.intro-section{display:block;padding:20px 0}}

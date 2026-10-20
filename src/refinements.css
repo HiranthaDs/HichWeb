@@ -1,0 +1,24 @@
+/* Shared vector icon scale and accessible interactive refinements. */
+.brand-spark{display:inline-block;vertical-align:middle;flex-shrink:0;width:1em;height:1em}
+.insight-symbol>svg{width:1em;height:1em;stroke-width:1.3}
+.pill:not(.pill-light),.mobile-dock>a.dock-project{color:var(--ink)}
+.pill:not(.pill-light):hover{color:#fff}
+.footer-bottom a[href="#top"]{display:inline-flex;align-items:center;gap:7px}
+.capability-heading{margin:0}
+.contact-layout .hich-planner{display:block;min-width:0}
+.contact-layout .hich-planner-intro{display:none}
+.contact-layout .hich-planner-workspace{padding:clamp(22px,3vw,40px)}
+.hich-planner-privacy-note a{display:inline-flex;align-items:center;gap:4px}
+.hich-planner-utility-actions>button>span{display:inline-flex}
+body:has(dialog[open]){overflow:hidden}
+.hero-asterisk{line-height:1;vertical-align:baseline}
+.industry-art-icon .brand-spark{vertical-align:baseline}
+@media(max-width:760px){
+  .contact-layout .hich-planner-workspace{padding:22px 18px}
+  .pill:not(.pill-light),.mobile-dock>a.dock-project{color:var(--ink)}
+  .section-label{font-size:9px}
+  .mobile-dock{min-height:66px}
+  .mobile-dock>a{min-height:48px;font-size:9px}
+  .mobile-dock>a.dock-project{font-size:11px}
+  .capability-title{font-size:27px}
+}

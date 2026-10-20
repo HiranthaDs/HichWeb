@@ -1,0 +1,17 @@
+/* Keep the existing mobile project rail native and its vertical gestures free. */
+@media (max-width: 760px) {
+  .work-section:not(.work-archive) {
+    /* Clip the marquee without creating another hidden scroll container. */
+    overflow: clip;
+  }
+
+  .work-section:not(.work-archive) > .shell > .project-grid {
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
+    touch-action: pan-x pan-y pinch-zoom;
+    /* A small diagonal gesture should not pull the rail onto another card. */
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 0 6vw;
+  }
+}

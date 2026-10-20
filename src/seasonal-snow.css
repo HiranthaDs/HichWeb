@@ -1,0 +1,58 @@
+.seasonal-snow-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 24;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+.seasonal-snow-toggle {
+  position: fixed;
+  left: max(22px, env(safe-area-inset-left));
+  bottom: max(22px, env(safe-area-inset-bottom));
+  z-index: 26;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid #b6cadb;
+  border-radius: 24px;
+  background: #f6fbfff2;
+  box-shadow: 0 4px 20px #173b5d14;
+  color: #29475e;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .015em;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background .2s, border-color .2s;
+}
+
+.seasonal-snow-toggle:hover {
+  background: #e8f5ff;
+  border-color: #6c98b9;
+}
+
+.seasonal-snow-toggle:focus-visible {
+  outline: 3px solid #2448ff;
+  outline-offset: 4px;
+}
+
+@media (max-width: 767px) {
+  .seasonal-snow-toggle {
+    left: max(14px, env(safe-area-inset-left));
+    bottom: calc(92px + env(safe-area-inset-bottom));
+    gap: 7px;
+    padding-inline: 12px;
+    font-size: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce), print {
+  .seasonal-snow-canvas,
+  .seasonal-snow-toggle { display: none; }
+}

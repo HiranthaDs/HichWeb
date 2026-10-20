@@ -1,0 +1,11 @@
+# Payment technology marks
+
+These marks identify the technologies discussed in the illustrative e-commerce integration flow. They do not assert a HICH partnership, certification, merchant acceptance agreement or provider endorsement.
+
+- `stripe.svg`: unmodified Blurple wordmark from the official [Stripe newsroom asset kit](https://stripe.com/newsroom/information). Downloaded from `https://assets.stripeassets.com/fzn2n1nzq965/7q0dJGs6fRS1LRmMpChoAF/87def4edfbb7fd5aef4ab9baf904b2db/Stripe_logo_kit.zip`, entry `asset-wordmark/Stripe wordmark - Blurple.svg`. [Stripe marks usage terms](https://stripe.com/legal/marks).
+- `mastercard.svg`: unmodified full-colour Mastercard symbol from the official [Mastercard artwork download](https://www.mastercard.com/brandcenter/us/en/download-artwork.html), archive `https://www.mastercard.com/content/dam/brandcenter/assets/downloads/mc_symbol_SVG.zip`, entry `Mastercard Symbol - SVG/Artwork/ma_symbol.svg`. [Mastercard branding requirements](https://www.mastercard.com/brandcenter/us/en/brand-requirements/mastercard.html).
+- `visa.svg`: Visa vector geometry from [Simple Icons v16.10.0](https://github.com/simple-icons/simple-icons/tree/16.10.0), delivered at `https://cdn.jsdelivr.net/npm/simple-icons@16.10.0/icons/visa.svg`, with Visa Blue `#1434CB` fill. [Simple Icons licence](https://github.com/simple-icons/simple-icons/blob/16.10.0/LICENSE.md) (CC0 for the project; individual brand marks remain subject to their owners' rights). [Visa brand guidance](https://corporate.visa.com/en/about-visa/brand.html).
+
+The marks retain their proportions and are displayed on plain backgrounds. They are not substitutes for a provider's acceptance assets or approval. A live store should use its actual approved payment integrations and provider branding requirements.
+
+Stripe's [supported-country list](https://stripe.com/global), checked on 6 October 2026, does not list Sri Lanka for direct Stripe Payments business onboarding. The demonstration defaults to a generic local gateway route and describes Stripe as an option for supported business locations. The website makes no representation that selecting a demo option establishes a payment account or charges a card.

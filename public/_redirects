@@ -1,0 +1,15 @@
+# Netlify configuration: disable Pretty URLs before deploying.
+# Cloudflare Pages has different HTML routing; read docs/DEPLOYMENT.md first.
+# Both production aliases must be assigned to the Netlify project.
+http://hichweb.com/*       https://hichweb.com/:splat  301!
+http://www.hichweb.com/*   https://hichweb.com/:splat  301!
+https://www.hichweb.com/*  https://hichweb.com/:splat  301!
+
+/index.html  /  301!
+/i.html      /  301!
+/terms.html  /terms-and-conditions.html  301!
+/terms       /terms-and-conditions.html  301!
+
+# HICH_PAGE_REDIRECTS
+
+# Missing files use 404.html automatically. No SPA fallback is needed.

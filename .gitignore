@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.ssr/
+.netlify/
+delivery/
+qa/*.png
+qa/*.json
+*.log
+.env
+.env.*
+!.env.example
+.dev.vars*
+.wrangler/
+.wrangler-dry-run/
+.DS_Store
+Thumbs.db
