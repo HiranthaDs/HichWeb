@@ -61,11 +61,13 @@ try {
     assert.ok(html.includes('FAQPage'));
   });
 
-  await check('Terms include payment protections, omit contents and ship the lowercase alias', async () => {
+  await check('Terms include payment and source-code transfer protections, omit contents and ship the lowercase alias', async () => {
     const html = await readFile('dist/terms-and-conditions.html', 'utf8');
     const alias = await readFile('dist/terms.html', 'utf8');
     assert.ok(html.includes('Payment gateways and online transactions'));
     assert.ok(html.includes('Fraud, refunds, chargebacks and payment compliance'));
+    assert.ok(html.includes('ownership-transfer fee'));
+    assert.ok(html.includes('source-code comments or metadata'));
     assert.ok(html.includes('terms-hero'));
     assert.ok(!html.includes('<h2>Contents</h2>'));
     assert.ok(alias.includes('url=/terms-and-conditions.html'));

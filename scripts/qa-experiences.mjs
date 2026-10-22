@@ -4,9 +4,9 @@ import { spawn } from 'node:child_process';
 import { chromium } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 import {
-  CARTOON_ROWS, DESKTOP_COLUMNS, MOBILE_COLUMNS,
-  FRAME_MS, CARTOON_FRAME_COUNT, CARTOON_SCENES, makeCartoonFrame,
-} from '../src/contribution-cartoon.js';
+  CARTOON_ROWS, DESKTOP_COLUMNS, MOBILE_COLUMNS, FRAME_MS,
+  STORY_DURATION_MS, STORY_FRAME_COUNT, makeStoryFrame,
+} from '../src/contribution-story.js';
 
 const base = 'http://127.0.0.1:4182';
 const results = [], errors = [];
@@ -125,7 +125,7 @@ try {
     await context.close();
   });
 
-  await check('Contribution cartoon uses a white panel and GitHub light activity colours on Home and About', async () => {
+  await check('Contribution story is drawn entirely inside GitHub grid cells on Home and About', async () => {
     const context = await browser.newContext({ viewport: { width: 390, height: 960 }, reducedMotion: 'reduce' });
     const page = await context.newPage();
     watch(page);
@@ -134,30 +134,39 @@ try {
       const garden = page.locator('.contribution-garden');
       await garden.scrollIntoViewIfNeeded();
       assert.equal(await garden.getAttribute('data-running'), 'false');
-      assert.equal(await garden.getAttribute('data-scene'), 'cartoon');
+      assert.equal(await garden.getAttribute('data-scene'), 'ocean-waves');
       assert.equal(await garden.locator('.cg-current, .cg-controls').count(), 0, 'Description and technology button bars removed');
       assert.equal(await garden.locator('.cg-panel').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 255, 255)');
       const colours = await garden.locator('.cg-pixel').evaluateAll(elements => elements.map(el => getComputedStyle(el).backgroundColor));
       const palette = ['rgb(235, 237, 240)', 'rgb(216, 239, 220)', 'rgb(155, 233, 168)', 'rgb(64, 196, 99)', 'rgb(33, 110, 57)'];
-      assert.ok(colours.every(colour => palette.includes(colour)), 'Cartoon pixels use light GitHub greens with a softer background level');
-      assert.ok(new Set(colours).size >= 3, 'The paused cartoon remains illustrated with several contribution levels');
-      assert.equal(await garden.locator('.cg-board').innerText(), '', 'The cartoon board contains no visible words or dates');
+      assert.ok(colours.every(colour => palette.includes(colour)), 'All story pixels use GitHub activity colours');
+      assert.ok(new Set(colours).size >= 3, 'The pixel illustration uses several activity levels');
+      assert.equal(await garden.locator('.cg-board').innerText(), '', 'The story contains no visible words or dates');
       assert.equal(await garden.locator('.cg-mobile-console, .cg-mobile-years, .cg-mobile-feed, .cg-letter-pixel').count(), 0, 'Year chrome, dated feed, and letter pixels are removed');
-      assert.match(await garden.locator('.cg-board').getAttribute('aria-label'), /bunny|cartoon/i, 'The wordless artwork has an accessible description');
+      assert.equal(await garden.locator('.cg-board').getAttribute('role'), 'img');
+      const description = await garden.locator('.cg-board').getAttribute('aria-label');
+      assert.match(description, /ocean wave/i, 'The accessible description identifies the ocean wave');
+      assert.doesNotMatch(description, /cat|dog|dinosaur|animal/i, 'No animal is described');
+      assert.equal(await garden.locator('.cg-board > *').count(), 1, 'The contribution grid is the only artwork layer');
+      assert.equal(await garden.locator('.cg-board > .cg-grid').count(), 1);
+      assert.equal(await garden.locator('.cg-board svg, .cg-board canvas, .cg-board img, .cg-board video, .cg-story-art').count(), 0, 'No separate cartoon overlay is rendered');
+      assert.ok(await garden.locator('.cg-grid').evaluate(el => getComputedStyle(el).opacity === '1'
+        && Array.from(el.children).every(cell => cell.tagName === 'SPAN' && cell.childElementCount === 0 && getComputedStyle(cell).opacity === '1')), 'Full-opacity square spans are the only drawing elements');
+      assert.ok(await garden.locator('.cg-pixel').evaluateAll(elements => elements.every(cell => parseFloat(getComputedStyle(cell).borderRadius) <= 3)), 'Cells use GitHub-style rounded square corners');
     }
     await page.locator('.contribution-garden').screenshot({ path: 'qa/contribution-mobile.png' });
     await context.close();
   });
 
   for (const width of [320, 390, 700, 701, 1440]) {
-    await check(`Wordless cartoon grid fits ${width}px with square pixels`, async () => {
+    await check(`Contribution story fits ${width}px with square grid cells`, async () => {
       const context = await browser.newContext({ viewport: { width, height: 960 }, reducedMotion: 'reduce' });
       const page = await context.newPage();
       watch(page);
       await page.goto(`${base}/about.html`, { waitUntil: 'networkidle' });
       const garden = page.locator('.contribution-garden');
       await garden.scrollIntoViewIfNeeded();
-      assert.equal(await garden.locator('.cg-grid').count(), 1, 'Only one responsive cartoon grid is mounted');
+      assert.equal(await garden.locator('.cg-grid').count(), 1, 'Only one responsive contribution grid is mounted');
       assert.equal(await garden.locator('.cg-board').innerText(), '');
       const geometry = await garden.locator('.cg-grid').evaluate(el => ({
         columns: getComputedStyle(el).gridTemplateColumns.split(' ').length,
@@ -167,14 +176,16 @@ try {
       }));
       const columns = width <= 700 ? MOBILE_COLUMNS : DESKTOP_COLUMNS;
       assert.deepEqual(geometry, { columns, rows: CARTOON_ROWS, cells: columns * CARTOON_ROWS, squares: true });
-      assert.ok(await garden.locator('.cg-graph-scroll').evaluate(el => el.scrollWidth <= el.clientWidth + 2), 'Cartoon fits without horizontal scrolling');
-      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2), 'The responsive cartoon causes no page overflow');
+      assert.equal(await garden.locator('.cg-board').getAttribute('data-grid-layout'), width <= 700 ? 'mobile' : 'desktop');
+      if (width <= 700) assert.ok(MOBILE_COLUMNS < DESKTOP_COLUMNS, 'Mobile uses its own shorter activity grid');
+      assert.ok(await garden.locator('.cg-graph-scroll').evaluate(el => el.scrollWidth <= el.clientWidth + 2), 'The story fits without horizontal scrolling');
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2), 'The responsive story causes no page overflow');
       await context.close();
     });
   }
 
   for (const width of [390, 1440]) {
-    await check(`Cartoon animates stable grid cells, pauses, resumes, and rests offscreen at ${width}px`, async () => {
+    await check(`Grid pixels animate, pause, resume, and rest offscreen at ${width}px`, async () => {
       const context = await browser.newContext({ viewport: { width, height: 960 }, reducedMotion: 'no-preference' });
       const page = await context.newPage();
       watch(page);
@@ -182,42 +193,41 @@ try {
       await page.goto(`${base}/about.html`, { waitUntil: 'networkidle' });
       const garden = page.locator('.contribution-garden');
       const grid = garden.locator('.cg-grid');
-      const frame = () => grid.getAttribute('data-frame');
-      const appearance = () => grid.locator('.cg-pixel').evaluateAll(elements => elements.map(el => {
-        const style = getComputedStyle(el);
-        return [style.backgroundColor, style.opacity, style.transform, style.translate, style.scale, style.rotate, style.borderRadius];
-      }));
+      const board = garden.locator('.cg-board');
+      const frame = () => board.getAttribute('data-frame');
+      const appearance = () => grid.locator('.cg-pixel').evaluateAll(elements => elements.map(el => el.className).join('|'));
       const geometry = () => grid.evaluate(el => ({
         width: el.clientWidth, height: el.clientHeight,
         cells: Array.from(el.children, cell => [cell.offsetLeft, cell.offsetTop, cell.offsetWidth, cell.offsetHeight]),
       }));
       await garden.scrollIntoViewIfNeeded();
       await page.waitForFunction(() => document.querySelector('.contribution-garden')?.dataset.running === 'true');
+      await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
       const originalGeometry = await geometry();
-      const description = await garden.locator('.cg-board').getAttribute('aria-label');
+      const description = await board.getAttribute('aria-label');
       await grid.evaluate(el => { window.__qaContributionCells = Array.from(el.children); });
       const originalFrame = await frame();
       const originalAppearance = await appearance();
-      assert.match(originalFrame, /^\d+$/, 'A numeric cartoon frame is exposed for inspection');
-      await page.clock.runFor(720);
-      assert.notEqual(await frame(), originalFrame, 'The cartoon advances while visible');
-      assert.notDeepEqual(await appearance(), originalAppearance, 'Actual pixel colours change between cartoon frames');
-      assert.deepEqual(await geometry(), originalGeometry, 'Animation preserves every cell’s position and size');
+      assert.match(originalFrame, /^\d+$/, 'A numeric animation frame is exposed for inspection');
+      await page.clock.runFor(FRAME_MS * 7);
+      assert.notEqual(await frame(), originalFrame, 'The story advances while visible');
+      assert.notEqual(await appearance(), originalAppearance, 'Actual contribution cell colours draw the moving story');
+      assert.deepEqual(await geometry(), originalGeometry, 'Animation preserves every contribution cell position and size');
       assert.ok(await grid.evaluate(el => Array.from(el.children).every((cell, index) => cell === window.__qaContributionCells[index])), 'Animation reuses the original grid cells');
-      assert.equal(await garden.locator('.cg-board').getAttribute('aria-label'), description, 'Animation keeps a stable accessible description');
+      assert.equal(await board.getAttribute('aria-label'), description, 'Animation keeps a stable accessible description');
 
-      await page.getByRole('button', { name: 'Pause pixel animation', exact: true }).click();
+      await page.getByRole('button', { name: 'Pause animation', exact: true }).click();
       assert.equal(await garden.getAttribute('data-running'), 'false');
       const pausedFrame = await frame();
       const pausedAppearance = await appearance();
       await page.clock.runFor(960);
       assert.equal(await frame(), pausedFrame);
-      assert.deepEqual(await appearance(), pausedAppearance, 'Pausing freezes pixel colour and motion');
+      assert.equal(await appearance(), pausedAppearance, 'Pausing freezes the ocean wave');
 
-      await page.getByRole('button', { name: 'Play pixel animation', exact: true }).click();
+      await page.getByRole('button', { name: 'Play animation', exact: true }).click();
       await page.waitForFunction(() => document.querySelector('.contribution-garden')?.dataset.running === 'true');
       await page.clock.runFor(720);
-      assert.notEqual(await frame(), pausedFrame, 'Play resumes the cartoon');
+      assert.notEqual(await frame(), pausedFrame, 'Play resumes the story');
 
       // Simulate the Page Visibility API notification without changing browser focus.
       await page.evaluate(() => {
@@ -238,7 +248,7 @@ try {
       await page.waitForFunction(() => document.querySelector('.contribution-garden')?.dataset.running === 'false');
       const offscreenFrame = await frame();
       await page.clock.runFor(960);
-      assert.equal(await frame(), offscreenFrame, 'An offscreen cartoon stops advancing');
+      assert.equal(await frame(), offscreenFrame, 'An offscreen story stops advancing');
 
       await garden.scrollIntoViewIfNeeded();
       await page.waitForFunction(() => document.querySelector('.contribution-garden')?.dataset.running === 'true');
@@ -247,14 +257,44 @@ try {
       const reducedFrame = await frame();
       const reducedAppearance = await appearance();
       await page.clock.runFor(960);
-      assert.equal(await frame(), reducedFrame, 'Reduced motion presents a still cartoon');
-      assert.deepEqual(await appearance(), reducedAppearance, 'Reduced motion also freezes the actual pixels');
+      assert.equal(await frame(), reducedFrame, 'Reduced motion presents a still illustration');
+      assert.equal(await appearance(), reducedAppearance, 'Reduced motion freezes the ocean wave');
       await context.close();
     });
   }
 
+  await check('A paused pixel story survives desktop and mobile breakpoint changes', async () => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 960 }, reducedMotion: 'no-preference' });
+    try {
+      const page = await context.newPage();
+      watch(page);
+      await page.clock.install({ time: new Date('2026-10-16T12:00:00Z') });
+      await page.goto(`${base}/about.html`, { waitUntil: 'networkidle' });
+      const garden = page.locator('.contribution-garden');
+      const board = garden.locator('.cg-board');
+      await garden.scrollIntoViewIfNeeded();
+      await page.waitForFunction(() => document.querySelector('.contribution-garden')?.dataset.running === 'true');
+      await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
+      await page.getByRole('button', { name: 'Pause animation', exact: true }).click();
+      const pausedFrame = Number(await board.getAttribute('data-frame'));
+      for (const width of [700, 701, 320, 1440]) {
+        const columns = width <= 700 ? MOBILE_COLUMNS : DESKTOP_COLUMNS;
+        await page.setViewportSize({ width, height: 960 });
+        await page.waitForFunction(count => document.querySelectorAll('.cg-pixel').length === count, columns * CARTOON_ROWS);
+        assert.equal(Number(await board.getAttribute('data-frame')), pausedFrame, 'Resizing preserves the paused story position');
+        const pixels = await garden.locator('.cg-pixel').evaluateAll(elements => elements.map(el => Number(el.className.match(/cg-level-(\d)/)?.[1])));
+        assert.deepEqual(pixels, Array.from(makeStoryFrame(pausedFrame, columns)), `The ${width}px grid redraws the same scene at its new resolution`);
+        assert.ok(await garden.locator('.cg-pixel').evaluateAll(elements => elements.every(el => Math.abs(el.offsetWidth - el.offsetHeight) <= 1)), 'Resized pixels stay square');
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2), 'Resizing causes no horizontal overflow');
+        assert.equal(await garden.getAttribute('data-running'), 'false', 'Resizing respects the pause control');
+      }
+    } finally {
+      await context.close();
+    }
+  });
+
   for (const width of [390, 1440]) {
-    await check(`Every cartoon chapter plays through a complete 25+ second loop at ${width}px`, async () => {
+    await check(`Ocean wave plays through a complete loop at ${width}px`, async () => {
       const context = await browser.newContext({ viewport: { width, height: 960 }, reducedMotion: 'no-preference' });
       try {
         const page = await context.newPage();
@@ -263,104 +303,65 @@ try {
         await page.goto(`${base}/about.html`, { waitUntil: 'networkidle' });
         const garden = page.locator('.contribution-garden');
         const grid = garden.locator('.cg-grid');
+        const board = garden.locator('.cg-board');
         await garden.scrollIntoViewIfNeeded();
         await page.waitForFunction(() => document.querySelector('.contribution-garden')?.dataset.running === 'true');
-        // Freeze after layout and intersection observers settle. runFor executes
-        // every interval; fastForward would skip most of this little film.
+        // runFor executes every interval, exercising the browser's actual
+        // playback controller without skipping the scenes between checkpoints.
         await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
+        const duration = Number(await board.getAttribute('data-duration-ms'));
+        assert.equal(duration, STORY_DURATION_MS);
+        assert.equal(duration, STORY_FRAME_COUNT * FRAME_MS);
+        assert.ok(duration >= 10_000, 'The wave moves at a calm, readable pace');
         const columns = width <= 700 ? MOBILE_COLUMNS : DESKTOP_COLUMNS;
-        const duration = Number(await grid.getAttribute('data-duration-ms'));
-        const frameMs = Number(await grid.getAttribute('data-frame-ms'));
-        assert.equal(duration, CARTOON_FRAME_COUNT * FRAME_MS);
-        assert.equal(frameMs, FRAME_MS);
-        assert.ok(duration >= 25_000, 'The actual browser film lasts at least 25 seconds');
-        assert.ok(CARTOON_SCENES.length >= 4, 'The film contains several distinct chapters');
-        assert.equal(CARTOON_SCENES[0].start, 0);
-        assert.equal(CARTOON_SCENES.at(-1).end, CARTOON_FRAME_COUNT);
-        for (let index = 1; index < CARTOON_SCENES.length; index++) {
-          assert.equal(CARTOON_SCENES[index].start, CARTOON_SCENES[index - 1].end, 'Chapters cover the timeline without gaps');
-        }
 
-        const snapshot = () => grid.evaluate(el => ({
-          frame: Number(el.dataset.frame),
-          scene: el.dataset.cartoonScene,
-          pixels: Array.from(el.children, cell => Number(cell.className.match(/cg-level-(\d)/)?.[1])),
-          colours: Array.from(el.children, cell => getComputedStyle(cell).backgroundColor).join('|'),
-          geometry: {
-            width: el.clientWidth, height: el.clientHeight,
-            cells: Array.from(el.children, cell => [cell.offsetLeft, cell.offsetTop, cell.offsetWidth, cell.offsetHeight]),
-          },
-        }));
-        const initial = await snapshot();
-        await grid.evaluate(el => {
-          window.__qaCartoonFrames = [];
-          window.__qaCartoonCells = Array.from(el.children);
-          let lastFrame = Number(el.dataset.frame);
-          window.__qaCartoonObserver = new MutationObserver(() => {
-            const frame = Number(el.dataset.frame);
-            if (frame === lastFrame) return; // A pause may repaint the same frame.
-            lastFrame = frame;
-            window.__qaCartoonFrames.push({
-              frame,
-              scene: el.dataset.cartoonScene,
-              pixels: Array.from(el.children, cell => cell.className.match(/cg-level-(\d)/)?.[1]).join(''),
-            });
-          });
-          window.__qaCartoonObserver.observe(el, { attributes: true, attributeFilter: ['data-frame'] });
+        const snapshot = () => board.evaluate(el => {
+          const grid = el.querySelector('.cg-grid');
+          return {
+            frame: Number(el.dataset.frame),
+            time: Number(el.dataset.timeMs),
+            scene: el.dataset.waveState,
+            pixels: Array.from(grid.children, cell => Number(cell.className.match(/cg-level-(\d)/)?.[1])),
+            geometry: {
+              width: grid.clientWidth, height: grid.clientHeight,
+              cells: Array.from(grid.children, cell => [cell.offsetLeft, cell.offsetTop, cell.offsetWidth, cell.offsetHeight]),
+            },
+          };
         });
-        const assertRendered = (state, expectedFrame, expectedScene) => {
-          assert.equal(state.frame, expectedFrame, 'Playback reaches the expected frame without skipped intervals');
-          assert.equal(state.scene, expectedScene, 'The rendered frame belongs to the advertised chapter');
-          assert.deepEqual(state.pixels, Array.from(makeCartoonFrame(expectedFrame, columns)), 'Actual browser cells match the complete cartoon artwork');
-          assert.ok(state.pixels.filter(level => level >= 2).length >= 12, 'The chapter has a visible foreground illustration');
-          assert.deepEqual(state.geometry, initial.geometry, 'The chapter preserves every grid cell position and size');
-        };
-        // Visit midpoint poses in playback order, starting from whatever frame
-        // was visible when the clock stopped; this runs exactly one full loop.
-        const checkpoints = CARTOON_SCENES.map(scene => {
-          const frame = Math.floor((scene.start + scene.end - 1) / 2);
-          return { scene, frame, offset: (frame - initial.frame + CARTOON_FRAME_COUNT) % CARTOON_FRAME_COUNT };
-        }).sort((a, b) => a.offset - b.offset);
-        let elapsedFrames = 0;
-        const chapterColours = new Set();
+        const initial = await snapshot();
+        await board.evaluate(el => { window.__qaStoryCells = Array.from(el.querySelector('.cg-grid').children); });
+        const checkpoints = [3_000, 6_000, 9_000].map(time => ({
+          time,
+          offset: (time - initial.time + duration) % duration,
+        })).sort((a, b) => a.offset - b.offset);
+        let elapsed = 0;
+        const chapterPictures = new Set();
         for (const checkpoint of checkpoints) {
-          await page.clock.runFor((checkpoint.offset - elapsedFrames) * frameMs);
-          elapsedFrames = checkpoint.offset;
+          await page.clock.runFor(checkpoint.offset - elapsed);
+          elapsed = checkpoint.offset;
           const state = await snapshot();
-          assertRendered(state, checkpoint.frame, checkpoint.scene.id);
-          chapterColours.add(state.colours);
-
-          if (checkpoint.scene === CARTOON_SCENES.at(-1)) {
-            await page.getByRole('button', { name: 'Pause pixel animation', exact: true }).click();
-            assert.equal(await garden.getAttribute('data-running'), 'false');
-            await page.clock.runFor(1200);
-            const paused = await snapshot();
-            assert.equal(paused.frame, state.frame, 'Pausing late in the story preserves its position');
-            assert.equal(paused.colours, state.colours, 'The late chapter remains visually frozen');
-            await page.getByRole('button', { name: 'Play pixel animation', exact: true }).click();
-            assert.equal(await garden.getAttribute('data-running'), 'true');
-            assert.equal((await snapshot()).frame, state.frame, 'Resuming does not restart the story');
-          }
+          assert.equal(state.scene, 'ocean-wave', 'Playback remains an ocean-only animation');
+          assert.ok(Math.abs(state.time - checkpoint.time) <= FRAME_MS, 'The animation follows elapsed time within one pixel frame');
+          assert.deepEqual(state.geometry, initial.geometry, 'Chapters preserve the contribution grid geometry');
+          assert.deepEqual(state.pixels, Array.from(makeStoryFrame(state.frame, columns)), 'The wave is painted into the actual contribution cells');
+          assert.ok(state.pixels.filter(level => level >= 2).length >= 12, 'The wave contains visible green pixel artwork');
+          chapterPictures.add(state.pixels.join(''));
         }
-        assert.equal(chapterColours.size, CARTOON_SCENES.length, 'Every chapter has a distinct rendered colour arrangement');
-        await page.clock.runFor((CARTOON_FRAME_COUNT - elapsedFrames) * frameMs);
+        assert.equal(chapterPictures.size, checkpoints.length, 'The swell changes throughout the loop');
+        await page.getByRole('button', { name: 'Pause animation', exact: true }).click();
+        const paused = await snapshot();
+        await page.clock.runFor(1200);
+        assert.deepEqual((await snapshot()).pixels, paused.pixels, 'Pausing freezes the wave');
+        await page.getByRole('button', { name: 'Play animation', exact: true }).click();
+        await page.clock.runFor(duration - elapsed);
         const wrapped = await snapshot();
-        assert.equal(wrapped.frame, initial.frame, 'One complete duration returns to the same frame');
-        assert.equal(wrapped.colours, initial.colours, 'The complete loop returns to the same artwork');
+        const wrapDifference = Math.min(Math.abs(wrapped.time - initial.time), duration - Math.abs(wrapped.time - initial.time));
+        assert.ok(wrapDifference <= FRAME_MS, 'One complete duration returns to the original story position');
+        assert.equal(wrapped.scene, initial.scene, 'The story loops back to its opening chapter');
         assert.deepEqual(wrapped.geometry, initial.geometry);
-        const recorded = await page.evaluate(() => window.__qaCartoonFrames);
-        assert.equal(recorded.length, CARTOON_FRAME_COUNT, 'The browser paints every frame during one full loop');
-        for (const [index, rendered] of recorded.entries()) {
-          const expectedFrame = (initial.frame + index + 1) % CARTOON_FRAME_COUNT;
-          assert.equal(rendered.frame, expectedFrame, 'No cartoon frame is skipped or repeated');
-          assert.equal(rendered.scene, CARTOON_SCENES.find(scene => expectedFrame >= scene.start && expectedFrame < scene.end).id);
-          assert.equal(rendered.pixels, Array.from(makeCartoonFrame(expectedFrame, columns)).join(''), `Frame ${expectedFrame} paints every intended pixel`);
-          assert.ok((rendered.pixels.match(/[2-4]/g) || []).length >= 12, `Frame ${expectedFrame} never becomes an empty illustration`);
-        }
-        await page.clock.runFor(frameMs * 3);
-        assert.equal((await snapshot()).frame, (initial.frame + 3) % CARTOON_FRAME_COUNT, 'Playback continues after wrapping');
-        assert.ok(await grid.evaluate(el => Array.from(el.children).every((cell, index) => cell === window.__qaCartoonCells[index])), 'All chapters reuse the original grid cells');
-        await page.evaluate(() => window.__qaCartoonObserver.disconnect());
+        await page.clock.runFor(128);
+        assert.notEqual((await snapshot()).time, wrapped.time, 'Playback continues after wrapping');
+        assert.ok(await grid.evaluate(el => Array.from(el.children).every((cell, index) => cell === window.__qaStoryCells[index])), 'All chapters reuse the original grid cells');
       } finally {
         await context.close();
       }

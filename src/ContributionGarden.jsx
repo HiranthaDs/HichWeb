@@ -2,59 +2,69 @@ import React, { memo, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { ArrowUpRight, Code2, Pause, Play } from 'lucide-react';
 import useContributionHover from './useContributionHover.js';
 import {
-  CARTOON_ROWS, DESKTOP_COLUMNS, MOBILE_COLUMNS,
-  FRAME_MS, CARTOON_FRAME_COUNT, makeCartoonFrame, getCartoonScene,
-} from './contribution-cartoon.js';
+  CARTOON_ROWS, DESKTOP_COLUMNS, MOBILE_COLUMNS, FRAME_MS, STORY_FRAME_COUNT,
+  POSTER_FRAME, getStoryScene, makePosterFrame, makeStoryFrame,
+} from './contribution-story.js';
 import './contribution-garden.css';
 
-// A small precomputed film; only changed cells are painted on each frame.
-// Animation never rerenders the section or requests an image or video.
+// Each responsive grid gets its own precomputed wave film. Playback updates
+// only the cells whose activity level changed; React does not rerender frames.
 const films = new Map();
 function getFilm(columns) {
   if (!films.has(columns)) {
-    films.set(columns, Array.from({ length: CARTOON_FRAME_COUNT }, (_, frame) => makeCartoonFrame(frame, columns)));
+    films.set(columns, Array.from({ length: STORY_FRAME_COUNT }, (_, frame) => makeStoryFrame(frame, columns)));
   }
   return films.get(columns);
 }
 
-const PixelBoard = memo(function PixelBoard({ mobile, running, gridRef }) {
+const PixelBoard = memo(function PixelBoard({ mobile, running, reducedMotion, gridRef }) {
   const columns = mobile ? MOBILE_COLUMNS : DESKTOP_COLUMNS;
   const film = useMemo(() => getFilm(columns), [columns]);
-  const frameRef = useRef(0);
+  const poster = useMemo(() => makePosterFrame(columns), [columns]);
+  const boardRef = useRef(null);
+  const frameRef = useRef(POSTER_FRAME % STORY_FRAME_COUNT);
 
   useEffect(() => {
+    const board = boardRef.current;
     const grid = gridRef.current;
-    if (!grid) return;
+    if (!board || !grid) return undefined;
     const cells = Array.from(grid.children);
     let previous = null;
     const paint = () => {
-      const pixels = film[frameRef.current];
-      for (let index = 0; index < pixels.length; index++) {
-        if (!previous || pixels[index] !== previous[index]) {
-          cells[index].className = `cg-pixel cg-level-${pixels[index]}`;
-        }
+      const frame = frameRef.current % STORY_FRAME_COUNT;
+      const pixels = reducedMotion ? poster : film[frame];
+      for (let index = 0; index < pixels.length; index += 1) {
+        if (!previous || pixels[index] !== previous[index]) cells[index].className = `cg-pixel cg-level-${pixels[index]}`;
       }
-      grid.dataset.frame = String(frameRef.current);
-      const scene = getCartoonScene(frameRef.current);
-      if (grid.dataset.cartoonScene !== scene) grid.dataset.cartoonScene = scene;
+      board.dataset.frame = String(frame);
+      board.dataset.timeMs = String(frame * FRAME_MS);
+      board.dataset.waveState = reducedMotion ? 'poster' : getStoryScene(frame);
       previous = pixels;
     };
     paint();
-    if (!running) return;
+    if (!running || reducedMotion) return undefined;
     const timer = window.setInterval(() => {
-      frameRef.current = (frameRef.current + 1) % film.length;
+      frameRef.current = (frameRef.current + 1) % STORY_FRAME_COUNT;
       paint();
     }, FRAME_MS);
     return () => window.clearInterval(timer);
-  }, [film, gridRef, running]);
+  }, [film, gridRef, poster, reducedMotion, running]);
 
+  const initial = reducedMotion ? poster : film[frameRef.current];
   return <div
     className={`cg-board cg-board-${mobile ? 'mobile' : 'desktop'}`}
+    ref={boardRef}
     role="img"
-    aria-label="A wordless pixel cartoon: a curious bunny chases a butterfly, plants a seed, grows a magical flower and launches a tiny rocket into a heart of stars before returning home. Decorative GitHub-style squares, not daily contribution data."
+    aria-label={`An illustrative GitHub-style contribution grid showing ${mobile ? 'a mobile-sized' : 'a full-year'} ocean wave made from green activity squares. It is not daily contribution data.`}
+    data-duration-ms={STORY_FRAME_COUNT * FRAME_MS}
+    data-frame-ms={FRAME_MS}
+    data-frame={frameRef.current}
+    data-time-ms={frameRef.current * FRAME_MS}
+    data-wave-state={reducedMotion ? 'poster' : getStoryScene(frameRef.current)}
+    data-grid-layout={mobile ? 'mobile' : 'desktop'}
   >
-    <div className="cg-grid" ref={gridRef} aria-hidden="true" data-duration-ms={CARTOON_FRAME_COUNT * FRAME_MS} data-frame-ms={FRAME_MS} data-hover-enabled="false" data-hover-active="false" style={{ '--cg-columns': columns, '--cg-rows': CARTOON_ROWS }}>
-      {Array.from(film[0], (level, index) => <span key={index} className={`cg-pixel cg-level-${level}`} style={{
+    <div className="cg-grid" ref={gridRef} aria-hidden="true" data-hover-enabled="false" data-hover-active="false" style={{ '--cg-columns': columns, '--cg-rows': CARTOON_ROWS }}>
+      {Array.from(initial, (level, index) => <span key={index} className={`cg-pixel cg-level-${level}`} style={{
         gridColumn: Math.floor(index / CARTOON_ROWS) + 1,
         gridRow: index % CARTOON_ROWS + 1,
       }} />)}
@@ -71,7 +81,6 @@ export default function ContributionGarden({ variant = 'home', id, className = '
   const [reducedMotion, setReducedMotion] = useState(true);
   const [visible, setVisible] = useState(false);
   const [documentVisible, setDocumentVisible] = useState(true);
-  // Match SSR first, then fit the scene to the available screen width.
   const [mobileLayout, setMobileLayout] = useState(false);
 
   useEffect(() => {
@@ -89,7 +98,6 @@ export default function ContributionGarden({ variant = 'home', id, className = '
     const observer = 'IntersectionObserver' in window ? new IntersectionObserver(([entry]) => {
       setVisible(entry.isIntersecting);
     }, { threshold: 0.12 }) : null;
-    // A visible heading alone shouldn't keep an offscreen animation running.
     if (observer && gridRef.current) observer.observe(gridRef.current);
     else setVisible(true);
     return () => {
@@ -109,7 +117,7 @@ export default function ContributionGarden({ variant = 'home', id, className = '
     aria-labelledby={headingId}
     data-running={running ? 'true' : 'false'}
     data-reduced-motion={reducedMotion ? 'true' : 'false'}
-    data-scene="cartoon"
+    data-scene="ocean-waves"
   >
     <div className="cg-intro">
       <div>
@@ -126,7 +134,7 @@ export default function ContributionGarden({ variant = 'home', id, className = '
       <div className="cg-panel-top">
         <span className="cg-window-dots" aria-hidden="true"><i /><i /><i /></span><span>HICH / THE BUILD LOG</span>
         <span className="cg-status"><i aria-hidden="true" /> {reducedMotion ? 'MOTION OFF' : paused ? 'PAUSED' : 'STUDIO IN MOTION'}</span>
-        <button type="button" className="cg-play-toggle" onClick={() => setPaused(value => !value)} disabled={reducedMotion} aria-label={reducedMotion ? 'Automatic animation is off because you prefer reduced motion' : paused ? 'Play pixel animation' : 'Pause pixel animation'} aria-controls={graphId}>
+        <button type="button" className="cg-play-toggle" onClick={() => setPaused(value => !value)} disabled={reducedMotion} aria-label={reducedMotion ? 'Automatic animation is off because you prefer reduced motion' : paused ? 'Play animation' : 'Pause animation'} aria-controls={graphId}>
           {paused && !reducedMotion ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />}
         </button>
       </div>
@@ -136,7 +144,7 @@ export default function ContributionGarden({ variant = 'home', id, className = '
       </div>
 
       <div className="cg-graph-scroll" id={graphId}>
-        <PixelBoard mobile={mobileLayout} running={running} gridRef={gridRef} />
+        <PixelBoard mobile={mobileLayout} running={running} reducedMotion={reducedMotion} gridRef={gridRef} />
       </div>
       <div className="cg-graph-foot"><p>Illustrative activity pattern <span>&middot;</span> Studio-reported total</p><div className="cg-legend" aria-label="Activity colour scale, from less to more"><span>Less</span>{[0, 1, 2, 3, 4].map(level => <i className={`cg-level-${level}`} key={level} aria-hidden="true" />)}<span>More</span></div></div>
       <div className="cg-panel-bottom"><span>IDEAS &rarr; EXPERIMENTS &rarr; EXPERIENCES</span><span>THE TOOLS BEHIND THE PIXELS.</span></div>

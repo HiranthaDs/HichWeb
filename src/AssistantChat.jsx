@@ -1,7 +1,8 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
-import { ArrowDown, ArrowUp, ArrowUpRight, Check, Copy, CornerDownLeft, Mail, Phone, Plus, RotateCcw, Sparkles, Square, X } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUp, ArrowUpRight, Check, Copy, CornerDownLeft, FileText, Mail, MessageCircle, Phone, Plus, RotateCcw, Sparkles, Square, X } from 'lucide-react';
 import { streamAssistantReply } from './chat-client.js';
 import { cleanContactActions, getContactActions } from './assistant-actions.js';
+import QuotationFlow from './QuotationFlow.jsx';
 import './assistant-chat.css';
 
 const MAX_MESSAGES = 32;
@@ -171,6 +172,7 @@ function followUps(mode, content) {
 
 export default function AssistantChat({ mode = 'site', compact = false, onConversationChange, onClose, autoFocus = false }) {
   const [messages, setMessages] = useState([]);
+  const [experience, setExperience] = useState(mode === 'site' ? 'choice' : 'chat');
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [engine, setEngine] = useState('guide');
@@ -193,7 +195,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
   const lastAssistant = [...messages].reverse().find(message => message.role === 'assistant' && message.content);
   const lastUser = [...messages].reverse().find(message => message.role === 'user');
   const title = mode === 'terms' ? 'Chathu — Terms' : 'Chathu';
-  const status = busy ? messages.at(-1)?.content ? 'Writing a response' : 'Thinking about your question' : 'Ready to help';
+  const status = experience === 'quote' ? 'Building your quotation' : busy ? messages.at(-1)?.content ? 'Writing a response' : 'Thinking about your question' : 'Ready to help';
   latest.current = { messages, engine, ready, busy };
   conversationCallback.current = onConversationChange;
 
@@ -201,6 +203,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
     mounted.current = true;
     const saved = readConversation(storageKey);
     setMessages(saved.messages);
+    if (saved.messages.length) setExperience('chat');
     setEngine(saved.engine);
     setBusy(false);
     setError(null);
@@ -314,6 +317,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
     const content = text.trim().slice(0, MAX_INPUT);
     if (!content || controller.current || !ready) return;
     setInput('');
+    setExperience('chat');
     runReply([...messages.filter(message => message.content), { id: `user-${Date.now()}-${++sequence.current}`, role: 'user', content }]);
     textarea.current?.focus({ preventScroll: true });
   }
@@ -337,6 +341,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
     controller.current = null;
     setBusy(false);
     setMessages([]);
+    setExperience(mode === 'site' ? 'choice' : 'chat');
     setInput('');
     setError(null);
     setCopied(null);
@@ -375,7 +380,20 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
         followBottom.current = element.scrollHeight - element.scrollTop - element.clientHeight < 80;
         if (followBottom.current) setNewMessages(false);
       }}>
-        {!messages.length && <div className="assistant-chat-welcome">
+        {!messages.length && mode === 'site' && experience === 'choice' && <div className="assistant-chat-quote-choice">
+          <div className="assistant-chat-welcome-mark" aria-hidden="true"><Sparkles size={34} strokeWidth={1.25} /><span /><span /></div>
+          <p className="assistant-chat-quote-badge"><Sparkles size={12} /> CHATHU QUOTATION CHATBOT</p>
+          <h4>Do you need a<br />quotation?</h4>
+          <p>I can turn your project requirements into a clear HICH draft quotation with matched add-ons, transparent pricing and a polished A4 PDF.</p>
+          <div className="assistant-chat-quote-actions">
+            <button type="button" onClick={() => setExperience('quote')}><FileText size={15} />Yes, build my quotation <ArrowRight size={14} /></button>
+            <button type="button" onClick={() => setExperience('chat')}><MessageCircle size={15} />No, I have a question</button>
+          </div>
+        </div>}
+
+        {mode === 'site' && experience === 'quote' && <QuotationFlow onCancel={() => setExperience('choice')} onDone={quote => setAnnouncement(`Draft quotation ${quote.reference} downloaded.`)} />}
+
+        {!messages.length && experience === 'chat' && <div className="assistant-chat-welcome">
           <div className="assistant-chat-welcome-mark" aria-hidden="true"><Sparkles size={34} strokeWidth={1.25} /><span /><span /></div>
           <p className="assistant-chat-eyebrow">A conversation, made simple.</p>
           <h4>{mode === 'terms' ? <>A little clarity.<br />A good next step.</> : <>Big ideas start with<br />a conversation.</>}</h4>
@@ -399,13 +417,13 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
         </article>)}
 
         {error && <div className="assistant-chat-error"><p>{error}</p><button type="button" onClick={regenerate}><RotateCcw size={13} />Retry response</button></div>}
-        {!busy && !error && lastAssistant && messages.at(-1)?.id === lastAssistant.id && !lastAssistant.stopped && <div className="assistant-chat-followups" aria-label="Suggested questions"><span>Keep the conversation going</span>{followUps(mode, lastAssistant.content).filter(question => question !== lastUser?.content).map(question => <button type="button" key={question} onClick={() => send(question)}>{question}<ArrowUpRight size={12} /></button>)}</div>}
+        {experience === 'chat' && !busy && !error && lastAssistant && messages.at(-1)?.id === lastAssistant.id && !lastAssistant.stopped && <div className="assistant-chat-followups" aria-label="Suggested questions"><span>Keep the conversation going</span>{followUps(mode, lastAssistant.content).filter(question => question !== lastUser?.content).map(question => <button type="button" key={question} onClick={() => send(question)}>{question}<ArrowUpRight size={12} /></button>)}</div>}
         {!busy && !error && messages.at(-1)?.stopped && !messages.at(-1)?.content && <button className="assistant-chat-resume" type="button" onClick={regenerate}><RotateCcw size={13} />Try again</button>}
       </div>
       {newMessages && <button className="assistant-chat-jump" type="button" onClick={scrollToBottom}><ArrowDown size={13} />Latest response</button>}
     </div>
 
-    <form className="assistant-chat-composer" onSubmit={event => { event.preventDefault(); send(); }}>
+    {experience !== 'quote' && <form className="assistant-chat-composer" onSubmit={event => { event.preventDefault(); send(); }}>
       <div className="assistant-chat-input-wrap">
         <label className="assistant-chat-sr-only" htmlFor={`${id}-message`}>Your message</label>
         <textarea id={`${id}-message`} ref={textarea} value={input} onChange={event => setInput(event.target.value)} placeholder={mode === 'terms' ? 'Ask about the terms…' : 'Ask anything about HICH…'} rows={1} maxLength={MAX_INPUT} aria-describedby={`${id}-hint`} onKeyDown={event => {
@@ -414,7 +432,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
         {busy ? <button type="button" className="assistant-chat-send assistant-chat-stop" onClick={stop} aria-label="Stop response" title="Stop response"><Square size={14} fill="currentColor" /></button> : <button type="submit" className="assistant-chat-send" disabled={!input.trim() || !ready} aria-label="Send message" title="Send message"><ArrowUp size={19} strokeWidth={2} /></button>}
       </div>
       <div className="assistant-chat-composer-meta" id={`${id}-hint`}><span>{input.length > 1800 ? `${input.length} / ${MAX_INPUT}` : engine === 'ai' ? 'AI answers may need checking.' : 'Answers from website content.'}</span><span><CornerDownLeft size={10} /> Send<span className="assistant-chat-shift-hint"> · Shift + Enter for a new line</span></span></div>
-    </form>
+    </form>}
     <span className="assistant-chat-sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</span>
   </section>;
 }

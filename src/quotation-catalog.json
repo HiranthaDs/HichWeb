@@ -1,0 +1,2220 @@
+{
+  "schema_version": "3.1.0",
+  "currency": "LKR",
+  "company": {
+    "name": "HICH WEB Development",
+    "website": "https://hichweb.com",
+    "email": "info@hichweb.com",
+    "phone": "+94 71 411 2113",
+    "whatsapp": "94714112113",
+    "terms_url": "https://hichweb.com/terms"
+  },
+  "policy": {
+    "default_discount_pct": 10,
+    "automatic_discount": false,
+    "quote_validity_days": 10,
+    "first_year_hosting_free": false,
+    "discount_requires_approval": true,
+    "addon_discountable_default": false,
+    "manual_approval_for_indicative_prices": true,
+    "renewal_usage_dependent": true,
+    "no_currency_conversion": true,
+    "client_supplies_merchant_accounts": true,
+    "tax_calculation": "Taxes not included unless explicitly configured",
+    "consolidated_renewal": {
+      "currency": "USD",
+      "display_period": "year",
+      "display": "single_total_only",
+      "domain_allowance_usd_year": 18,
+      "service_fee_usd_year": 25,
+      "hosting_usd_year_by_tier": {
+        "basic": 20,
+        "managed": 70,
+        "operations": 130,
+        "enterprise": 280
+      },
+      "payment_gateway_hosting_usd_month": 39,
+      "payment_gateway_hosting_usd_year": 468,
+      "payment_gateway_fee_rule": "When full_payment_gateway is selected, use USD 39/month hosting x 12 instead of normal hosting tier. Add standard domain and service portions internally; display only one USD/year price.",
+      "gateway_base_total_usd_year": 511,
+      "renewal_includes": "Domain allowance, hosting and standard service. Display as one bundled renewal amount only. Do not itemize costs to the client.",
+      "usage_dependent": true,
+      "addon_renewal_rule": "Add only explicitly configured addon estimated USD/year operating uplift to consolidated annual total. Never convert legacy LKR annual estimates automatically.",
+      "history": "Prior USD 360/year gateway example superseded by explicit USD 39/month gateway-hosting instruction on 2026-10-22.",
+      "approval_required_for_non_basic_hosting": true,
+      "third_party_fees": "Payment processing commissions, paid SMS, messaging and external subscriptions excluded unless stated in a final agreement."
+    }
+  },
+  "packages": [
+    {
+      "id": "ecommerce_whatsapp",
+      "name": "Basic e-commerce · WhatsApp order checkout",
+      "category": "ecommerce",
+      "base_price_lkr": 40000,
+      "summary": "Product catalogue, cart and prepared WhatsApp order handoff. No online gateway.",
+      "features": [
+        "Responsive storefront",
+        "Product categories and search",
+        "Product detail and stock labels",
+        "Shopping cart",
+        "Pre-filled WhatsApp order message",
+        "Basic product administration",
+        "Basic SEO foundations",
+        "Customer enquiry history"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "includes": [
+        "whatsapp_checkout",
+        "basic_inventory"
+      ],
+      "optional_modules": [],
+      "renewal_hosting_tier": "basic",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 9000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": false
+    },
+    {
+      "id": "ecommerce_premium",
+      "name": "Premium e-commerce · catalogue + CRM",
+      "category": "ecommerce",
+      "base_price_lkr": 125000,
+      "summary": "Expanded product catalogue, account experience and detailed back-office.",
+      "features": [
+        "Multiple product variants",
+        "Customer accounts",
+        "Offer and coupon management",
+        "Advanced catalogue filters",
+        "Order management",
+        "Sales reporting",
+        "Customer notifications"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "managed",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 15000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true,
+      "previous_illustrative_price_lkr": 95000,
+      "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
+    },
+    {
+      "id": "ecommerce_enterprise",
+      "name": "Enterprise custom e-commerce platform",
+      "category": "ecommerce",
+      "base_price_lkr": 220000,
+      "summary": "High-volume product and customer management with flexible operations.",
+      "features": [
+        "Luxury/custom storefront",
+        "Customer accounts",
+        "Order tracking",
+        "Variant/SKU engine",
+        "Product administration",
+        "Coupons and analytics"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "enterprise",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 24000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true
+    },
+    {
+      "id": "furniture_website",
+      "name": "Furniture website · catalog + WhatsApp enquiries",
+      "category": "furniture",
+      "base_price_lkr": 85000,
+      "summary": "Showcase furniture collections, sizes and finishes with enquiry/ordering workflow.",
+      "features": [
+        "Premium furniture landing pages",
+        "Room categories and collections",
+        "Variant details and photos",
+        "WhatsApp enquiries",
+        "Product management",
+        "Mobile-first display",
+        "Free professional invoice generator"
+      ],
+      "pricing_status": "user_historical_quotation",
+      "includes": [
+        "free_invoice_generator"
+      ],
+      "optional_modules": [],
+      "renewal_hosting_tier": "basic",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 12000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": false
+    },
+    {
+      "id": "tourism_basic",
+      "name": "Tourism website · basic showcase",
+      "category": "tourism",
+      "base_price_lkr": 49990,
+      "summary": "Tour packages, gallery, company profile and WhatsApp enquiries, without automated booking.",
+      "features": [
+        "Destination and packages pages",
+        "Tour detail pages",
+        "Image gallery",
+        "WhatsApp enquiry",
+        "Contact and map",
+        "Basic SEO and responsive layout"
+      ],
+      "pricing_status": "user_2026_10_22",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "basic",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 9000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": false
+    },
+    {
+      "id": "tourism_booking",
+      "name": "Tourism website · bookings + automatic emails",
+      "category": "tourism",
+      "base_price_lkr": 190000,
+      "summary": "Booking calendar, booking management, customer confirmation and automatic emails.",
+      "features": [
+        "Everything in tourism showcase",
+        "Booking dates and enquiry management",
+        "Admin booking approvals",
+        "Booking confirmation email workflow",
+        "Customer profiles",
+        "Package availability",
+        "Booking reports"
+      ],
+      "pricing_status": "user_2026_10_22",
+      "includes": [
+        "booking_engine",
+        "booking_email"
+      ],
+      "optional_modules": [],
+      "renewal_hosting_tier": "managed",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 24000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true
+    },
+    {
+      "id": "tourism_advanced",
+      "name": "Tourism platform · itineraries & partner portal",
+      "category": "tourism",
+      "base_price_lkr": 320000,
+      "summary": "Multi-provider travel operation with itinerary builder and partner workflows.",
+      "features": [
+        "Tour builder",
+        "Partner inventory",
+        "Driver/hotel allocations",
+        "Quotation breakdown",
+        "Tour tracking",
+        "Admin dashboard"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "managed",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 40000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true,
+      "previous_illustrative_price_lkr": 285000,
+      "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
+    },
+    {
+      "id": "hotel_showcase",
+      "name": "Hotel / villa website",
+      "category": "hospitality",
+      "base_price_lkr": 65000,
+      "summary": "Property showcase with rooms, amenities and direct enquiries.",
+      "features": [
+        "Room and property gallery",
+        "Room descriptions",
+        "Contact and WhatsApp",
+        "Guest FAQ",
+        "Location map",
+        "Mobile booking CTA"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "basic",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 10000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": false
+    },
+    {
+      "id": "hotel_booking",
+      "name": "Hotel / villa website with booking management",
+      "category": "hospitality",
+      "base_price_lkr": 195000,
+      "summary": "Property site with booking requests and customer confirmation.",
+      "features": [
+        "Room and rate listings",
+        "Reservation calendar",
+        "Booking administration",
+        "Confirmation emails",
+        "Guest profiles",
+        "Seasonal offers"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "managed",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 23000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true,
+      "previous_illustrative_price_lkr": 155000,
+      "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
+    },
+    {
+      "id": "restaurant_site",
+      "name": "Restaurant / cafe website",
+      "category": "restaurant",
+      "base_price_lkr": 59000,
+      "summary": "Menu, opening hours, offers and reservations by request.",
+      "features": [
+        "Digital menu",
+        "Food photos",
+        "Contact and map",
+        "WhatsApp ordering",
+        "Reservation enquiry",
+        "Responsive design"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "basic",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 9000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": false
+    },
+    {
+      "id": "restaurant_ordering",
+      "name": "Restaurant online ordering portal",
+      "category": "restaurant",
+      "base_price_lkr": 145000,
+      "summary": "Online food cart, order preparation and fulfilment dashboard.",
+      "features": [
+        "Food variants and modifiers",
+        "Online cart",
+        "Kitchen order dashboard",
+        "Delivery or collection",
+        "Order notifications",
+        "Customer history"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "managed",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 18000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true,
+      "previous_illustrative_price_lkr": 125000,
+      "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
+    },
+    {
+      "id": "salon_website",
+      "name": "Salon / beauty business website",
+      "category": "beauty",
+      "base_price_lkr": 70000,
+      "summary": "Portfolio, treatments and booking enquiry website.",
+      "features": [
+        "Service menu",
+        "Stylist portfolios",
+        "Branches and directions",
+        "Appointment enquiry",
+        "Testimonials",
+        "SEO setup"
+      ],
+      "pricing_status": "user_historical_quotation",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "basic",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 9500,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": false
+    },
+    {
+      "id": "clinic_booking",
+      "name": "Clinic / wellness appointments",
+      "category": "healthcare",
+      "base_price_lkr": 185000,
+      "summary": "Appointment scheduling without storing clinical records by default.",
+      "features": [
+        "Doctors and services",
+        "Appointment slots",
+        "Reminder notices",
+        "Reception dashboard",
+        "Patient contact records",
+        "Admin schedules"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "managed",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 26000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true,
+      "previous_illustrative_price_lkr": 150000,
+      "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
+    },
+    {
+      "id": "corporate_service",
+      "name": "Corporate / service / construction website",
+      "category": "corporate",
+      "base_price_lkr": 64000,
+      "summary": "Company profile, projects, service information and leads.",
+      "features": [
+        "Services catalog",
+        "Project portfolio",
+        "RFQ/contact forms",
+        "Team/about pages",
+        "Google Maps",
+        "Search metadata"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "basic",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 8000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": false
+    },
+    {
+      "id": "portfolio_basic",
+      "name": "Personal portfolio and creative showcase",
+      "category": "portfolio",
+      "base_price_lkr": 30000,
+      "summary": "Portfolio with work gallery and contact.",
+      "features": [
+        "Projects gallery",
+        "Profile and skills",
+        "Responsive design",
+        "Contact form",
+        "SEO setup"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "basic",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 5000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": false
+    },
+    {
+      "id": "education_site",
+      "name": "Educational website and admissions portal",
+      "category": "education",
+      "base_price_lkr": 39000,
+      "summary": "Courses, notices and admission enquiry forms.",
+      "features": [
+        "Course listings",
+        "News and notices",
+        "Staff profiles",
+        "Admissions enquiry",
+        "Contact and FAQ"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "basic",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 7500,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": false
+    },
+    {
+      "id": "university_cms",
+      "name": "University institutional CMS",
+      "category": "education",
+      "base_price_lkr": 145000,
+      "summary": "Multi-department website with staff publishing controls.",
+      "features": [
+        "Department management",
+        "Content CMS",
+        "Staff publishing roles",
+        "Institutional pages",
+        "Performance optimization"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "managed",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 18000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true
+    },
+    {
+      "id": "real_estate",
+      "name": "Property and real estate listing portal",
+      "category": "real_estate",
+      "base_price_lkr": 145000,
+      "summary": "Property catalogue, broker enquiries and scheduling.",
+      "features": [
+        "Property listings",
+        "Filters and maps",
+        "Enquiry management",
+        "Agent profiles",
+        "Featured properties",
+        "Admin management"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "managed",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 21000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true
+    },
+    {
+      "id": "vehicle_sales",
+      "name": "Vehicle showroom and sales website",
+      "category": "automotive",
+      "base_price_lkr": 82000,
+      "summary": "Vehicle inventory listing and direct sales enquiries.",
+      "features": [
+        "Vehicle profiles",
+        "Year/price filters",
+        "Image galleries",
+        "Lead management",
+        "WhatsApp enquiry",
+        "Mobile design"
+      ],
+      "pricing_status": "user_historical_quotation",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "basic",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 12000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": false
+    },
+    {
+      "id": "vehicle_rental",
+      "name": "Vehicle rental booking website",
+      "category": "automotive",
+      "base_price_lkr": 79000,
+      "summary": "Rental vehicle showcase with enquiry-based reservations.",
+      "features": [
+        "Fleet pages",
+        "Rental calendar enquiry",
+        "Driver options",
+        "Quotation form",
+        "Customer contacts",
+        "Mobile responsive"
+      ],
+      "pricing_status": "user_historical_quotation",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "basic",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 14000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": false
+    },
+    {
+      "id": "pos_retail",
+      "name": "Retail POS and inventory",
+      "category": "pos",
+      "base_price_lkr": 65000,
+      "summary": "Counter sales, stock deduction and reports.",
+      "features": [
+        "Billing and receipts",
+        "Barcode support",
+        "Stock levels",
+        "Cash closing",
+        "Customer credit tracking",
+        "Management reports"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "managed",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 12000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true
+    },
+    {
+      "id": "pos_restaurant",
+      "name": "Restaurant POS + kitchen tickets",
+      "category": "pos",
+      "base_price_lkr": 85000,
+      "summary": "Point of sale, kitchen tickets and daily sales reporting.",
+      "features": [
+        "Dine in/takeaway",
+        "Kitchen tickets",
+        "Menu modifiers",
+        "Split bills",
+        "Roles",
+        "Ingredient inventory"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "managed",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 15000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true
+    },
+    {
+      "id": "pos_multi_branch",
+      "name": "Multi-branch retail POS",
+      "category": "pos",
+      "base_price_lkr": 140000,
+      "summary": "Centralized pricing and inventory across branches.",
+      "features": [
+        "Branch transfer",
+        "Head-office dashboard",
+        "Multi-register billing",
+        "Supplier ledger",
+        "Expiry/batch tracking",
+        "Wholesale pricing"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "operations",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 24000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true
+    },
+    {
+      "id": "erp_spare_parts",
+      "name": "Automotive spare-parts ERP / supplier CRM",
+      "category": "erp",
+      "base_price_lkr": 225000,
+      "summary": "Customer/vehicle profiles, suppliers, quotation history and part warranties.",
+      "features": [
+        "Supplier RFQ comparison",
+        "Customer and vehicle profile",
+        "Parts inventory",
+        "Customer quotations",
+        "Warranty ledger",
+        "A4 invoice",
+        "Super Admin reporting"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "operations",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 22000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true,
+      "previous_illustrative_price_lkr": 150000,
+      "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
+    },
+    {
+      "id": "erp_manufacturing",
+      "name": "8-module manufacturing ERP",
+      "category": "erp",
+      "base_price_lkr": 240000,
+      "summary": "Raw materials, WIP, finished goods, orders, accounting and user roles.",
+      "features": [
+        "Raw materials and GRN",
+        "Production and WIP",
+        "Finished goods",
+        "Sales and invoices",
+        "Accounts and reports",
+        "Role-based access",
+        "Deployment/training"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "includes": [
+        "rbac",
+        "basic_backup"
+      ],
+      "optional_modules": [],
+      "renewal_hosting_tier": "operations",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 28000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true
+    },
+    {
+      "id": "erp_sales_distribution",
+      "name": "Sales, inventory and distribution ERP",
+      "category": "erp",
+      "base_price_lkr": 245000,
+      "summary": "Procurement, warehouse sales, dispatch and finance integration.",
+      "features": [
+        "Supplier master",
+        "Inventory/GRN",
+        "Sales orders",
+        "Dispatch",
+        "Customer ledger",
+        "Receivables",
+        "Super Admin"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "operations",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 28000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true,
+      "previous_illustrative_price_lkr": 195000,
+      "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
+    },
+    {
+      "id": "erp_enterprise",
+      "name": "Enterprise ERP · HR, finance, field team and stores",
+      "category": "erp",
+      "base_price_lkr": 490000,
+      "summary": "Full ERP with field sales, security and warehouse operations. Android modules separate.",
+      "features": [
+        "Inventory and sales",
+        "HR and attendance",
+        "Finance reporting",
+        "Salesman management",
+        "Gate pass portal",
+        "Storekeeper portal",
+        "Super Admin and RBAC"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "enterprise",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 65000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true
+    },
+    {
+      "id": "crm_sales",
+      "name": "Sales CRM and pipeline portal",
+      "category": "crm",
+      "base_price_lkr": 145000,
+      "summary": "Contact/lead management, pipelines, reminders and quotation records.",
+      "features": [
+        "Lead pipeline",
+        "Customer profiles",
+        "Activity timeline",
+        "Follow-up reminders",
+        "Opportunity conversion",
+        "Reports"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "managed",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 14000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true,
+      "previous_illustrative_price_lkr": 95000,
+      "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
+    },
+    {
+      "id": "crm_service",
+      "name": "Service desk and customer CRM",
+      "category": "crm",
+      "base_price_lkr": 175000,
+      "summary": "Service requests, support workflow and customer knowledge base.",
+      "features": [
+        "Ticket queues",
+        "Customer portal",
+        "Technician assignment",
+        "Service SLA dashboard",
+        "Notifications",
+        "Resolution history"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "managed",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 18000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true,
+      "previous_illustrative_price_lkr": 125000,
+      "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
+    },
+    {
+      "id": "hrm_hris",
+      "name": "HR and employee management",
+      "category": "hr",
+      "base_price_lkr": 165000,
+      "summary": "Employee records, attendance, approvals and basic payroll workflow.",
+      "features": [
+        "Employee directory",
+        "Attendance",
+        "Leave approvals",
+        "Shift calendars",
+        "Payroll data export",
+        "RBAC"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "operations",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 18000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true,
+      "previous_illustrative_price_lkr": 125000,
+      "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
+    },
+    {
+      "id": "finance_erp",
+      "name": "Finance, ledger and reports system",
+      "category": "finance",
+      "base_price_lkr": 225000,
+      "summary": "Accounting ledger and executive reporting with configured chart of accounts.",
+      "features": [
+        "Journal entries",
+        "Payables and receivables",
+        "Expense allocations",
+        "Income statement",
+        "Balance sheet",
+        "Period reports"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "operations",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 22000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true,
+      "previous_illustrative_price_lkr": 165000,
+      "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
+    },
+    {
+      "id": "booking_appointment",
+      "name": "Appointment scheduling system",
+      "category": "booking",
+      "base_price_lkr": 165000,
+      "summary": "Online calendar booking and staff schedules.",
+      "features": [
+        "Time slots",
+        "Customer booking",
+        "Confirmation email",
+        "Admin calendar",
+        "Rescheduling",
+        "Booking reports"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "managed",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 14000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true,
+      "previous_illustrative_price_lkr": 105000,
+      "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
+    },
+    {
+      "id": "logistics_fleet",
+      "name": "Delivery / logistics operations portal",
+      "category": "logistics",
+      "base_price_lkr": 325000,
+      "summary": "Dispatch, drivers, proof of delivery and order tracing.",
+      "features": [
+        "Trip assignments",
+        "Driver portal",
+        "Route records",
+        "Delivery POD",
+        "Fleet status",
+        "Customer notifications"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "operations",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 36000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true,
+      "previous_illustrative_price_lkr": 225000,
+      "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
+    },
+    {
+      "id": "marketplace",
+      "name": "Multi-vendor product marketplace",
+      "category": "marketplace",
+      "base_price_lkr": 485000,
+      "summary": "Seller onboarding, catalog management and platform administration.",
+      "features": [
+        "Seller accounts",
+        "Product approval",
+        "Store profiles",
+        "Customer accounts",
+        "Orders",
+        "Commission rules",
+        "Admin moderation"
+      ],
+      "pricing_status": "user_historical_quotation",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "enterprise",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 68000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true
+    },
+    {
+      "id": "property_management",
+      "name": "Property rental and facilities management",
+      "category": "property",
+      "base_price_lkr": 245000,
+      "summary": "Unit records, tenant profiles, rent schedule and maintenance.",
+      "features": [
+        "Tenants",
+        "Rent invoices",
+        "Maintenance requests",
+        "Owner reports",
+        "Document storage",
+        "Unit management"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "operations",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 29000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true,
+      "previous_illustrative_price_lkr": 195000,
+      "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
+    },
+    {
+      "id": "custom_saas",
+      "name": "Custom SaaS multi-tenant platform · discovery baseline",
+      "category": "saas",
+      "base_price_lkr": 490000,
+      "summary": "Multi-tenant product baseline; final price follows scope discovery.",
+      "features": [
+        "Workspace accounts",
+        "Tenant data isolation",
+        "Roles",
+        "Subscription logic",
+        "Central admin",
+        "Usage reports"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "enterprise",
+      "legacy_annual_renewal_lkr_reference": {
+        "currency": "LKR",
+        "amount": 52000,
+        "estimated": true,
+        "usage_dependent": true
+      },
+      "renewal_estimated": true,
+      "previous_illustrative_price_lkr": 350000,
+      "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
+    }
+  ],
+  "addons": [
+    {
+      "id": "erp_mod_01_raw_materials",
+      "name": "Raw Material & Supplier Management",
+      "price_lkr": 45000,
+      "category": "erp_module",
+      "description": "Raw material master data & categorization; Supplier database & lead-time tracking; Goods Received Note (GRN) generation; Real-time raw stock updates & reorder alerts",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3000
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "erp_mod_02_production_wip",
+      "name": "Production & Work-In-Progress (WIP) Tracking",
+      "price_lkr": 38000,
+      "category": "erp_module",
+      "description": "Bill of Materials (BOM) & production batch assignment; Stage-by-stage WIP workflow monitoring; Material wastage & defect calculation",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3000
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "erp_mod_03_finished_goods",
+      "name": "Finished Goods, SKU & Barcode Inventory",
+      "price_lkr": 35000,
+      "category": "erp_module",
+      "description": "Custom SKU generation & variant matrix; Barcode label generation & printing; Automated low-stock & dead-stock alerts",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3000
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "erp_mod_04_order_management",
+      "name": "Wholesale & Retail Order Management",
+      "price_lkr": 25000,
+      "category": "erp_module",
+      "description": "End-to-end order lifecycle tracking; Automated Delivery Notes (AOD) generation; Packing Lists & dispatch verification",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 2000
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "erp_mod_05_sales_invoicing",
+      "name": "Sales, Billing & Tax Invoicing",
+      "price_lkr": 22000,
+      "category": "erp_module",
+      "description": "Custom quotations, proforma & tax invoices; Partial payments, credit periods & aging receivables; Sales rep commission & target tracking",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 2000
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "erp_mod_06_accounting_reporting",
+      "name": "Accounting, Cost Analysis & Executive Dashboards",
+      "price_lkr": 40000,
+      "category": "erp_module",
+      "description": "Real-time P&L, cashflow & expense dashboards; Unit & batch manufacturing cost analysis; Exportable financial & tax reports (CSV/PDF/Excel)",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 4000
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "erp_mod_07_user_roles",
+      "name": "User Roles, RBAC Security & Audit Logs",
+      "price_lkr": 20000,
+      "category": "erp_module",
+      "description": "Granular Role-Based Access Control (Admin, Manager, Storekeeper, Cashier); Complete user activity & security audit logs",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 1500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "erp_mod_08_deployment_training",
+      "name": "Cloud Server Deployment & Staff Training",
+      "price_lkr": 15000,
+      "category": "erp_module",
+      "description": "Production cloud server & automated backup setup; Staff onboarding, training session & user documentation",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 1500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "erp_mod_09_hr_payroll",
+      "name": "HR, Attendance (Biometric Sync) & Payroll Module",
+      "price_lkr": 42000,
+      "category": "erp_module",
+      "description": "Employee profiles, shifts & leave management; Fingerprint / biometric attendance device integration; Automated EPF/ETF, OT, allowances & payslip generation",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 4000
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "erp_mod_10_crm_leads",
+      "name": "CRM, Lead Pipeline & Automated Follow-ups",
+      "price_lkr": 35000,
+      "category": "erp_module",
+      "description": "Kanban lead pipeline & deal stage tracking; Customer interaction history & follow-up reminders; 1-click quotation-to-invoice conversion",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3000
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "erp_mod_11_multi_warehouse",
+      "name": "Multi-Warehouse & Inter-Branch Stock Transfers",
+      "price_lkr": 32000,
+      "category": "erp_module",
+      "description": "Unlimited warehouse, bin & rack locations; Stock transfer requests, approvals & transit tracking; Location-wise stock valuation",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3000
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "erp_mod_12_fleet_delivery",
+      "name": "Fleet, Vehicle & Delivery Route Management",
+      "price_lkr": 38000,
+      "category": "erp_module",
+      "description": "Vehicle maintenance, fuel logs & driver assignment; Delivery route dispatch & Proof of Delivery (e-Signature/Photo); Courier API integration (Domex, PromptXP, Certis, etc.)",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "erp_mod_13_procurement_po",
+      "name": "Procurement, Purchase Orders (PO) & Supplier Portal",
+      "price_lkr": 28000,
+      "category": "erp_module",
+      "description": "Purchase Requisitions (PR) & multi-level PO approvals; Supplier quotation comparison & bidding; 3-way matching (PO, GRN, Supplier Invoice)",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 2500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "erp_mod_14_qa_qc",
+      "name": "Quality Assurance (QA/QC) & Inspection Module",
+      "price_lkr": 24000,
+      "category": "erp_module",
+      "description": "Incoming raw material & final batch QC checklists; Quarantine / rejection workflow & supplier debit notes; Defect root-cause analytics",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 2000
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "erp_mod_15_asset_maintenance",
+      "name": "Fixed Asset & Machine Maintenance Management",
+      "price_lkr": 26000,
+      "category": "erp_module",
+      "description": "Machinery & equipment lifecycle registry; Preventive maintenance schedules & breakdown logs; Asset depreciation tracking",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 2000
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "erp_mod_16_pos_terminal_sync",
+      "name": "Integrated POS Terminal Module for ERP",
+      "price_lkr": 30000,
+      "category": "erp_module",
+      "description": "Connects factory/warehouse ERP directly to retail outlet POS counters; Real-time retail billing & instant inventory deduction",
+      "allowed_categories": [
+        "erp"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "pos_addon_offline_sync",
+      "name": "Offline-First Mode (Works without Internet + Auto Cloud Sync)",
+      "price_lkr": 20000,
+      "category": "pos",
+      "description": "POS optional feature.",
+      "allowed_categories": [
+        "pos"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3000
+      },
+      "estimated_annual_operating_uplift_usd": 20,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "pos_addon_ecom_bridge",
+      "name": "2-Way Live Inventory Sync with E-Commerce Website",
+      "price_lkr": 25000,
+      "category": "pos",
+      "description": "POS optional feature.",
+      "allowed_categories": [
+        "pos"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 4000
+      },
+      "estimated_annual_operating_uplift_usd": 30,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "pos_addon_loyalty_sms",
+      "name": "Customer Loyalty Points & Digital SMS/WhatsApp E-Receipts",
+      "price_lkr": 18000,
+      "category": "pos",
+      "description": "POS optional feature.",
+      "allowed_categories": [
+        "pos"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 2500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "pos_addon_hardware_setup",
+      "name": "On-Site Hardware Configuration (Scanners, Printers, Cash Drawers)",
+      "price_lkr": 15000,
+      "category": "pos",
+      "description": "POS optional feature.",
+      "allowed_categories": [
+        "pos"
+      ],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 0
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "koko_bnpl",
+      "name": "Koko / Mintpay instalment checkout",
+      "price_lkr": 20000,
+      "category": "payments",
+      "description": "Buy-now-pay-later checkout integration (subject to client merchant approval).",
+      "allowed_categories": [
+        "ecommerce",
+        "furniture",
+        "tourism",
+        "hospitality"
+      ],
+      "pricing_status": "user_2026_10_22",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 2500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "full_payment_gateway",
+      "name": "Full online payment gateway (bank IPG)",
+      "price_lkr": 340000,
+      "category": "payments",
+      "description": "Add full payment processing, verified callbacks, reconciliation, security controls. Requires client merchant account. E-commerce annual package: USD 360/year, subject to usage and provider costs.",
+      "allowed_categories": [
+        "ecommerce",
+        "furniture",
+        "tourism",
+        "hospitality",
+        "restaurant",
+        "marketplace"
+      ],
+      "pricing_status": "user_2026_10_22",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 0
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "whatsapp_order_checkout",
+      "name": "WhatsApp cart and enquiry handoff",
+      "price_lkr": 0,
+      "category": "ordering",
+      "description": "Pre-filled WhatsApp checkout without an online payment gateway.",
+      "allowed_categories": [
+        "ecommerce",
+        "furniture",
+        "tourism",
+        "hospitality",
+        "restaurant"
+      ],
+      "pricing_status": "user_2026_10_22",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 0
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "professional_invoice_app",
+      "name": "Custom professional invoice generator",
+      "price_lkr": 15000,
+      "category": "invoices",
+      "description": "A4 invoices, customer billing history, PDF and print. Free when included in a specific package.",
+      "allowed_categories": [],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 1500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "tour_booking_engine",
+      "name": "Tourism booking and confirmation upgrade",
+      "price_lkr": null,
+      "category": "booking",
+      "description": "For basic tourism, upgrade to the complete tourism_booking package at LKR 190,000 rather than stacking an arbitrary fee.",
+      "allowed_categories": [
+        "tourism"
+      ],
+      "pricing_status": "user_2026_10_22",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": null
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "email_automation",
+      "name": "Automated email workflows",
+      "price_lkr": 18000,
+      "category": "automation",
+      "description": "Booking confirmations, order notifications and templated follow ups.",
+      "allowed_categories": [],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 2500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "ai_support_chatbot",
+      "name": "Database-aware AI customer assistant",
+      "price_lkr": 89000,
+      "category": "ai",
+      "description": "Answers from approved product/service content, with live inventory retrieval where connected.",
+      "allowed_categories": [],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 18000
+      },
+      "estimated_annual_operating_uplift_usd": 96,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "advanced_seo",
+      "name": "Advanced SEO / AEO implementation",
+      "price_lkr": 45000,
+      "category": "seo",
+      "description": "Metadata, schema, sitemap, monitoring setup and content structure.",
+      "allowed_categories": [],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 5000
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "business_email",
+      "name": "Business email and DNS verification",
+      "price_lkr": 15000,
+      "category": "infrastructure",
+      "description": "Mailbox setup with SPF, DKIM, DMARC.",
+      "allowed_categories": [],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 4500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "dedicated_database",
+      "name": "Dedicated PostgreSQL / Supabase infrastructure",
+      "price_lkr": 20000,
+      "category": "infrastructure",
+      "description": "Structured data design and automated backup configuration.",
+      "allowed_categories": [],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 6000
+      },
+      "estimated_annual_operating_uplift_usd": 48,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "whatsapp_api_alerts",
+      "name": "Automated WhatsApp Business API notices",
+      "price_lkr": 25000,
+      "category": "automation",
+      "description": "API-based notifications subject to Meta approval and message fees.",
+      "allowed_categories": [],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 4000
+      },
+      "estimated_annual_operating_uplift_usd": 30,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "sms_gateway",
+      "name": "SMS notifications and OTP integration",
+      "price_lkr": 18000,
+      "category": "automation",
+      "description": "SMS integration; third-party SMS delivery charges separate.",
+      "allowed_categories": [],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 2500
+      },
+      "estimated_annual_operating_uplift_usd": 24,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "multilanguage",
+      "name": "Sinhala, Tamil and English interface",
+      "price_lkr": 22000,
+      "category": "localization",
+      "description": "Internationalization, translated UI strings, language selector.",
+      "allowed_categories": [],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 2000
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "booking_engine_general",
+      "name": "Calendar appointments and reservations",
+      "price_lkr": 35000,
+      "category": "booking",
+      "description": "Booking dates and availability rules. Included in some packages.",
+      "allowed_categories": [],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 4500
+      },
+      "estimated_annual_operating_uplift_usd": 28,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "mobile_salesman_android",
+      "name": "Android salesman app · task & GPS snapshots",
+      "price_lkr": 85000,
+      "category": "mobile",
+      "description": "Assigned tasks, geo location/battery status with consent, visits and offline queue.",
+      "allowed_categories": [
+        "erp",
+        "crm",
+        "logistics"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 16000
+      },
+      "estimated_annual_operating_uplift_usd": 42,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "mobile_security_android",
+      "name": "Android security gate pass app",
+      "price_lkr": 65000,
+      "category": "mobile",
+      "description": "QR validation, dispatch exit confirmation and audit history.",
+      "allowed_categories": [
+        "erp",
+        "logistics"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 11000
+      },
+      "estimated_annual_operating_uplift_usd": 28,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "mobile_storekeeper_android",
+      "name": "Android storekeeper barcode app",
+      "price_lkr": 75000,
+      "category": "mobile",
+      "description": "Receive stock, scan, pick, dispatch, warehouse transfers.",
+      "allowed_categories": [
+        "erp",
+        "pos"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 12000
+      },
+      "estimated_annual_operating_uplift_usd": 28,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "multi_branch",
+      "name": "Multi branch stock and permissions",
+      "price_lkr": 45000,
+      "category": "operations",
+      "description": "Branch inventory separation, transfer approval and reports.",
+      "allowed_categories": [
+        "erp",
+        "pos",
+        "crm"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 7000
+      },
+      "estimated_annual_operating_uplift_usd": 48,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "three_region_backup",
+      "name": "Three independent backup destinations",
+      "price_lkr": 42000,
+      "category": "infrastructure",
+      "description": "Encrypted backups in independent destinations, retention and recovery drill.",
+      "allowed_categories": [
+        "erp",
+        "saas",
+        "crm"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 15000
+      },
+      "estimated_annual_operating_uplift_usd": 180,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "csv_sync",
+      "name": "CSV stock import for POS and website",
+      "price_lkr": 24000,
+      "category": "integration",
+      "description": "Validated CSV product/stock imports with dry run and error log.",
+      "allowed_categories": [
+        "erp",
+        "pos",
+        "ecommerce"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "pos_api_sync",
+      "name": "POS-to-website API stock integration",
+      "price_lkr": 38000,
+      "category": "integration",
+      "description": "Integration dependent on supported API access and credentials.",
+      "allowed_categories": [
+        "pos",
+        "erp",
+        "ecommerce"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 7500
+      },
+      "estimated_annual_operating_uplift_usd": 35,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "loyalty",
+      "name": "Customer rewards and loyalty engine",
+      "price_lkr": 25000,
+      "category": "commerce",
+      "description": "Member points, vouchers, balance and reward reporting.",
+      "allowed_categories": [
+        "ecommerce",
+        "pos",
+        "crm"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 4500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "analytics_dashboard",
+      "name": "Custom analytics and PDF report studio",
+      "price_lkr": 35000,
+      "category": "reporting",
+      "description": "Dashboards, filters and scheduled export.",
+      "allowed_categories": [],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 5000
+      },
+      "estimated_annual_operating_uplift_usd": 15,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "website_content_cms",
+      "name": "Advanced CMS editing dashboard",
+      "price_lkr": 30000,
+      "category": "content",
+      "description": "Admin managed hero sections, banners, SEO and media.",
+      "allowed_categories": [],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "customer_mobile_pwa",
+      "name": "Customer-facing PWA mobile experience",
+      "price_lkr": 45000,
+      "category": "mobile",
+      "description": "Installable responsive PWA; not native Android.",
+      "allowed_categories": [],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 6000
+      },
+      "estimated_annual_operating_uplift_usd": 15,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "member_login",
+      "name": "Customer accounts and RBAC",
+      "price_lkr": 28000,
+      "category": "security",
+      "description": "Customer registration and secure back-office roles.",
+      "allowed_categories": [],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "supplier_rfq",
+      "name": "Supplier quote request and comparison workflow",
+      "price_lkr": 32000,
+      "category": "procurement",
+      "description": "Supplier offers, prices and links to customer quotes.",
+      "allowed_categories": [
+        "erp",
+        "crm"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "warranty_ledger",
+      "name": "Product warranty and claims ledger",
+      "price_lkr": 23000,
+      "category": "service",
+      "description": "Warranty by product/serial/invoice with expiry calculation.",
+      "allowed_categories": [
+        "erp",
+        "pos",
+        "ecommerce"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3000
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "audit_logs",
+      "name": "Advanced audit and activity history",
+      "price_lkr": 25000,
+      "category": "security",
+      "description": "Business-critical edit history, timestamps and approvals.",
+      "allowed_categories": [],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "maps_geolocation",
+      "name": "Maps, routing and field location capture",
+      "price_lkr": 35000,
+      "category": "maps",
+      "description": "Geofencing/location and map integration subject to permissions/provider costs.",
+      "allowed_categories": [
+        "erp",
+        "logistics",
+        "crm",
+        "booking"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 6000
+      },
+      "estimated_annual_operating_uplift_usd": 24,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "quote_to_invoice",
+      "name": "Quotation-to-order-to-invoice workflow",
+      "price_lkr": 22000,
+      "category": "sales",
+      "description": "Convert approved quotes into orders and compliant invoices.",
+      "allowed_categories": [
+        "erp",
+        "crm",
+        "pos"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 2500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "pdf_studio",
+      "name": "A4 PDF quotation and invoice documents",
+      "price_lkr": 18000,
+      "category": "documents",
+      "description": "PDF download, print margin styles, customer fields and item totals.",
+      "allowed_categories": [],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 2000
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "payment_link",
+      "name": "Merchant payment links and webhook confirmation",
+      "price_lkr": 26000,
+      "category": "payments",
+      "description": "Payment link generation with approved gateway API.",
+      "allowed_categories": [],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "ecommerce_product_import",
+      "name": "Bulk products, images and SKU import",
+      "price_lkr": 20000,
+      "category": "commerce",
+      "description": "CSV-based catalogue bulk import with validation.",
+      "allowed_categories": [
+        "ecommerce",
+        "furniture",
+        "marketplace"
+      ],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 2500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "chatbot_multilingual",
+      "name": "AI Sinhala / Tamil / English localization",
+      "price_lkr": 12000,
+      "category": "ai",
+      "description": "Multilingual conversational customer assistant, supported models/translation checked.",
+      "allowed_categories": [],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 3000
+      },
+      "estimated_annual_operating_uplift_usd": 18,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "security_review",
+      "name": "Security hardening and permissions review",
+      "price_lkr": 30000,
+      "category": "security",
+      "description": "Configuration review, permissions and release checklist.",
+      "allowed_categories": [],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 4500
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
+      "id": "backup_restore_drill",
+      "name": "Automated backup plus recovery exercise",
+      "price_lkr": 25000,
+      "category": "infrastructure",
+      "description": "Scheduled backup and tested restore process.",
+      "allowed_categories": [],
+      "pricing_status": "illustrative_estimate_needs_approval",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 6000
+      },
+      "estimated_annual_operating_uplift_usd": 35,
+      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+    },
+    {
+      "id": "staff_training",
+      "name": "Staff onboarding and user manuals",
+      "price_lkr": 15000,
+      "category": "training",
+      "description": "Live walkthrough and detailed user instructions.",
+      "allowed_categories": [],
+      "pricing_status": "reference_catalog_v2",
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 0
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    }
+  ],
+  "historical_benchmarks": [
+    {
+      "id": "emoto_offer_2026",
+      "name": "EMOTO German spare-parts ERP special offer",
+      "amount": 109000,
+      "currency": "LKR",
+      "renewal_amount": 80,
+      "renewal_currency": "USD",
+      "renewal_period": "year",
+      "note": "Client-specific time-limited offer; not a universal ERP catalogue price."
+    },
+    {
+      "id": "enterprise_erp_oct_2026",
+      "name": "Enterprise ERP with three Android portals",
+      "amount": 4610,
+      "currency": "USD",
+      "renewal_amount": 799,
+      "renewal_currency": "USD",
+      "renewal_period": "year",
+      "note": "Client-specific enterprise scope; not the automatically quoted ERP baseline."
+    },
+    {
+      "id": "royal_aquarium_2026",
+      "name": "Royal Aquarium website, stock/POS and AI",
+      "amount": 354200,
+      "currency": "LKR",
+      "renewal_amount": 47,
+      "renewal_currency": "USD",
+      "renewal_period": "month",
+      "note": "Client-specific agreement for complex ecommerce; not basic catalogue."
+    },
+    {
+      "id": "furniture_quote_2026",
+      "name": "Furniture showcase website",
+      "amount": 85000,
+      "currency": "LKR",
+      "discount_pct": 10,
+      "note": "Base 85000 before 10 percent special discount, free invoice app."
+    }
+  ],
+  "domain_renewal_options": [
+    {
+      "extension": ".lk",
+      "annual_fee_lkr": 6500
+    },
+    {
+      "extension": ".com",
+      "annual_fee_lkr": 5500
+    },
+    {
+      "extension": ".org / .net / .co",
+      "annual_fee_lkr": 6000
+    },
+    {
+      "extension": "client_owned",
+      "annual_fee_lkr": 0
+    }
+  ],
+  "milestones": {
+    "small": {
+      "under_lkr": 400000,
+      "stages": [
+        {
+          "title": "Project kickoff",
+          "percentage": 50
+        },
+        {
+          "title": "Testing and handover",
+          "percentage": 50
+        }
+      ]
+    },
+    "large": {
+      "from_lkr": 400000,
+      "stages": [
+        {
+          "title": "Kickoff & requirements",
+          "percentage": 30
+        },
+        {
+          "title": "Core development",
+          "percentage": 40
+        },
+        {
+          "title": "Integration and testing",
+          "percentage": 20
+        },
+        {
+          "title": "Handover",
+          "percentage": 10
+        }
+      ]
+    }
+  },
+  "data_governance": {
+    "storage": "localStorage for non-sensitive draft proposals only; use authenticated server DB for staff/customer personal data",
+    "model_use": "AI extracts intent and drafts descriptive prose only; deterministic engine controls prices",
+    "third_party": "gateway, BNPL and messaging providers require client accounts; transaction fees excluded"
+  },
+  "generator_prompts": {
+    "tone": "Professional Sri Lankan business proposal; natural, concise, clear scope and precise exclusions",
+    "a4": "A4, 14mm margins, avoid tiny text; no clipping; 10-11pt body and 8.5-9pt tables",
+    "ui": "Supabase-inspired white presentation, fine borders, muted gray labels and restrained green accents; use original HICH branding"
+  },
+  "source_reference": {
+    "catalog_filename": "reference_catalog_v2_original.json",
+    "notes": [
+      "The reference catalog listed payment gateway LKR 289,000: overridden to LKR 340,000 by latest user request.",
+      "The reference catalog listed annual LKR values: an e-commerce with payment gateway uses annual USD 360 package instead; do not convert currencies automatically.",
+      "Tourism base and full booking product are separate packages; avoid adding LKR 35,000 booking addon to a tourism base without upgrading.",
+      "New illustrative estimates are not client-approved pricing."
+    ]
+  },
+  "erp_core_included_ids": [
+    "erp_mod_01_raw_materials",
+    "erp_mod_02_production_wip",
+    "erp_mod_03_finished_goods",
+    "erp_mod_04_order_management",
+    "erp_mod_05_sales_invoicing",
+    "erp_mod_06_accounting_reporting",
+    "erp_mod_07_user_roles",
+    "erp_mod_08_deployment_training"
+  ],
+  "references_last_updated": "2026-10-22",
+  "notes_for_quote_reviewer": [
+    "Do not treat client-specific benchmark pricing as a general offer.",
+    "Review any indicative prices before client release.",
+    "Annual hosting estimates are usage-dependent.",
+    "GST/VAT or local tax is not added automatically.",
+    "2026-10-22: Replace legacy mixed LKR annual charges and old USD 360 gateway quote with one renewal total in USD. USD 63/year basic; USD 511/year when payment gateway selected before explicitly estimated operating uplifts. Prices on new proposals may differ from historical offers."
+  ],
+  "renewal_user_instructions_2026_10_22": {
+    "domain_usd_year": 18,
+    "basic_hosting_usd_year": 20,
+    "service_usd_year": 25,
+    "payment_gateway_hosting_usd_month": 39,
+    "client_display": "one consolidated annual renewal charge only",
+    "market_reference_urls": [
+      "https://ceylond.com/sri-lanka/web-design-prices",
+      "https://www.engagelanka.com/pricing",
+      "https://codesignist.com/blog/website-cost-sri-lanka"
+    ],
+    "market_reference_disclaimer": "Public vendor price guides, not verified universal market averages; scope may differ."
+  }
+}
+
+
