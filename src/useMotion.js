@@ -3,7 +3,7 @@ import './motion.css';
 import './work-scroll.css';
 
 const revealSelector = '[data-reveal], .split-heading, .benefit-card, .insight-card, .service-intro, .deliverables, .studio-copy, .article-body > section, .legal-copy > section, .footer-cta, [data-motion="reveal"]';
-const depthSelector = '.project-art, .industry-art, [data-motion="depth"]';
+const depthSelector = '.project-art, [data-motion="depth"]';
 
 /** Progressive motion: every element stays readable without animation scripts. */
 export default function useMotion(root) {

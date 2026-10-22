@@ -37,10 +37,7 @@ jsPDF.API.events.push(['initialized', function instrumentQuotationPdf() {
     return originalAddFont(...args);
   };
 
-  this.save = filename => {
-    trace.filename = filename;
-    trace.pdf = Buffer.from(this.output('arraybuffer'));
-  };
+  this.save = () => { throw new Error('PDF preparation must not trigger a browser download'); };
 }]);
 
 const nativeFetch = globalThis.fetch;
@@ -58,6 +55,8 @@ async function render(quote) {
   activeTrace = trace;
   try {
     const result = await generateQuotationPdf(quote);
+    trace.filename = result.filename;
+    trace.pdf = Buffer.from(await result.blob.arrayBuffer());
     return { result, trace };
   } finally {
     activeTrace = null;
@@ -66,6 +65,8 @@ async function render(quote) {
 
 function assertPdfContract({ result, trace }) {
   assert.equal(result.draft, true);
+  assert.equal(result.blob.type, 'application/pdf');
+  assert.equal(result.fontsReady, true);
   assert.equal(result.filename, trace.filename);
   assert.match(result.filename, /^HICH-draft-quotation-.+\.pdf$/);
   assert.ok(trace.pdf.length > 100_000, 'Embedded brand fonts produce a substantive PDF');
@@ -146,3 +147,23 @@ test('maximum client copy and all 40 ERP enhancements paginate without losing th
   assert.ok(rendered.result.pages >= 9, 'The complete scope is preserved across continuation pages');
   assert.ok(rendered.trace.text.some(item => item.value.includes('40') && item.page > 2), 'All enhancement rows reach the PDF');
 });
+
+for (const [label, fetcher] of [
+  ['offline fonts', async () => { throw new Error('Offline'); }],
+  ['HTML served instead of fonts', async () => new Response('<html>Not a font</html>')],
+  ['font response that never finishes', async () => ({ ok: true, arrayBuffer: () => new Promise(() => {}) })],
+]) {
+  test(`PDF remains available with ${label}`, { timeout: 8000 }, async () => {
+    const savedFetch = globalThis.fetch;
+    globalThis.fetch = fetcher;
+    try {
+      const quote = buildQuotation({ packageId: 'ecommerce_whatsapp', client: { name: 'Fallback client', objective: 'Keep the complete quotation.' }, reference: 'HICH-Q-FALLBACK' });
+      const { result, trace } = await render(quote);
+      assert.equal(result.fontsReady, false);
+      assert.equal(result.blob.type, 'application/pdf');
+      assert.ok(trace.pdf.toString('latin1').startsWith('%PDF-'));
+      assert.ok(trace.text.some(item => item.value.includes('Keep the complete quotation.')));
+      assert.equal(result.pages, 5);
+    } finally { globalThis.fetch = savedFetch; }
+  });
+}

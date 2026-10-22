@@ -2,6 +2,48 @@
 // not package inclusions, guarantees, prices or promises made by HICH.
 export const practicalKnowledge = [
   {
+    id: 'ai-assistant-planning', title: 'AI chatbots and human handoff', href: '/api-integrations-automation.html',
+    aliases: ['chatbot', 'ai assistant', 'human handoff', 'ai search'],
+    match: /\b(chatbots?|ai assistants?|human handoff|ai search)\b/i,
+    text: 'Give a chatbot an approved knowledge base, a clear scope and a route to a real person when it cannot answer reliably. Test differently worded questions, incorrect assumptions and requests outside its scope. Avoid collecting secrets in chat. For AI search visibility, use clear factual pages and crawlable content; no one can guarantee inclusion in an AI answer. Should the assistant answer FAQs, qualify enquiries or help customers complete a task?',
+  },
+  {
+    id: 'design-feedback', title: 'Design reviews and revisions', href: '/ui-ux-design.html',
+    aliases: ['revisions', 'design feedback', 'review rounds', 'design approval'],
+    match: /\b(revisions?|design feedback|review rounds|design approval)\b/i,
+    text: 'Agree the pages, visual direction, review stages and included revision rounds before development. Collect feedback from decision-makers in one clear list and separate corrections from new requirements. Approving a prototype helps catch navigation and content problems early. Extra pages or changed functionality may need a revised scope. HICH does not promise unlimited revisions; the project agreement sets the allowance. Do you have reference sites or brand guidelines?',
+  },
+  {
+    id: 'launch-checklist', title: 'Getting ready to launch', href: '/process.html',
+    aliases: ['launch checklist', 'before going live', 'launch ready', 'testing checklist'],
+    match: /\b(launch checklist|before going live|launch ready|testing checklist|ready to launch)\b/i,
+    text: 'Check final content, mobile layouts, keyboard navigation, forms, email delivery, payments where relevant, redirects and indexing settings. Confirm who controls the domain, hosting and production accounts. Take a backup, prepare a rollback plan and assign someone to check the live customer journey after the switch. Confirm the handover and ongoing support scope before launch. What is the most important action a visitor must complete?',
+  },
+  {
+    id: 'remote-projects', title: 'Working together remotely', href: '/process.html',
+    aliases: ['remote project', 'international clients', 'overseas clients', 'outside sri lanka'],
+    match: /\b(remote projects?|international clients?|overseas clients?|outside sri lanka|work remotely)\b/i,
+    text: 'HICH works with businesses in Sri Lanka and internationally. For remote delivery, agree one decision-maker, communication channels, time zones, review dates and a shared place for content and feedback. Ask the team to confirm meeting availability, payment arrangements and project milestones before kickoff. There is no published promise of around-the-clock availability. Where is your business based, and what are you planning to build?',
+  },
+  {
+    id: 'pos-planning', title: 'Point-of-sale requirements', href: '/erp-systems.html',
+    aliases: ['point of sale', 'pos system', 'barcode', 'receipt printer'],
+    match: /\b(point of sale|pos system|barcodes?|receipt printers?)\b/i,
+    text: 'List your branches, registers, products, taxes, discounts, returns and reporting needs. Confirm which scanners, receipt printers and payment devices must work with the system. If you need offline sales, define how stock and transactions reconcile when connectivity returns. Hardware supply, setup and integrations must be explicitly quoted. Will your point of sale share inventory with an online store?',
+  },
+  {
+    id: 'project-handover', title: 'Training and everyday handover', href: '/website-maintenance-support.html',
+    aliases: ['training', 'user guide', 'handover training', 'admin training'],
+    match: /\b(training|user guide|admin guide|how to use my website)\b/i,
+    text: 'Ask for a handover checklist covering agreed admin tasks, user access, content updates, backups, renewal responsibilities and how to report a problem. Training format, documentation and ongoing assistance should be included explicitly in the project scope. An admin login does not by itself transfer source-code ownership; ownership follows the written agreement. Who on your team will manage the website day to day?',
+  },
+  {
+    id: 'scope-changes', title: 'Adding features during a project', href: '/process.html',
+    aliases: ['additional features', 'scope creep', 'change request', 'add features later'],
+    match: /\b(additional features|scope creep|change request|add features later|extra pages)\b/i,
+    text: 'Keep a separate list of new requests after the initial scope is agreed. Review each request for design, build, testing, operating costs and schedule impact, then approve the change in writing before work starts. A staged release can keep the first launch focused. An automated quotation is only a planning draft and does not approve extra work. Which feature would you like to add?',
+  },
+  {
     id: 'domain-hosting', title: 'Domains, hosting and recurring costs', href: '/technology-stack.html',
     aliases: ['domain', 'hosting', 'ssl', 'dns', 'renewals'],
     match: /\b(domains?|hosting|ssl|dns|renewals?)\b/i,

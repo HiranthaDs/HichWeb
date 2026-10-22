@@ -2,13 +2,15 @@ import React, { useEffect, useId, useRef, useState } from 'react';
 import { ArrowDown, ArrowRight, ArrowUp, ArrowUpRight, Check, Copy, CornerDownLeft, FileText, Mail, MessageCircle, Phone, Plus, RotateCcw, Sparkles, Square, X } from 'lucide-react';
 import { streamAssistantReply } from './chat-client.js';
 import { cleanContactActions, getContactActions } from './assistant-actions.js';
+import { siteQuickSearches } from './assistant-quick-search.js';
 import QuotationFlow from './QuotationFlow.jsx';
 import './assistant-chat.css';
+import './quotation-flow.css';
 
 const MAX_MESSAGES = 32;
 const MAX_INPUT = 2000;
 const STARTERS = {
-  site: ['How do I start a project?', 'What is your WhatsApp number?', 'Is HICH a registered company?'],
+  site: siteQuickSearches.map(item => item.question),
   terms: ['Explain the terms in plain English.', 'What should I check before starting a project?', 'How do project agreements work?'],
 };
 
@@ -161,6 +163,9 @@ function followUps(mode, content) {
     if (/source code|ownership|intellectual/i.test(content)) return ['What should my agreement include?', 'Can you explain that more simply?'];
     return ['Can you explain that more simply?', 'What should I confirm with HICH?'];
   }
+  if (/Kandana|headquarters/i.test(content)) return ['Can I visit your office?', 'Do you work with international clients?'];
+  if (/Hirantha Dias|more than 30/i.test(content)) return ['What services do you offer?', 'How do I start a project?'];
+  if (/quotation builder|draft estimate|Prepare the PDF/i.test(content)) return ['What should I include in my brief?', 'How do payment stages work?'];
   if (/registered|registration|company details/i.test(content)) return ['How can I contact your team?', 'How do I start a project?'];
   if (/whatsapp|wa\.me/i.test(content)) return ['What should I include in my project brief?', 'Can I call your team instead?'];
   if (/\+94|phone|call the|telephone/i.test(content)) return ['Can I message you on WhatsApp?', 'Help me plan my project.'];
@@ -173,6 +178,7 @@ function followUps(mode, content) {
 export default function AssistantChat({ mode = 'site', compact = false, onConversationChange, onClose, autoFocus = false }) {
   const [messages, setMessages] = useState([]);
   const [experience, setExperience] = useState(mode === 'site' ? 'choice' : 'chat');
+  const [quoteStarted, setQuoteStarted] = useState(false);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [engine, setEngine] = useState('guide');
@@ -195,7 +201,8 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
   const lastAssistant = [...messages].reverse().find(message => message.role === 'assistant' && message.content);
   const lastUser = [...messages].reverse().find(message => message.role === 'user');
   const title = mode === 'terms' ? 'Chathu — Terms' : 'Chathu';
-  const status = experience === 'quote' ? 'Building your quotation' : busy ? messages.at(-1)?.content ? 'Writing a response' : 'Thinking about your question' : 'Ready to help';
+  const status = experience === 'quote' ? 'Your quotation workspace' : busy ? messages.at(-1)?.content ? 'Writing a response' : 'Thinking about your question' : 'Ready to help';
+  const openQuotation = () => { setQuoteStarted(true); setExperience('quote'); };
   latest.current = { messages, engine, ready, busy };
   conversationCallback.current = onConversationChange;
 
@@ -341,6 +348,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
     controller.current = null;
     setBusy(false);
     setMessages([]);
+    setQuoteStarted(false);
     setExperience(mode === 'site' ? 'choice' : 'chat');
     setInput('');
     setError(null);
@@ -369,6 +377,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
       <span className="assistant-chat-avatar" aria-hidden="true"><Sparkles size={19} strokeWidth={1.6} /></span>
       <div className="assistant-chat-identity"><h3>{title}</h3><p><i aria-hidden="true" />{status}</p></div>
       <div className="assistant-chat-header-actions">
+        {mode === 'site' && experience !== 'quote' && <button type="button" className="assistant-chat-build-quote" onClick={openQuotation} disabled={busy} title={quoteStarted ? 'Resume quotation' : 'Build quotation'} aria-label={quoteStarted ? 'Resume quotation' : 'Build quotation'}><FileText size={16} /><span>{quoteStarted ? 'Resume quote' : 'Build quote'}</span></button>}
         <button type="button" className="assistant-chat-new" onClick={reset} title="New chat" aria-label="New chat"><Plus size={17} /><span>New chat</span></button>
         {onClose && <button type="button" onClick={onClose} title="Close assistant" aria-label="Close assistant"><X size={19} /></button>}
       </div>
@@ -382,16 +391,16 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
       }}>
         {!messages.length && mode === 'site' && experience === 'choice' && <div className="assistant-chat-quote-choice">
           <div className="assistant-chat-welcome-mark" aria-hidden="true"><Sparkles size={34} strokeWidth={1.25} /><span /><span /></div>
-          <p className="assistant-chat-quote-badge"><Sparkles size={12} /> CHATHU QUOTATION CHATBOT</p>
+          <p className="assistant-chat-quote-badge"><Sparkles size={12} /> Chathu Ai Assistent</p>
           <h4>Do you need a<br />quotation?</h4>
           <p>I can turn your project requirements into a clear HICH draft quotation with matched add-ons, transparent pricing and a polished A4 PDF.</p>
           <div className="assistant-chat-quote-actions">
-            <button type="button" onClick={() => setExperience('quote')}><FileText size={15} />Yes, build my quotation <ArrowRight size={14} /></button>
+            <button type="button" onClick={openQuotation}><FileText size={15} />{quoteStarted ? 'Resume my quotation' : 'Yes, build my quotation'} <ArrowRight size={14} /></button>
             <button type="button" onClick={() => setExperience('chat')}><MessageCircle size={15} />No, I have a question</button>
           </div>
         </div>}
 
-        {mode === 'site' && experience === 'quote' && <QuotationFlow onCancel={() => setExperience('choice')} onDone={quote => setAnnouncement(`Draft quotation ${quote.reference} downloaded.`)} />}
+        {mode === 'site' && quoteStarted && <div hidden={experience !== 'quote'}><QuotationFlow active={experience === 'quote'} onCancel={() => setExperience(messages.length ? 'chat' : 'choice')} onDone={quote => setAnnouncement(`Draft quotation ${quote.reference} is ready to download or share.`)} /></div>}
 
         {!messages.length && experience === 'chat' && <div className="assistant-chat-welcome">
           <div className="assistant-chat-welcome-mark" aria-hidden="true"><Sparkles size={34} strokeWidth={1.25} /><span /><span /></div>
@@ -401,7 +410,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
           <div className="assistant-chat-starters">{STARTERS[mode].map(question => <button key={question} type="button" onClick={() => send(question)} disabled={!ready}><span>{question}</span><ArrowUpRight size={15} /></button>)}</div>
         </div>}
 
-        {messages.map((message, index) => <article key={message.id} className={`assistant-chat-message assistant-chat-message-${message.role}`} data-message-role={message.role} data-streaming={busy && index === messages.length - 1 && message.role === 'assistant' ? 'true' : undefined}>
+        {experience !== 'quote' && messages.map((message, index) => <article key={message.id} className={`assistant-chat-message assistant-chat-message-${message.role}`} data-message-role={message.role} data-streaming={busy && index === messages.length - 1 && message.role === 'assistant' ? 'true' : undefined}>
           <div className="assistant-chat-message-label">{message.role === 'assistant' ? <><Sparkles size={13} /><span>Chathu</span></> : <span>You</span>}</div>
           {message.role === 'user' ? <div className="assistant-chat-user-text">{message.content}</div> : <div className="assistant-chat-answer">
             {message.content && <Markdown content={message.content} streaming={busy && index === messages.length - 1} />}

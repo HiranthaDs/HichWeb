@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
-  buildQuotation, compatibleAddons, packageById, projectCategories, quotationCatalog,
+  buildQuotation, compatibleAddons, formatLkr, formatUsd, packageById, projectCategories, quotationCatalog,
 } from '../src/quotation-engine.js';
+import { quotationMessage, quotationWhatsApp } from '../src/quotation-share.js';
 
 const client = { name: 'Test Client', objective: 'Launch a reliable online store.' };
 const date = new Date('2026-10-22T12:00:00Z');
@@ -48,4 +49,30 @@ test('incompatible and already included add-ons cannot enter a quotation', () =>
   });
   assert.deepEqual(quote.addons.map(addon => addon.id), ['erp_mod_09_hr_payroll']);
   assert.equal(quote.total, 282000);
+});
+
+test('WhatsApp contains the complete quotation, not only its reference', () => {
+  const quote = buildQuotation({ packageId: 'ecommerce_whatsapp', addonIds: ['full_payment_gateway'], reference: 'TEST-SHARE', now: date,
+    client: { name: 'Client & partner', company: 'Café / සිංහල', email: 'client@example.com', phone: '+94770000000', objective: 'Sell books & manage orders\nShip nationwide.', targetLaunch: 'Flexible' } });
+  const share = quotationWhatsApp(quote);
+  assert.equal(share.requiresCopy, false);
+  assert.equal(new URL(share.href).hostname, 'wa.me');
+  assert.equal(new URL(share.href).pathname, '/94714112113');
+  assert.equal(new URL(share.href).searchParams.get('text'), share.text);
+  for (const value of [quote.reference, quote.date, quote.validUntil, ...Object.values(quote.client), quote.package.name, quote.package.summary, ...quote.package.features, ...quote.addons.flatMap(addon => [addon.name, addon.description, formatLkr(addon.price_lkr)]), formatLkr(quote.total), formatUsd(quote.renewalUsd), ...quote.milestones.flatMap(stage => [stage.title, `${stage.percentage}%`, formatLkr(stage.amount)])]) assert.ok(share.text.includes(value), value);
+  assert.match(share.text, /taxes excluded/);
+  assert.match(share.text, /not a contract, final quotation/);
+  assert.doesNotMatch(share.text, /undefined|NaN/);
+});
+
+test('large quotations use copy-and-paste without dropping any scope or pricing', () => {
+  const pkg = packageById('erp_enterprise');
+  const quote = buildQuotation({ packageId: pkg.id, addonIds: compatibleAddons(pkg).map(item => item.id), client, reference: 'LARGE' });
+  const share = quotationWhatsApp(quote);
+  assert.equal(share.requiresCopy, true);
+  assert.equal(share.href, 'https://wa.me/94714112113');
+  assert.equal(share.text, quotationMessage(quote));
+  for (const addon of quote.addons) assert.ok(share.text.includes(addon.description), addon.id);
+  assert.ok(share.text.includes(formatLkr(quote.total)));
+  assert.ok(share.text.includes('technical and management review'));
 });

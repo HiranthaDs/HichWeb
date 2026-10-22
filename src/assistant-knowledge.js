@@ -2,6 +2,8 @@ import { company, services, projects, faqs, insights } from './data.js';
 import { termsSections } from './termsContent.js';
 import { getContactActions } from './assistant-actions.js';
 import { practicalKnowledge } from './assistant-practical-knowledge.js';
+import { companyKnowledge, matchedCompanyFacts } from './assistant-company-knowledge.js';
+import { findSiteQuickSearch } from './assistant-quick-search.js';
 
 export const ASSISTANT_MAX_WORDS = 150;
 
@@ -80,7 +82,8 @@ const siteRecords = [
   { id: 'registration', kind: 'page', title: 'HICH company registration', href: '/about.html', aliases: ['registered', 'registered company', 'registration', 'regested', 'regestered', 'registred', 'legitimate', 'legit'], text: `${company.registrationStatus} The website does not publish a registration number, registered legal name or registration certificate. Contact HICH directly if you need those details for procurement or verification.` },
   { id: 'contact', kind: 'page', title: 'Talk to HICH', href: '/contact.html', aliases: ['contact', 'email', 'phone', 'whatsapp', 'call', 'get in touch', 'start a project', 'enquiry', 'quote'], text: `Contact HICH at ${company.email}, call ${company.phoneDisplay}, or use WhatsApp at the same number. The contact page has a project brief builder. Share your business goal, audience, features, target launch date and budget range. You choose when to send your prepared brief.` },
   { id: 'process', kind: 'page', title: 'How a HICH project works', href: '/process.html', aliases: ['process', 'steps', 'workflow', 'how do you work', 'how does it work', 'get started'], text: '1. **Discover** — clarify the business, audience, goals and project brief.\n2. **Design** — review journeys, wireframes and visual direction.\n3. **Develop** — build the approved design, connect systems and check across devices.\n4. **Launch & evolve** — complete content, accessibility and performance checks, then agree handover and ongoing support.' },
-  { id: 'cost', kind: 'page', title: 'Project pricing', href: '/website-cost-factors-sri-lanka.html', aliases: ['cost', 'price', 'pricing', 'budget', 'how much', 'rate', 'charge', 'quote'], text: `${faqs[4].answer} The site does not publish fixed package prices. Include recurring hosting, domains, platform subscriptions and support when comparing costs.` },
+  { id: 'cost', kind: 'page', title: 'Project pricing', href: '/website-cost-factors-sri-lanka.html', aliases: ['cost', 'price', 'pricing', 'budget', 'how much', 'rate', 'charge', 'quote'], text: `${faqs[4].answer} Chathu’s quotation builder has 36 catalog packages and compatible add-ons for an indicative estimate. Use Build quotation to see the current selection and prices, with project fees in LKR and a separate consolidated annual renewal in USD. These are draft estimates, not binding offers; HICH must validate the final scope and price. Taxes and third-party fees are excluded unless agreed.` },
+  { id: 'quotation-help', kind: 'page', title: 'Using Chathu’s quotation builder', href: '/contact.html', aliases: ['quotation', 'quote builder', 'estimate', 'pdf', 'download quotation'], text: 'Use Build quotation in Chathu: choose a project type, package and optional compatible add-ons, then enter your brief and review the itemised estimate. Prepare the PDF, then use Download PDF or Open PDF. The prepared file can be downloaded again without rebuilding it. Send quotation on WhatsApp opens a message containing the full brief, scope, prices, renewal, payment stages and draft notice. You choose whether to send it; the PDF is not attached automatically. For a large quotation, copy the full text and paste it into WhatsApp.' },
   { id: 'timing', kind: 'page', title: 'Planning delivery', href: '/process.html', aliases: ['timeline', 'how long', 'how soon', 'deadline', 'duration', 'weeks', 'days', 'delivery', 'launch date'], text: 'There is no universal delivery time published. Timing is agreed around the scope, content readiness, integrations, review rounds and client approvals. Include your target launch date in the brief so HICH can confirm a realistic plan and any staged release.' },
   { id: 'careers', kind: 'page', title: 'Collaborate with HICH', href: '/job.html', aliases: ['career', 'job', 'jobs', 'work with you', 'join', 'hiring', 'collaborate'], text: 'The Collaborate page is the place to introduce your work and interest in working with HICH. Show the problem you solved, your role and a useful example of the result. Published collaboration information is not a promise of an available role.' },
   { id: 'privacy', kind: 'page', title: 'Privacy policy', href: '/privacy-policy.html', aliases: ['privacy', 'cookies', 'personal data', 'chat history', 'save chats'], text: 'Check the Privacy Policy for how this website handles project drafts, assistant conversations and external providers. Avoid sending passwords, payment details or confidential project material in chat.' },
@@ -88,6 +91,7 @@ const siteRecords = [
 
 export const knowledgeRecords = [
   ...siteRecords,
+  ...companyKnowledge,
   ...practicalKnowledge.map(record => ({ ...record, kind: 'guidance' })),
   ...services.map(service => ({ id: service.slug, kind: 'service', title: service.title, href: `/${service.slug}.html`, aliases: serviceAliases[service.slug] || [], text: `${service.description}\n\n${service.deliverables.map(item => `- ${item}`).join('\n')}\n\n${service.faqs.map(item => `${item.question} ${item.answer}`).join('\n')}`, service })),
   ...projects.map(project => ({ id: project.slug, kind: 'project', title: project.name, href: '/allprojects.html', aliases: [project.name, project.slug.replace(/-/g, ' ')], text: `${project.name} — ${project.type}${project.concept ? ' (concept work)' : ''}. ${project.description} Services: ${project.services.join(', ')}. No measured commercial results are published.`, project })),
@@ -117,6 +121,7 @@ export function retrieveKnowledge({ mode = 'site', messages = [] }) {
     score += latestTokens.reduce((sum, token) => sum + (record.titleTokens.includes(token) ? 5 : 0), 0);
     score += record.aliases.reduce((sum, alias) => sum + (hasPhrase(query, alias) ? 10 + alias.split(' ').length : 0), 0);
     if (record.kind === 'guidance' && record.match.test(question)) score += 45;
+    if (record.kind === 'fact' && record.match(question)) score += 100;
     if (record.kind === 'terms') score = useTerms ? score + (rules.includes(record.number) ? 30 : 0) : 0;
     if (record.kind === 'insight') score *= 0.6;
     if (mode === 'terms' && record.kind !== 'terms') score *= 0.4;
@@ -137,10 +142,18 @@ const shortExtract = (text, query) => {
 
 function buildGuideReply({ mode = 'site', messages = [] }) {
   const { question, query, prior } = resolveQuestion(messages);
+  const quickSearch = mode === 'site' ? findSiteQuickSearch(question) : null;
+  if (quickSearch) return { text: quickSearch.answer, sources: quickSearch.sources };
   if (instructionAttackPattern.test(question) || (unrelatedTopicPattern.test(question) && !projectTopicPattern.test(question))) return { text: 'I can help with HICH, websites, online stores, applications and project planning. Ask about a feature, a technical choice or the published project terms, and I’ll focus on that.', sources: [] };
   if (/^(hi|hello|hey|good (morning|afternoon|evening))[!.\s]*$/i.test(question)) return { text: mode === 'terms' ? 'Hello! I’m Chathu. Ask me a question about HICH’s published terms, and I’ll find the relevant clauses and explain the wording in context.' : 'Hello! I’m Chathu. I can help you explore HICH’s services, selected work, project process and terms. What are you hoping to build?', sources: [] };
   if (/^(thanks|thank you|great|perfect|ok|okay)[!.\s]*$/i.test(question)) return { text: 'You’re welcome. You can ask a follow-up, or tell me what you would like to explore next.', sources: [] };
   if (assistantIdentityPattern.test(question)) return { text: mode === 'terms' ? 'I’m **Chathu**, HICH’s website assistant. Here, I can help you understand HICH’s published terms and find the relevant clauses.' : 'I’m **Chathu**, HICH’s website assistant. I can answer questions about HICH, help shape your project idea, explain services and connect you with the team.', sources: [] };
+  const companyFacts = matchedCompanyFacts(question);
+  if (companyFacts.length) return { text: companyFacts.map(record => record.text).join('\n\n'), sources: uniqueSources(companyFacts) };
+  if (mode !== 'terms' && /\b(?:quotation|quote builder|build (?:a |my )?quote|download (?:the |my |a )?pdf|pdf (?:download|not working)|send (?:my |the |a )?quote)\b/i.test(question)) {
+    const record = siteRecords.find(item => item.id === 'quotation-help');
+    return { text: record.text, sources: [sourceOf(record)] };
+  }
   if (mode !== 'terms' && startProjectPattern.test(question)) {
     return {
       text: `Prepare a short brief with:\n\n- **Your business and audience**.\n- **The goal** and problem to solve.\n- **Essential features** for the first release.\n- Existing content, brand assets and connected tools.\n- Your **target launch date** and **budget range**.\n\nHICH’s process is **Discover → Design → Develop → Launch & evolve**. Scope, price and schedule are confirmed from the brief.\n\nThe **Start a project** page helps prepare it. Your draft stays in your browser until you choose to copy, download, email or open it in WhatsApp.\n\nWhat are you hoping to build, and who is it for?`,
@@ -253,9 +266,11 @@ export function createGuideReply(options = {}) {
 export function chooseAssistantEngine({ mode = 'site', messages = [] } = {}) {
   const { question, query } = resolveQuestion(messages);
   if (!question) return { engine: 'guide', reason: 'empty' };
+  if (mode === 'site' && findSiteQuickSearch(question)) return { engine: 'guide', reason: 'quick_search' };
   if (/^(hi|hello|hey|good (morning|afternoon|evening)|thanks|thank you|great|perfect|ok|okay)[!.\s]*$/i.test(question)) return { engine: 'guide', reason: 'conversation' };
   if (assistantIdentityPattern.test(question)) return { engine: 'guide', reason: 'identity' };
   if (instructionAttackPattern.test(question)) return { engine: 'guide', reason: 'outside_scope' };
+  if (matchedCompanyFacts(question).length) return { engine: 'guide', reason: 'company_fact' };
   if (unrelatedTopicPattern.test(question) && !projectTopicPattern.test(question)) return { engine: 'guide', reason: 'outside_scope' };
   if (startProjectPattern.test(question) || getContactActions({ messages }).length || /\b(?:registered|registration|registeration|regested|regestered|registred|legitimate|legit)\b/i.test(question)) return { engine: 'ai', reason: 'grounded_answer' };
 
@@ -284,7 +299,7 @@ export function buildGrounding({ mode, messages }) {
     if (record.kind === 'terms' && record.summary) return record.summary;
     return record.text.slice(0, 850);
   };
-  const base = `${company.description}\nCompany registration: ${company.registrationStatus} No registration number, certificate, registered legal name, incorporation date or company suffix is supplied; do not invent those details.\nCanonical contact details: WhatsApp ${company.phoneDisplay} (https://wa.me/${company.phone.replace(/\D/g, '')}); telephone ${company.phoneDisplay} (tel:${company.phone}); email ${company.email} (mailto:${company.email}). Never substitute other contact details or claim to have placed a call or sent a message.\nHICH services: ${services.map(service => `${service.title} — ${service.short}`).join('; ')}.\nNo fixed prices or universal delivery time is published. Concept portfolio work must be identified as concept work.\n${siteRecords.find(record => record.id === 'process').text}`;
+  const base = `${company.description}\nOwner-confirmed company facts: HQ in ${company.headquarters}; founder ${company.founder}; ${company.teamSize} in total, not a verified developer-only count. No exact headcount, street address, office hours, CEO or current appointment availability is supplied. Do not invent those details.\nCompany registration: ${company.registrationStatus} No registration number, certificate, registered legal name, incorporation date or company suffix is supplied; do not invent those details.\nCanonical contact details: WhatsApp ${company.phoneDisplay} (https://wa.me/${company.phone.replace(/\D/g, '')}); telephone ${company.phoneDisplay} (tel:${company.phone}); email ${company.email} (mailto:${company.email}). Never substitute other contact details or claim to have placed a call or sent a message.\nHICH services: ${services.map(service => `${service.title} — ${service.short}`).join('; ')}.\nChathu has a Build quotation action with 36 catalog packages and compatible add-ons, LKR project estimates and separate USD annual renewals. Prices are indicative and require HICH validation; do not invent amounts, discounts or convert currencies. There is no universal delivery time. Concept portfolio work must be identified as concept work.\n${siteRecords.find(record => record.id === 'process').text}`;
   const grounding = `${base}\n\nLOCAL KNOWLEDGE\nRecords marked GENERAL GUIDANCE are planning advice, not published HICH promises, package inclusions or verified provider availability. Published facts come from HICH site records. Answer the latest question directly using only relevant context; do not repeat a service overview on every follow-up.`;
   let context = grounding;
   const included = [];

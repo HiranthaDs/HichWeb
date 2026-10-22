@@ -4,10 +4,36 @@ import { company } from '../src/data.js';
 import { cleanContactActions, getContactActions } from '../src/assistant-actions.js';
 import { ASSISTANT_MAX_WORDS, buildGrounding, chooseAssistantEngine, createGuideReply, limitReplyWords, resolveQuestion } from '../src/assistant-knowledge.js';
 import { practicalKnowledge } from '../src/assistant-practical-knowledge.js';
+import { matchedCompanyFacts } from '../src/assistant-company-knowledge.js';
+import { siteQuickSearches } from '../src/assistant-quick-search.js';
 
 const messages = (...questions) => questions.map(content => ({ role: 'user', content }));
 const reply = (...questions) => createGuideReply({ messages: messages(...questions) });
 const ids = actions => actions.map(action => action.id);
+
+test('owner-confirmed company facts answer natural question variants deterministically', () => {
+  for (const [questions, expected] of [
+    [['Where are you located?', 'Where are you based?', 'Where is HICH Web Development?', 'What is your HQ?', 'Your office location please', 'Where is your headquarters located?'], /Kandana, Sri Lanka/],
+    [['Who is the founder of HICH Web Development?', 'Who founded HICH?', 'Who is your founder?', 'Who is Hirantha Dias?'], /Hirantha Dias/],
+    [['How many staff do you have?', 'How many developers are in your team?', 'How big is your team?', 'What is your headcount?', 'How many employees work at HICH?'], /more than 30 team members/],
+  ]) for (const question of questions) {
+    assert.match(reply(question).text, expected, question);
+    assert.equal(chooseAssistantEngine({ messages: messages(question) }).reason, 'company_fact', question);
+  }
+  const combined = reply('Where are you located, who is your founder and how many staff do you have?');
+  for (const pattern of [/Kandana/, /Hirantha Dias/, /more than 30/]) assert.match(combined.text, pattern);
+  assert.match(reply('Can I visit your office?').text, /not supplied|not.*publish/);
+  for (const question of ['How many developers do I need for my app?', 'Where is my hosting located?', 'Who founded Google?', 'Can my team edit content?']) assert.equal(matchedCompanyFacts(question).length, 0, question);
+});
+
+test('company facts are available to AI grounding without inventing extra details', () => {
+  const { context } = buildGrounding({ mode: 'site', messages: messages('Tell me about HICH') });
+  for (const fact of ['Kandana, Sri Lanka', 'Hirantha Dias', 'more than 30 team members', 'not a verified developer-only count']) assert.ok(context.includes(fact));
+  assert.doesNotMatch(context, /No fixed prices/);
+  assert.ok(context.length <= 6000);
+  assert.match(reply('How do I create a quotation?').text, /Download PDF or Open PDF/);
+  assert.match(reply('How do I create a quotation?').text, /full brief/);
+});
 
 for (const [question, expected] of [
   ['What is your WhatsApp number?', ['whatsapp']],
@@ -142,7 +168,7 @@ test('Project guidance asks a relevant next question', () => {
   for (const question of ['Hello', 'Thanks', 'I need a web app', 'What is your refund policy?', 'Something outside the site knowledge qzxv']) assert.ok(Array.isArray(reply(question).actions));
 });
 
-test('Starting a project prefers AI and retains a complete local fallback', () => {
+test('Starting a project retains a complete local answer', () => {
   for (const question of ['How do I start a project?', 'How can I begin a project?', 'I am ready to kick off my project']) {
     const result = reply(question);
     assert.match(result.text, /business and audience/i);
@@ -153,8 +179,29 @@ test('Starting a project prefers AI and retains a complete local fallback', () =
     assert.match(result.text, /stays in your browser/i);
     assert.deepEqual(result.sources.map(source => source.href), ['/contact.html', '/process.html']);
     assert.deepEqual(result.actions, []);
-    assert.deepEqual(chooseAssistantEngine({ messages: messages(question) }), { engine: 'ai', reason: 'grounded_answer' });
+    assert.deepEqual(chooseAssistantEngine({ messages: messages(question) }), question === siteQuickSearches[0].question
+      ? { engine: 'guide', reason: 'quick_search' }
+      : { engine: 'ai', reason: 'grounded_answer' });
   }
+});
+
+test('Displayed quick searches use saved local answers', () => {
+  assert.deepEqual(siteQuickSearches.map(item => item.question), [
+    'How do I start a project?',
+    'What services do you provide?',
+    'How do you build e-commerce websites with payment gateways?',
+    'What is your WhatsApp number?',
+  ]);
+  for (const item of siteQuickSearches) {
+    const result = reply(item.question);
+    assert.deepEqual(chooseAssistantEngine({ messages: messages(item.question) }), { engine: 'guide', reason: 'quick_search' }, item.question);
+    assert.ok(result.text.length > 40, item.question);
+    assert.ok(result.sources.length > 0, item.question);
+  }
+  const commerce = reply('How do you build e-commerce websites with payment gateways?');
+  assert.match(commerce.text, /storefront, product catalogue, cart and checkout/i);
+  assert.match(commerce.text, /successful, failed, pending and duplicate payment states/i);
+  assert.match(commerce.text, /sandbox before launch/i);
 });
 
 test('Chathu answers identity questions locally', () => {
@@ -187,7 +234,7 @@ test('AI-first routing includes ordinary relevant questions and keeps small talk
   for (const question of ['Hello', 'Thanks', 'Explain quantum gravity']) {
     assert.equal(chooseAssistantEngine({ messages: messages(question) }).engine, 'guide', question);
   }
-  for (const question of ['What services do you offer?', 'What is your WhatsApp number?', 'Are you registered?', 'What is your refund policy?', 'I need a website', 'How much does a store cost?', 'Can my website use Sinhala and Tamil?', 'Which domain should I choose?']) {
+  for (const question of ['What services do you offer?', 'Can I have your WhatsApp contact?', 'Are you registered?', 'What is your refund policy?', 'I need a website', 'How much does a store cost?', 'Can my website use Sinhala and Tamil?', 'Which domain should I choose?']) {
     assert.equal(chooseAssistantEngine({ messages: messages(question) }).engine, 'ai', question);
   }
   assert.equal(chooseAssistantEngine({ messages: messages('Help me plan the best ecommerce website and automation approach for a clothing business.') }).engine, 'ai');

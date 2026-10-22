@@ -20,6 +20,9 @@ import SeasonalSnow from './SeasonalSnow.jsx';
 import TermsHero from './TermsHero.jsx';
 import TermsAssistant from './TermsAssistant.jsx';
 import SiteAssistant, { HomeAssistant } from './SiteAssistant.jsx';
+import SeoVisibilityDemo from './SeoVisibilityDemo.jsx';
+import Folder from './Folder.jsx';
+import './industry-folder-inline.css';
 
 const pathFor = item => `/${item.slug}.html`;
 const navItems = [['Home', '/'], ['Capabilities', '/services.html'], ['Selected work', '/allprojects.html'], ['The studio', '/about.html'], ['Insights', '/insights.html']];
@@ -99,18 +102,48 @@ function Process({ full = false }) {
 }
 
 const sectors = [
-  { title: 'Ambitious businesses', heading: 'THE NEXT CHAPTER\nSTARTS ONLINE.', copy: 'Launch a new venture, reposition your brand or connect the systems behind your growth. We help businesses turn a digital presence into a useful business asset.', link: '/website-development.html', label: 'Explore business websites', word: 'GROW.', color: '#c4fa66' },
-  { title: 'Commerce brands', heading: 'FROM FIRST LOOK\nTO CHECKOUT.', copy: 'Make discovery effortless and buying feel natural. Connect a considered storefront with the catalogue, payments and operations that keep your business moving.', link: '/ecommerce-solutions.html', label: 'Explore e-commerce', word: 'SHOP.', color: '#ffb9ce' },
-  { title: 'Connected teams', heading: 'LESS BUSYWORK.\nMORE POSSIBILITY.', copy: 'Bring people, information and workflows together. Purpose-built portals, ERP systems and integrations make complex work easier to manage.', link: '/erp-systems.html', label: 'Explore business systems', word: 'SYNC.', color: '#b9c8ff' },
+  { title: 'Ambitious businesses', heading: 'THE NEXT CHAPTER\nSTARTS ONLINE.', copy: 'Launch a new venture, reposition your brand or connect the systems behind your growth. We help businesses turn a digital presence into a useful business asset.', link: '/website-development.html', label: 'Explore business websites' },
+  { title: 'Commerce brands', heading: 'FROM FIRST LOOK\nTO CHECKOUT.', copy: 'Make discovery effortless and buying feel natural. Connect a considered storefront with the catalogue, payments and operations that keep your business moving.', link: '/ecommerce-solutions.html', label: 'Explore e-commerce' },
+  { title: 'Connected teams', heading: 'LESS BUSYWORK.\nMORE POSSIBILITY.', copy: 'Bring people, information and workflows together. Purpose-built portals, ERP systems and integrations make complex work easier to manage.', link: '/erp-systems.html', label: 'Explore business systems' },
 ];
+const nextChapterFolderItems = [
+  { title: 'Brand direction', description: 'A clear story for the next chapter.' },
+  { title: 'Digital experience', description: 'A website designed around real people.' },
+  { title: 'Growth plan', description: 'A useful foundation ready to evolve.' },
+];
+function NextChapterFolder() {
+  return <div className="industry-folder-slot">
+    <Folder
+      label="NEXT CHAPTER"
+      items={nextChapterFolderItems}
+      mode="flap"
+      variant="solid"
+      layout="spread"
+      color="#1043f9"
+      paperColor="#ffffff"
+      openOn="click"
+      draggable={false}
+      zoomOnClick={false}
+      peek
+      intro
+      size={1.08}
+      speed={1.08}
+      bounce={0.48}
+      tilt={0.7}
+      theme="light"
+      className="industry-folder-inline"
+    />
+    <span className="industry-folder-inline-hint" aria-hidden="true">CLICK OR TAP TO OPEN <ArrowUpRight size={12} /></span>
+  </div>;
+}
 function Industries() {
   const [sector, setSector] = useState(0);
-  return <section className="industry-section shell section-space"><Label number="06">BUILT AROUND YOUR WORLD</Label><div className="industry-tabs" role="tablist" aria-label="Solutions by business need">{sectors.map((s, i) => <button role="tab" key={s.title} id={`sector-${i}`} aria-controls={`sector-panel-${i}`} aria-selected={sector === i} tabIndex={sector === i ? 0 : -1} onClick={() => setSector(i)} onKeyDown={e => { if (['ArrowRight','ArrowLeft','Home','End'].includes(e.key)) { e.preventDefault(); const next = e.key === 'Home' ? 0 : e.key === 'End' ? 2 : (sector + (e.key === 'ArrowRight' ? 1 : 2)) % 3; setSector(next); document.getElementById(`sector-${next}`)?.focus(); } }}>{s.title}<ArrowUpRight size={18} /></button>)}</div>{sectors.map((s, i) => <div role="tabpanel" id={`sector-panel-${i}`} aria-labelledby={`sector-${i}`} hidden={sector !== i} className="industry-panel" key={s.title}><div className="industry-copy"><h2>{s.heading.split('\n').map(l => <span key={l}>{l}</span>)}</h2><p>{s.copy}</p><LinkButton href={s.link}>{s.label}</LinkButton></div><div className="industry-art" style={{ background: s.color }} aria-hidden="true"><span className="industry-art-top">HICH × YOUR NEXT CHAPTER</span><span className="industry-word">{s.word}</span><span className="industry-art-icon"><BrandSpark /></span><span className="industry-art-bottom">GOOD IDEAS DESERVE GREAT EXPERIENCES. <ArrowUpRight size={25} /></span></div></div>)}</section>;
+  return <section className="industry-section shell section-space"><Label number="06">BUILT AROUND YOUR WORLD</Label><div className="industry-tabs" role="tablist" aria-label="Solutions by business need">{sectors.map((s, i) => <button role="tab" key={s.title} id={`sector-${i}`} aria-controls={`sector-panel-${i}`} aria-selected={sector === i} tabIndex={sector === i ? 0 : -1} onClick={() => setSector(i)} onKeyDown={e => { if (['ArrowRight','ArrowLeft','Home','End'].includes(e.key)) { e.preventDefault(); const next = e.key === 'Home' ? 0 : e.key === 'End' ? 2 : (sector + (e.key === 'ArrowRight' ? 1 : 2)) % 3; setSector(next); document.getElementById(`sector-${next}`)?.focus(); } }}>{s.title}<ArrowUpRight size={18} /></button>)}</div>{sectors.map((s, i) => <div role="tabpanel" id={`sector-panel-${i}`} aria-labelledby={`sector-${i}`} hidden={sector !== i} className={`industry-panel ${i === 0 ? 'industry-panel-with-folder' : 'industry-panel-copy-only'}`} key={s.title}><div className="industry-copy"><h2>{s.heading.split('\n').map(l => <span key={l}>{l}</span>)}</h2><p>{s.copy}</p><LinkButton href={s.link}>{s.label}</LinkButton></div>{i === 0 && <NextChapterFolder />}</div>)}</section>;
 }
 function Studio({ full = false }) {
   return <section className="studio-section"><div className="shell studio-layout"><div><Label number="07">INDEPENDENT STUDIO. CONNECTED THINKING.</Label><h2 className="display-heading">SMALL ENOUGH<br />TO CARE.<br /><span className="pink-outline">BOLD ENOUGH<br />TO BUILD IT.</span></h2><LinkButton href={full ? '/contact.html' : '/about.html'} light>{full ? 'Meet your next digital partner' : 'A little about us'}</LinkButton></div><div className="studio-copy"><div className="studio-graphic" aria-hidden="true"><div className="studio-seal">H<span><BrandSpark /></span></div><span>DESIGN.<br />ENGINEERING.<br />GOOD ENERGY.</span></div><h3>YOUR AMBITION.<br />OUR COLLECTIVE CURIOSITY.</h3><p>HICH is a digital studio based in Sri Lanka, partnering with businesses around the world. We connect the creative and the technical so your idea feels as good as it works.</p><p>Direct conversations. Thoughtful decisions. A shared commitment to building something worth putting your name on.</p><div className="studio-location"><Globe size={20} /><span>BASED IN SRI LANKA<br /><strong>WORKING EVERYWHERE</strong></span><span className="live-dot" /></div></div></div></section>;
 }
-function FAQ({ items = faqs }) { return <section className="faq-section shell section-space" id="faq"><div><Label>GOOD QUESTIONS. STRAIGHT ANSWERS.</Label><h2 className="display-heading">LET’S CLEAR<br /><span className="text-blue">THINGS UP.</span></h2></div><div className="faq-list">{items.map((f, i) => <details key={f.question}><summary><span className="faq-index">{String(i + 1).padStart(2,'0')}</span><h3>{f.question}</h3><Plus size={19} /></summary><p>{f.answer}</p></details>)}</div></section>; }
+function FAQ({ items = faqs }) { return <section className="faq-section shell section-space" id="faq"><div><Label>GOOD QUESTIONS. STRAIGHT ANSWERS.</Label><h2 className="display-heading">LET’S CLEAR<br /><span className="text-blue">THINGS UP.</span></h2></div><div className="faq-list">{items.map((f, i) => { const hasSearchDemo = f.question === 'Can you help with SEO and AI search visibility?'; return <details key={f.question}><summary><span className="faq-index">{String(i + 1).padStart(2,'0')}</span><h3>{f.question}</h3><Plus size={19} /></summary>{hasSearchDemo ? <div className="faq-answer-rich"><p>{f.answer}</p><SeoVisibilityDemo /></div> : <p>{f.answer}</p>}</details>; })}</div></section>; }
 function Insights({ full = false }) { return <section className="insights-section shell section-space"><div className="section-top"><div><Label number={full ? undefined : '08'}>THOUGHTS WORTH SHARING</Label>{!full && <h2 className="display-heading">FRESH PERSPECTIVES.</h2>}</div>{!full && <a className="text-link" href="/insights.html">All insights <Arrow /></a>}</div><div className="insights-grid">{insights.slice(0, full ? undefined : 3).map((item, i) => <a className={`insight-card insight-${i % 3}`} key={item.slug} href={pathFor(item)}><div className="insight-art" aria-hidden="true"><span className="insight-symbol">{[<ArrowUpRight key="arrow" />,<BrandSpark key="spark" />,<Code2 key="code" />][i % 3]}</span><span className="insight-art-caption">THE HICH<br />PERSPECTIVE.</span><span className="insight-arrow"><ArrowUpRight /></span></div><Label>{item.category || 'PRACTICAL GUIDE'}</Label><h3>{item.title}</h3><p>{item.excerpt}</p><span className="text-link">Read the guide <Arrow /></span></a>)}</div></section>; }
 
 function Footer({ contact = false }) {

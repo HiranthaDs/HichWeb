@@ -1,0 +1,81 @@
+/* Quotation workspace: legible cards, live costs and deliberate file delivery. */
+.quote-flow { min-width:0; }
+.quote-flow h4:focus { outline:none; }
+.quote-flow-stage>p,.quote-flow-finished>p { font-size:12px; line-height:1.7; }
+.quote-flow-steps { display:flex; justify-content:space-between; gap:4px; list-style:none; padding:0; margin:12px 0 24px; }
+.quote-flow-steps li { min-width:0; }
+.quote-flow-steps button { display:flex; align-items:center; gap:5px; padding:7px 2px; border:0; background:none; font-size:10px; font-weight:600; color:var(--chat-muted); }
+.quote-flow-steps button>span { display:grid; place-items:center; width:21px; height:21px; flex:none; border-radius:50%; background:var(--chat-surface); }
+.quote-flow-steps button[aria-current=step] { color:var(--chat-accent-text); }
+.quote-flow-steps button[aria-current=step]>span { background:var(--chat-accent); color:white; }
+.quote-flow-steps button:disabled:not([aria-current]) { opacity:.55; }
+.quote-flow-running-total { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:0 0 24px; padding:18px; border:1px solid #d4ddff; border-radius:14px; background:linear-gradient(130deg,#edf1ff,#fafbff); }
+.quote-flow-running-total>span { display:flex; flex-direction:column; gap:7px; }
+.quote-flow-running-total small { font-size:8px; letter-spacing:.06em; line-height:1.6; color:var(--chat-muted); }
+.quote-flow-running-total strong { font-size:17px; color:var(--chat-accent-text); }
+.quote-flow-running-total>span:nth-child(2) strong { font-size:13px; }
+.quote-flow-running-total>p { grid-column:1/-1; margin:0; font-size:10px; color:var(--chat-muted); line-height:1.6; }
+.quote-flow-category-grid>button { min-height:48px; font-size:11px; }
+.quote-flow-category-grid>button[aria-pressed=true] { border-color:var(--chat-accent); background:var(--chat-tint); }
+.quote-flow-package-card { display:grid; gap:12px; min-width:0; padding:19px; border:1px solid var(--chat-line); border-radius:14px; background:var(--chat-paper); transition:border-color .2s,box-shadow .2s; }
+.quote-flow-package-card:hover,.quote-flow-package-card.is-selected { border-color:var(--chat-accent); box-shadow:0 6px 20px #1043f909; }
+.quote-flow-package-card .quote-flow-package-top strong { font-size:13px; }
+.quote-flow-package-card .quote-flow-package-top b { font-size:11px; }
+.quote-flow-package-card>p { margin:0; color:var(--chat-muted); font-size:12px; line-height:1.6; }
+.quote-flow-package-card details { font-size:11px; line-height:1.8; }
+.quote-flow-package-card summary,.quote-flow-share-preview summary { cursor:pointer; color:var(--chat-accent-text); padding:5px 0; }
+.quote-flow-package-card ul { margin:10px 0 0; padding-left:18px; color:var(--chat-muted); }
+.quote-flow-package-card .quote-flow-secondary { justify-self:end; }
+.quote-flow-primary,.quote-flow-secondary,.quote-flow-back { min-height:44px; font-size:11px; }
+.quote-flow-primary>svg,.quote-flow-secondary>svg { flex:none; }
+.quote-flow-search { min-height:44px; }
+.quote-flow-search input { font-size:12px; }
+.quote-flow-addon-list strong { font-size:12px; }
+.quote-flow-addon-list small { display:block; font-size:10px; line-height:1.6; }
+.quote-flow-addon-list b { font-size:10px; }
+.quote-flow-more,.quote-flow-text,.quote-flow-cancel { font-size:11px; min-height:40px; }
+.quote-flow-fields label { font-size:11px; }
+.quote-flow-fields input,.quote-flow-fields textarea { font-size:13px; min-height:44px; }
+.quote-flow-fields small { font-size:10px; line-height:1.5; }
+.quote-flow-review-client strong { font-size:16px; overflow-wrap:anywhere; }
+.quote-flow-review-client small { font-size:11px; overflow-wrap:anywhere; }
+.quote-flow-brief-preview { padding:15px 2px; overflow-wrap:anywhere; }
+.quote-flow-brief-preview p { margin:0 0 8px; font-size:12px; line-height:1.7; white-space:pre-wrap; }
+.quote-flow-brief-preview small { font-size:10px; color:var(--chat-muted); }
+.quote-flow-review-items strong { font-size:12px; }
+.quote-flow-review-items small,.quote-flow-review-items b { font-size:10px; }
+.quote-flow-total>span { font-size:12px; }
+.quote-flow-total>strong { font-size:17px; white-space:nowrap; }
+.quote-flow-total small,.quote-flow-renewal small { font-size:10px; line-height:1.6; }
+.quote-flow-renewal strong { font-size:13px; }
+.quote-flow-milestones { margin:20px 0; }
+.quote-flow-milestones h5 { margin:0 0 8px; font-size:12px; }
+.quote-flow-milestones>div { display:flex; justify-content:space-between; align-items:center; gap:12px; border-bottom:1px solid var(--chat-line); padding:10px 0; font-size:11px; }
+.quote-flow-milestones span { display:flex; gap:9px; align-items:center; }
+.quote-flow-milestones b { color:var(--chat-accent-text); }
+.quote-flow-milestones strong { flex:none; font-size:10px; }
+.quote-flow .quote-flow-notice,.quote-flow .quote-flow-pdf-error { font-size:11px!important; line-height:1.7!important; }
+.quote-flow-share { width:100%; max-width:440px; margin:20px auto 0; padding-top:18px; border-top:1px solid var(--chat-line); }
+.quote-flow-share>.quote-flow-primary,.quote-flow-share>.quote-flow-secondary { width:100%; margin:8px 0; }
+.assistant-chat .quote-flow-whatsapp { background:#146c43; border-color:#146c43; color:#fff; }
+.quote-flow .quote-flow-share-note { margin:12px 0; color:var(--chat-muted); font-size:11px; line-height:1.65; }
+.quote-flow-share-preview { margin-top:14px; text-align:left; font-size:11px; }
+.quote-flow-share-preview textarea { width:100%; margin-top:10px; border:1px solid var(--chat-line); border-radius:10px; padding:12px; background:var(--chat-surface); color:var(--chat-ink); font:12px/1.6 var(--body,Inter,Arial,sans-serif); resize:vertical; }
+.quote-flow-copy-status { color:var(--chat-accent-text); font-size:11px; line-height:1.6; }
+.quote-flow-copy-status:empty { display:none; }
+.quote-flow-finish-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:8px 18px; }
+.quote-flow-ready-card strong { font-size:12px; overflow-wrap:anywhere; }
+.quote-flow-ready-card small { font-size:10px; line-height:1.6; }
+.assistant-chat-header-actions .assistant-chat-build-quote { width:auto; gap:6px; padding-inline:9px; background:var(--chat-tint); color:var(--chat-accent-text); border-radius:8px; font-size:10px; }
+@media(max-width:760px) {
+  .quote-flow-steps button { flex-direction:column; gap:5px; min-width:38px; font-size:9px; }
+  .quote-flow-running-total { padding:14px; }
+  .quote-flow-running-total strong { font-size:15px; }
+  .quote-flow-package-card { padding:15px; }
+  .quote-flow-package-top { flex-wrap:wrap; gap:7px; }
+  .quote-flow-search input,.quote-flow-fields input,.quote-flow-fields textarea,.quote-flow-share-preview textarea { font-size:16px; }
+  .quote-flow-total { flex-wrap:wrap; gap:9px; }
+  .quote-flow-milestones span { align-items:flex-start; }
+  .assistant-chat-build-quote>span { display:none; }
+}
+@media(prefers-reduced-motion:reduce) { .quote-flow-package-card { transition:none; } }

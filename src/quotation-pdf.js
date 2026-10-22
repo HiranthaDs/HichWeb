@@ -23,9 +23,23 @@ const FONT_ASSETS = [
 const MM_PER_POINT = 0.352778;
 
 async function fontAsBase64(url) {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Font unavailable: ${url}`);
-  const bytes = new Uint8Array(await response.arrayBuffer());
+  const controller = new AbortController();
+  let timer;
+  let bytes;
+  try {
+    // Bound the entire read, including a stalled response body. PDF generation
+    // must still work if brand assets are offline, slow or served as HTML.
+    bytes = await Promise.race([
+      (async () => {
+        const response = await fetch(url, { signal: controller.signal });
+        if (!response.ok) throw new Error(`Font unavailable: ${url}`);
+        const data = new Uint8Array(await response.arrayBuffer());
+        if (data.length < 12 || !((data[0] === 0 && data[1] === 1 && data[2] === 0 && data[3] === 0) || String.fromCharCode(...data.subarray(0, 4)) === 'OTTO')) throw new Error('Invalid font response');
+        return data;
+      })(),
+      new Promise((_, reject) => { timer = setTimeout(() => { controller.abort(); reject(new Error('Font request timed out')); }, 5000); }),
+    ]);
+  } finally { clearTimeout(timer); }
   let binary = '';
   for (let offset = 0; offset < bytes.length; offset += 0x8000) {
     binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
@@ -66,7 +80,7 @@ export async function generateQuotationPdf(quote) {
     title: `HICH draft quotation ${quote.reference}`,
     subject: 'Indicative project quotation requiring validation by the HICH team',
     author: quotationCatalog.company.name,
-    creator: 'Chathu Quotation Chatbot',
+    creator: 'Chathu Ai Assistent',
     keywords: 'HICH, draft quotation, website, development, proposal',
   });
 
@@ -559,6 +573,9 @@ export async function generateQuotationPdf(quote) {
 
   const safeClient = (quote.client.company || quote.client.name || 'client').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 44);
   const filename = `HICH-draft-quotation-${safeClient || 'client'}-${quote.reference}.pdf`;
-  doc.save(filename);
-  return { filename, pages, draft: true };
+  const blob = doc.output('blob');
+  if (!blob || blob.size < 100) throw new Error('The PDF could not be prepared. Please try again.');
+  // Saving happens through a real user-clicked link in the builder, not after
+  // asynchronous font loading when the browser may have lost user activation.
+  return { filename, pages, draft: true, blob, fontsReady };
 }

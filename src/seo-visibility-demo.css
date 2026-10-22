@@ -1,0 +1,27 @@
+.faq-answer-rich{padding:0 32px 30px}
+.faq-answer-rich>p{font-size:13px;color:#606060;margin:0 0 18px}
+.seo-visibility-demo{--seo-cycle:8s;position:relative;overflow:hidden;color:#202124;padding:8px 4px 5px;min-height:218px;font-family:Arial,sans-serif}
+.seo-demo-google{display:block;width:92px;height:auto;margin:2px auto 15px}
+.seo-demo-search{width:min(100%,390px);height:36px;margin:0 auto;display:flex;align-items:center;gap:8px;border:1px solid #dadce0;border-radius:20px;padding:0 8px 0 13px;box-shadow:0 2px 8px #3c40430f;color:#5f6368;overflow:hidden}
+.seo-demo-query{display:block;width:0;max-width:calc(100% - 54px);white-space:nowrap;overflow:hidden;font-size:9px;color:#202124}.seo-demo-caret{width:1px;height:12px;background:#1a73e8;opacity:0}.seo-demo-submit{width:24px;height:24px;margin-left:auto;border-radius:50%;display:grid;place-items:center;background:#1a73e8;color:#fff;flex:0 0 auto}
+.seo-demo-result-meta{font-size:6px;color:#70757a;margin:18px 7px 10px;opacity:0}
+.seo-demo-result{position:relative;padding:0 7px;opacity:0;transform:translateY(8px)}
+.seo-result-source{display:flex;align-items:center;gap:8px}.seo-result-source>span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:#eef3fe;color:#1a73e8;font:600 9px/1 Inter,Arial,sans-serif}.seo-result-source p{line-height:1.15}.seo-result-source b{display:block;font-size:7px;font-weight:500}.seo-result-source small{display:block;color:#5f6368;font-size:5.5px;margin-top:2px}.seo-result-title{color:#1a0dab;font-size:11px;font-weight:400;margin:8px 0 4px}.seo-result-copy{font-size:6.5px!important;line-height:1.5!important;color:#4d5156!important;padding:0!important;max-width:420px}.seo-result-signals{display:flex;gap:6px;margin-top:8px}.seo-result-signals span{display:flex;align-items:center;gap:3px;color:#1a73e8;font-size:5.5px;font-weight:600}.seo-result-signals svg{stroke-width:3}
+.seo-demo-cursor{position:absolute;top:59px;right:12px;width:17px;height:20px;filter:drop-shadow(0 2px 2px #0004);opacity:0;z-index:4}.seo-demo-cursor svg{width:100%;height:100%;fill:#111;stroke:#fff;stroke-width:1.5;stroke-linejoin:round}.seo-demo-click{position:absolute;width:30px;height:30px;border:1px solid #1a73e8;border-radius:50%;right:8px;top:54px;opacity:0}
+
+@media(prefers-reduced-motion:no-preference){
+  details[open] .seo-demo-query{animation:seo-query var(--seo-cycle) steps(24,end) infinite}
+  details[open] .seo-demo-caret{animation:seo-caret var(--seo-cycle) linear infinite}
+  details[open] .seo-demo-result-meta{animation:seo-result var(--seo-cycle) ease infinite}
+  details[open] .seo-demo-result{animation:seo-result var(--seo-cycle) cubic-bezier(.2,.8,.2,1) infinite}
+  details[open] .seo-demo-cursor{animation:seo-cursor var(--seo-cycle) cubic-bezier(.6,.05,.25,1) infinite}
+  details[open] .seo-demo-click{animation:seo-click var(--seo-cycle) ease-out infinite}
+}
+@keyframes seo-query{0%,8%,100%{width:0}31%,92%{width:12ch}}
+@keyframes seo-caret{0%,7%,32%,100%{opacity:0}9%,12%,15%,18%,21%,24%,27%,30%{opacity:1}}
+@keyframes seo-result{0%,39%,100%{opacity:0;transform:translateY(8px)}47%,92%{opacity:1;transform:translateY(0)}}
+@keyframes seo-cursor{0%,8%{opacity:0;transform:translate(-180px,3px)}15%{opacity:1;transform:translate(-130px,2px)}33%{opacity:1;transform:translate(0,0) scale(1)}36%{transform:translate(0,0) scale(.82)}40%{transform:translate(0,0) scale(1)}48%,92%{opacity:1;transform:translate(-105px,92px)}100%{opacity:0;transform:translate(-105px,92px)}}
+@keyframes seo-click{0%,32%,40%,100%{opacity:0;transform:scale(.35)}35%{opacity:.9;transform:scale(1.15)}}
+
+@media(prefers-reduced-motion:reduce){.seo-demo-query{width:12ch}.seo-demo-result-meta,.seo-demo-result{opacity:1;transform:none}.seo-demo-cursor,.seo-demo-click,.seo-demo-caret{display:none}}
+@media(max-width:760px){.faq-answer-rich{padding:0 0 25px}.faq-answer-rich>p{font-size:12px;padding:0 22px}.seo-visibility-demo{min-height:218px;padding-inline:8px}.seo-demo-google{width:88px}.seo-demo-search{height:34px}.seo-result-title{font-size:10px}.seo-demo-cursor{right:14px}.seo-demo-click{right:9px}}

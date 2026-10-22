@@ -24,11 +24,13 @@ test('Health reports configuration without making a billable request', async () 
   }
 });
 
-test('Missing credentials and greetings use the local guide', async () => {
+test('Missing credentials, greetings and saved quick searches use the local guide', async () => {
   const fetchImpl = () => assert.fail('Local answer must not call Gemini');
   assert.deepEqual(await (await invoke({ env: {}, fetchImpl })).json(), { mode: 'guide', reason: 'not_configured' });
   const greeting = await invoke({ fetchImpl }, payload('Hello'));
   assert.equal((await greeting.json()).mode, 'guide');
+  const quickSearch = await invoke({ fetchImpl }, payload('How do you build e-commerce websites with payment gateways?'));
+  assert.deepEqual(await quickSearch.json(), { mode: 'guide', reason: 'quick_search' });
 });
 
 test('Simple company questions use grounded AI and keep canonical contacts', async () => {
@@ -39,7 +41,7 @@ test('Simple company questions use grounded AI and keep canonical contacts', asy
     sent = JSON.parse(init.body);
     assert.equal(init.headers['x-goog-api-key'], 'test-key');
     return success('You can reach HICH on WhatsApp.');
-  } }, payload('What is your WhatsApp number?'));
+  } }, payload('Can I have your WhatsApp contact?'));
   const stream = await events(response);
   assert.equal(calls, 1);
   assert.match(url, /models\/gemini-3\.5-flash-lite:generateContent$/);

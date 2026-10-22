@@ -18,6 +18,7 @@
     "test:chat-server": "node scripts/test-chat-server.mjs",
     "test:chat-unit": "node scripts/test-assistant-knowledge.mjs && node scripts/test-chat-reveal.mjs && node scripts/test-chat-server.mjs && node scripts/test-chat-client.mjs && node scripts/test-cloudflare-worker.mjs",
     "test:quotation": "node scripts/test-quotation-engine.mjs && node scripts/test-quotation-pdf.mjs",
+    "test:quotation-ui": "node scripts/qa-quotation.mjs",
     "test:experiences": "node scripts/qa-experiences.mjs",
     "test:chat": "node scripts/qa-chat.mjs",
     "zip": "npm run build && node scripts/package.mjs"

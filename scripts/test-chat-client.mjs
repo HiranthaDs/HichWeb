@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { siteQuickSearches } from '../src/assistant-quick-search.js';
 
 const originalFetch = globalThis.fetch;
 const originalMatchMedia = globalThis.matchMedia;
@@ -19,6 +20,16 @@ const run = async (api, options = {}) => {
 // The reveal animation is separately tested; make these transport checks instant.
 globalThis.matchMedia = () => ({ matches: true });
 try {
+  await test('Displayed quick searches never call Gemini', async () => {
+    globalThis.fetch = async () => assert.fail('A saved quick-search answer must stay local');
+    const api = await client();
+    for (const item of siteQuickSearches) {
+      const events = await run(api, { messages: [{ role: 'user', content: item.question }] });
+      assert.equal(events.find(event => event.type === 'mode').mode, 'guide', item.question);
+      assert.ok(events.some(event => event.type === 'delta' && event.text.length > 40), item.question);
+      assert.equal(events.at(-1).type, 'done', item.question);
+    }
+  });
   await test('Ordinary relevant questions use AI before local knowledge', async () => {
     let calls = 0;
     globalThis.fetch = async () => { calls++; return aiResponse(); };

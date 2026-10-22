@@ -13,7 +13,9 @@
 body:has(dialog[open]){overflow:hidden}
 .hero-asterisk{line-height:1;vertical-align:baseline}
 .industry-art-icon .brand-spark{vertical-align:baseline}
+.industry-panel-copy-only{display:block;max-width:800px;padding-block:20px 10px}
 @media(max-width:760px){
+  .industry-panel.industry-panel-with-folder{flex-direction:column}
   .contact-layout .hich-planner-workspace{padding:22px 18px}
   .pill:not(.pill-light),.mobile-dock>a.dock-project{color:var(--ink)}
   .section-label{font-size:9px}
