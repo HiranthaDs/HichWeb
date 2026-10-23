@@ -4,8 +4,8 @@ html.lenis,html.lenis body{height:auto}
 .lenis.lenis-stopped{overflow:hidden}
 .lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
 @media(prefers-reduced-motion:no-preference){
-  .wordmark .brand-dot{transition:transform .5s cubic-bezier(.22,1,.36,1),color .3s;transform-origin:center bottom}
-  .wordmark:hover .brand-dot{transform:translateY(-5px) rotate(12deg);color:var(--blue)}
+  .wordmark .hich-logo-corners{transition:transform .5s cubic-bezier(.22,1,.36,1);transform-box:fill-box;transform-origin:center}
+  .wordmark:hover .hich-logo-corners{transform:translate(4px,-4px)}
   .menu-lines i{transition:transform .25s cubic-bezier(.22,1,.36,1)}
   .menu-trigger:hover .menu-lines i:first-child{transform:translateX(4px)}
   .menu-trigger:hover .menu-lines i:last-child{transform:translateX(-4px)}

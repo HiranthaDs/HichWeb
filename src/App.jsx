@@ -1,4 +1,5 @@
 import BrandSpark from './BrandSpark.jsx';
+import HichLogo from './HichLogo.jsx';
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, ArrowRight, ArrowDown, ArrowLeft, Plus, Minus, X, Search, Globe, Code2, Layers, ShoppingBag, Sparkles, Check, Mail, Phone, Compass, Grid2X2, MessageCircle, ArrowUp, Play, Pause } from 'lucide-react';
 import { company, services, projects, insights, faqs } from './data.js';
@@ -22,6 +23,7 @@ import TermsAssistant from './TermsAssistant.jsx';
 import SiteAssistant, { HomeAssistant } from './SiteAssistant.jsx';
 import SeoVisibilityDemo from './SeoVisibilityDemo.jsx';
 import Folder from './Folder.jsx';
+import ClientMarquee from './ClientMarquee.jsx';
 import './industry-folder-inline.css';
 
 const pathFor = item => `/${item.slug}.html`;
@@ -31,7 +33,7 @@ function LinkButton({ href = '/contact.html', children = 'Start a project', ligh
   return <a className={`pill ${light ? 'pill-light' : ''} ${className}`} href={href}><span>{children}</span><ArrowUpRight size={19} aria-hidden="true" /></a>;
 }
 function Label({ children, number }) { return <p className="section-label">{number && <span className="label-number">{number}</span>}<span>{children}</span></p>; }
-function Wordmark({ footer = false }) { return <a className={`wordmark ${footer ? 'wordmark-footer' : ''}`} href="/" aria-label="HICH — home">HICH<span className="brand-dot">.</span><span className="brand-caption">WEB<br />DEVELOPMENT</span></a>; }
+function Wordmark({ footer = false, caption = false }) { return <a className={`wordmark ${footer ? 'wordmark-footer' : ''}`} href="/" aria-label="HICH — home"><span className="wordmark-logo-frame"><HichLogo /></span>{caption && <span className="wordmark-service" aria-hidden="true">WEB<br />DEVELOPMENT</span>}</a>; }
 
 function Header({ path }) {
   const menu = useRef(null), searchDialog = useRef(null), searchInput = useRef(null);
@@ -48,7 +50,7 @@ function Header({ path }) {
   useEffect(() => { document.body.style.overflow = menuOpen || searchOpen ? 'hidden' : ''; return () => { document.body.style.overflow = ''; }; }, [menuOpen, searchOpen]);
   return <>
     <a href="#main" className="skip-link">Skip to content</a>
-    <header className="site-header" id="top"><Wordmark /><div className="header-center"><span className="live-dot" /> SRI LANKA · WORLDWIDE</div><div className="header-actions"><button className="search-trigger" aria-label="Search website (Control or Command K)" onClick={openSearch}><Search size={20} /></button><LinkButton className="header-cta">Let’s talk</LinkButton><button className="menu-trigger" onClick={() => { menu.current.showModal(); setMenuOpen(true); }} aria-haspopup="dialog" aria-expanded={menuOpen}>MENU<span className="menu-lines"><i /><i /></span></button></div></header>
+    <header className="site-header" id="top"><Wordmark caption /><div className="header-center"><span className="live-dot" /> SRI LANKA · WORLDWIDE</div><div className="header-actions"><button className="search-trigger" aria-label="Search website (Control or Command K)" onClick={openSearch}><Search size={20} /></button><LinkButton className="header-cta">Let’s talk</LinkButton><button className="menu-trigger" onClick={() => { menu.current.showModal(); setMenuOpen(true); }} aria-haspopup="dialog" aria-expanded={menuOpen}>MENU<span className="menu-lines"><i /><i /></span></button></div></header>
     <dialog className="menu-dialog" ref={menu} onClose={() => setMenuOpen(false)} aria-label="Main navigation"><div className="menu-dialog-top"><Wordmark /><button className="menu-trigger" onClick={closeMenu}>CLOSE <X /></button></div><div className="menu-layout"><nav aria-label="Main menu">{navItems.map(([name, href], i) => <a href={href} key={href} aria-current={path === href ? 'page' : undefined}><span>0{i + 1}</span>{name}<ArrowUpRight /></a>)}</nav><aside><Label>Let’s make something matter.</Label><a href="mailto:info@hichweb.com">info@hichweb.com <Arrow /></a><a href="tel:+94714112113">+94 714 112 113</a><div className="menu-small-links"><a href="/process.html">Our process</a><a href="/technology-stack.html">Our technology</a><a href="/contact.html">Start a project</a><button onClick={openSearch}>Search this site <Search size={16} /></button></div><p>Independent thinking.<br />Connected expertise.<br />A little extraordinary.</p></aside></div><div className="menu-bottom"><span>HICH WEB DEVELOPMENT</span><span>MADE IN SRI LANKA. BUILT FOR EVERYWHERE.</span></div></dialog>
     <dialog className="search-dialog" ref={searchDialog} onClose={() => setSearchOpen(false)} onClick={e => { if (e.target === e.currentTarget) searchDialog.current.close(); }} aria-label="Search HICH"><div className="search-panel"><div className="search-field"><Search /><label className="sr-only" htmlFor="site-search">Search pages and services</label><input id="site-search" ref={searchInput} value={query} onChange={e => setQuery(e.target.value)} placeholder="What are you looking for?" autoComplete="off" /><button className="icon-button" onClick={() => searchDialog.current.close()} aria-label="Close search"><X /></button></div><p className="search-hint">PAGES, CAPABILITIES & PRACTICAL GUIDES</p><div className="search-results">{filtered.length ? filtered.map(r => <a key={r.href} href={r.href}><span><small>{r.category}</small>{r.title}</span><Arrow /></a>) : <p>No matches. Try “website”, “commerce” or “contact”.</p>}</div><div className="search-foot">Use Tab to move through results. Press Escape to close.</div></div></dialog>
     <nav className="mobile-dock" aria-label="Mobile quick navigation"><a href="/" aria-current={path === '/' ? 'page' : undefined}><Compass size={19} /><span>Explore</span></a><a href="/allprojects.html" aria-current={path === '/allprojects.html' ? 'page' : undefined}><Grid2X2 size={19} /><span>Work</span></a><a href="/services.html" aria-current={path === '/services.html' ? 'page' : undefined}><Layers size={19} /><span>Services</span></a><a href="/contact.html" className="dock-project"><ArrowUpRight size={19} /><span>Let’s talk</span></a></nav>
@@ -183,7 +185,7 @@ function LegalPage({ terms = false }) {
     {termsSections.map((section, index) => <section id={`term-${index + 1}`} key={section.title}><span className="legal-section-number">{String(index + 1).padStart(2, '0')}</span><h2>{section.title}</h2>{section.paragraphs.map((paragraph, paragraphIndex) => <p key={paragraphIndex}>{paragraph}</p>)}{section.bullets && <ul>{section.bullets.map(item => <li key={item}>{item}</li>)}</ul>}</section>)}
   </article><TermsAssistant /></> : <article className="legal-copy shell">{privacySections.map(([title, copy]) => <section key={title}><h2>{title}</h2><p>{copy}</p></section>)}</article>}</>;
 }
-function Home() { return <><Hero /><Intro /><ContributionGarden variant="home" /><Work /><StudioLab /><Capabilities /><Benefits /><Process /><Industries /><Studio /><HomeAssistant /><FAQ /><Insights /></>; }
+function Home() { return <><Hero /><Intro /><ContributionGarden variant="home" /><Work /><ClientMarquee /><StudioLab /><Capabilities /><Benefits /><Process /><Industries /><Studio /><HomeAssistant /><FAQ /><Insights /></>; }
 export default function App({ path = '/' }) {
   const root = useRef(null), normalized = normalizePath(path), meta = getPageMeta(path);
   useMotion(root);

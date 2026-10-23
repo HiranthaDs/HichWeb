@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="50 75 501 324" width="400" role="img" aria-label="HICH logo">
+  <g fill="#080808">
+    <path d="M61 148H105V237H133V148H177V389H133V279H105V389H61Z"/>
+    <path d="M189 148H233V389H189Z"/>
+    <path d="M302 147C338 147 360 168 360 202V241H316V204C316 194 312 189 303 189C294 189 289 194 289 205V331C289 341 294 347 303 347C312 347 316 341 316 330V287H360V334C360 371 339 390 302 390C264 390 243 370 243 336V207C243 170 264 147 302 147Z"/>
+    <path d="M371 148H415V237H443V148H487V389H443V279H415V389H371Z"/>
+  </g>
+  <g fill="none" stroke="#18CB96" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M458 127H506V175"/>
+    <path d="M484 94H532V142"/>
+  </g>
+</svg>

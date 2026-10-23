@@ -56,3 +56,13 @@
 @media(max-width:360px){.expertise-ribbon b{font-size:14px}.hero-title{font-size:12vw}.hero-top>p{font-size:14px}.display-heading{font-size:42px}.capability-title{font-size:24px}.industry-tabs button{font-size:9px}.industry-copy h2{font-size:37px}.page-title{font-size:11.8vw}.contact-aside>a{font-size:12px}.mobile-dock>a.dock-project{font-size:9px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}.intro-word{color:#fff}.hero-asterisk{transform:none}.project-image-button:hover .browser-frame{transform:none}}
 @media print{.site-header,.site-footer,.mobile-dock,.menu-dialog,.search-dialog,.identity-scene,.animation-toggle{display:none!important}.shell{width:100%}.section-space{padding:30px 0}body{color:#000;background:#fff}.project-card,.benefit-card{break-inside:avoid}.intro-section,.studio-section{background:#fff;color:#000}.intro-word{color:#000}.page-title{font-size:48px}.contact-layout{display:block}.contact-aside{position:static}}
+
+/* HICH logo: supplied letterforms with a responsive light-on-dark variant. */
+.wordmark{display:inline-flex;align-items:center;width:auto;color:#080808;line-height:0;flex:0 0 auto}
+.wordmark-logo-frame{display:block;width:112px;flex:0 0 auto}
+.wordmark .hich-logo{display:block;width:100%;height:auto;overflow:visible}
+.wordmark-service{align-self:flex-end;width:92px;margin:0 0 4px 3px;padding-left:10px;border-left:1px solid #d7d7d7;font-family:Inter,sans-serif;font-size:7px;font-weight:700;line-height:1.35;letter-spacing:.055em;color:#080808}
+.menu-dialog-top .wordmark,.site-footer .wordmark{color:#fff}
+.footer-brand .wordmark-logo-frame{width:138px}
+@media(max-width:760px){.wordmark-logo-frame{width:96px}.wordmark-service{width:75px;margin-bottom:3px;padding-left:8px;font-size:6px}.footer-brand .wordmark-logo-frame{width:120px}}
+@media(max-width:360px){.wordmark-logo-frame{width:84px}.wordmark-service{width:70px;padding-left:7px;font-size:5.5px}}

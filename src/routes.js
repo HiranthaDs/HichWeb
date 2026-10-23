@@ -69,7 +69,7 @@ export function getSchema(path) {
   const org = {
     '@type': 'Organization', '@id': orgId,
     name: company.name, alternateName: company.alternateNames,
-    url: `${base}/`, logo: `${base}/Logo.png`, description: company.description,
+    url: `${base}/`, logo: `${base}/logo.svg`, description: company.description,
     email: company.email, telephone: company.phone,
     areaServed: [{ '@type': 'Country', name: company.location }, { '@type': 'Place', name: 'Worldwide' }],
     // Identity profiles belong here; a WhatsApp conversation action does not.
