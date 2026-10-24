@@ -1,4 +1,10 @@
-import { formatLkr, formatUsd, quotationCatalog } from './quotation-engine.js';
+import { formatLkr, formatUsd, formatUsdMonthly, quotationCatalog } from './quotation-engine.js';
+
+const addonRecurringLine = addon => addon.estimated_monthly_operating_uplift_usd > 0
+  ? `\n   Ongoing service: +${formatUsdMonthly(addon.estimated_monthly_operating_uplift_usd)}, billed annually as ${formatUsd(addon.estimated_annual_operating_uplift_usd)}`
+  : addon.estimated_annual_operating_uplift_usd > 0
+    ? `\n   Annual renewal addition: +${formatUsd(addon.estimated_annual_operating_uplift_usd)}`
+    : '';
 
 // One complete text representation for WhatsApp, copying and the visible preview.
 // Never truncate a large quote: switch to copy-and-paste when a URL is too long.
@@ -15,11 +21,13 @@ export function quotationMessage(quote) {
     '', '*PACKAGE & SCOPE*', `${quote.package.name} — ${formatLkr(quote.basePrice)}`,
     quote.package.summary, ...quote.package.features.map(feature => `• ${feature}`),
     '', '*SELECTED ADD-ONS*',
-    ...(quote.addons.length ? quote.addons.map((addon, index) => `${index + 1}. ${addon.name} — ${formatLkr(addon.price_lkr)}\n   ${addon.description}`) : ['No optional add-ons selected.']),
+    ...(quote.addons.length ? quote.addons.map((addon, index) => `${index + 1}. ${addon.name} — ${addon.price_label ? `${addon.price_label} ` : ''}${formatLkr(addon.price_lkr)}\n   ${addon.description}${addonRecurringLine(addon)}`) : ['No optional add-ons selected.']),
     '', '*INDICATIVE INVESTMENT*',
     `Package: ${formatLkr(quote.basePrice)}`, `Add-ons: ${formatLkr(quote.addonsTotal)}`,
     `Project total: ${formatLkr(quote.total)} (taxes excluded)`,
     `Separate consolidated annual renewal estimate: ${formatUsd(quote.renewalUsd)}`,
+    `Annual base hosting and service: ${formatUsd(quote.renewalBase)}`,
+    ...(quote.renewalUplift ? [`Selected ongoing services added annually: ${formatUsd(quote.renewalUplift)}`] : []),
     'Annual renewal is usage-dependent and subject to provider prices and final architecture. It is not added to the LKR project total.',
     '', '*PROPOSED PAYMENT STAGES*',
     ...quote.milestones.map(stage => `${stage.title}: ${stage.percentage}% — ${formatLkr(stage.amount)}`),

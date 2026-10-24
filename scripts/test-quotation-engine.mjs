@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
-  buildQuotation, compatibleAddons, formatLkr, formatUsd, packageById, projectCategories, quotationCatalog,
+  buildQuotation, compatibleAddons, formatLkr, formatUsd, formatUsdMonthly, packageById, projectCategories, quotationCatalog,
 } from '../src/quotation-engine.js';
 import { quotationMessage, quotationWhatsApp } from '../src/quotation-share.js';
 
@@ -9,8 +9,8 @@ const client = { name: 'Test Client', objective: 'Launch a reliable online store
 const date = new Date('2026-10-22T12:00:00Z');
 
 test('the complete quotation catalog is available', () => {
-  assert.equal(quotationCatalog.packages.length, 36);
-  assert.equal(quotationCatalog.addons.length, 58);
+  assert.equal(quotationCatalog.packages.length, 37);
+  assert.equal(quotationCatalog.addons.length, 59);
   assert.equal(projectCategories.length, 22);
 });
 
@@ -48,7 +48,67 @@ test('incompatible and already included add-ons cannot enter a quotation', () =>
     reference: 'TEST',
   });
   assert.deepEqual(quote.addons.map(addon => addon.id), ['erp_mod_09_hr_payroll']);
-  assert.equal(quote.total, 282000);
+  assert.equal(quote.total, 327000);
+});
+
+test('every ERP package includes the requested LKR 45,000 price increase', () => {
+  assert.deepEqual(
+    quotationCatalog.packages.filter(item => item.category === 'erp').map(item => [item.id, item.base_price_lkr]),
+    [
+      ['erp_spare_parts', 270000],
+      ['erp_manufacturing', 285000],
+      ['erp_sales_distribution', 290000],
+      ['erp_enterprise', 535000],
+    ],
+  );
+});
+
+test('restaurant table and QR ordering uses the exact project and annual hosting prices', () => {
+  const quote = buildQuotation({ packageId: 'restaurant_table_qr_ordering', client, now: date, reference: 'RESTAURANT' });
+  assert.equal(quote.total, 419000);
+  assert.equal(quote.renewalBase, 400);
+  assert.equal(quote.renewalUplift, 0);
+  assert.equal(quote.renewalUsd, 400);
+  assert.match(quote.package.features.join(' '), /QR code/i);
+  assert.match(quote.package.features.join(' '), /kitchen screen/i);
+  assert.match(quote.package.features.join(' '), /invoice/i);
+});
+
+test('Custom SaaS exposes gateway and three-destination backup with clear recurring pricing', () => {
+  const selectedPackage = packageById('custom_saas');
+  const compatible = compatibleAddons(selectedPackage);
+  const gateway = compatible.find(item => item.id === 'saas_payment_gateway');
+  const backup = compatible.find(item => item.id === 'three_region_backup');
+  assert.equal(gateway.price_lkr, 480000);
+  assert.equal(gateway.price_label, 'Starting at');
+  assert.equal(backup.price_lkr, 400000);
+  assert.equal(backup.estimated_monthly_operating_uplift_usd, 140);
+  assert.equal(backup.estimated_annual_operating_uplift_usd, 1680);
+  assert.equal(formatUsdMonthly(backup.estimated_monthly_operating_uplift_usd), 'USD 140 / month');
+
+  const quote = buildQuotation({
+    packageId: selectedPackage.id,
+    addonIds: [gateway.id, backup.id],
+    client,
+    now: date,
+    reference: 'SAAS',
+  });
+  assert.equal(quote.total, 1370000);
+  assert.equal(quote.renewalBase, 511);
+  assert.equal(quote.renewalUplift, 1680);
+  assert.equal(quote.renewalUsd, 2191);
+  assert.equal(quote.hasGateway, true);
+});
+
+test('Company ERP offers the same three-destination backup price as Custom SaaS', () => {
+  const companyErp = packageById('erp_enterprise');
+  const backup = compatibleAddons(companyErp).find(item => item.id === 'three_region_backup');
+  assert.equal(companyErp.name.startsWith('Company ERP'), true);
+  assert.equal(backup.price_lkr, 400000);
+  assert.equal(backup.estimated_monthly_operating_uplift_usd, 140);
+  const quote = buildQuotation({ packageId: companyErp.id, addonIds: [backup.id], client, reference: 'ERP-BACKUP' });
+  assert.equal(quote.total, 935000);
+  assert.equal(quote.renewalUsd, 2003);
 });
 
 test('WhatsApp contains the complete quotation, not only its reference', () => {

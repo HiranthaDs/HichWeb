@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Copy, Download, ExternalLink, FileText, LoaderCircle, MessageCircle, Search, Sparkles } from 'lucide-react';
 import {
-  buildQuotation, compatibleAddons, createQuoteReference, formatLkr, formatUsd, packageById,
+  buildQuotation, calculateAnnualRenewal, compatibleAddons, createQuoteReference, formatLkr, formatUsd, formatUsdMonthly, packageById,
   packagesForCategory, projectCategories,
 } from './quotation-engine.js';
 import { generateQuotationPdf } from './quotation-pdf.js';
@@ -201,10 +201,17 @@ export default function QuotationFlow({ onCancel, onDone, active = true, standal
     {step === 1 && <div className="quote-flow-stage">
       <p className="quote-flow-kicker">YOUR PROJECT FOUNDATION</p>
       <Heading tabIndex={-1}>Choose your starting point.</Heading>
-      <p>Options for <strong>{projectCategories.find(item => item.id === category)?.label}</strong>. Compare the scope before choosing; every price is an indicative draft estimate.</p>
+      <p>Options for <strong>{projectCategories.find(item => item.id === category)?.label}</strong>. Choose the closest fit—you do not need to know the technical details.</p>
+      {!standalone && <div className="quote-flow-cost-guide" aria-label="How quotation costs work">
+        <span><b>ONE-TIME PROJECT PRICE</b><small>Pays for designing, building, testing and launching the selected system.</small></span>
+        <span><b>ANNUAL RENEWAL</b><small>Keeps the agreed hosting and standard service running after launch. It is shown separately.</small></span>
+        <span><b>FINAL CHECK</b><small>HICH confirms your exact scope, schedule and any outside provider fees before payment.</small></span>
+      </div>}
       <div className="quote-flow-package-list">{packages.map(item => <div className={`quote-flow-package-card${packageId === item.id ? ' is-selected' : ''}`} key={item.id}>
-        <span className="quote-flow-package-top"><strong>{item.name}</strong><b>{formatLkr(item.base_price_lkr)}</b></span>
+        <span className="quote-flow-package-top"><strong>{item.name}</strong><b><small>Starting at</small>{formatLkr(item.base_price_lkr)}</b></span>
         <p>{item.summary}</p>
+        {item.best_for && <p className="quote-flow-best-for"><strong>Good fit for:</strong> {item.best_for}</p>}
+        {!standalone && <p className="quote-flow-package-renewal"><strong>Estimated annual renewal:</strong> {formatUsd(calculateAnnualRenewal(item).renewalUsd)}{item.annual_renewal_label ? ` · ${item.annual_renewal_label}` : ''}</p>}
         <details><summary>See all {item.features.length} included features</summary><ul>{item.features.map(feature => <li key={feature}>{feature}</li>)}</ul></details>
         <button
           className={`quote-flow-secondary quote-flow-package-action${packageId === item.id ? ' is-current' : ''}`}
@@ -221,13 +228,13 @@ export default function QuotationFlow({ onCancel, onDone, active = true, standal
     {step === 2 && <div className="quote-flow-stage">
       <p className="quote-flow-kicker">MAKE IT YOURS</p>
       <Heading tabIndex={-1}>Add only what you need.</Heading>
-      <p>Compatible extras for <strong>{selectedPackage.name}</strong>. Included features are never charged again. You can skip this step.</p>
+      <p>Optional extras for <strong>{selectedPackage.name}</strong>. Each card explains what the extra does in everyday language. You can skip this step.</p>
       {selectedPackage.id === 'tourism_basic' && <button className="quote-flow-upgrade" type="button" onClick={() => selectPackage('tourism_booking')}><Sparkles size={15} /><span><strong>Need live bookings and automatic emails?</strong><small>Explore the complete Tourism booking package.</small></span><ArrowRight size={14} /></button>}
       <label className="quote-flow-search"><Search size={14} /><span className="assistant-chat-sr-only">Search add-ons</span><input value={addonQuery} onChange={event => setAddonQuery(event.target.value)} placeholder="Search all compatible add-ons" /></label>
       <div className="quote-flow-addon-list">{visibleAddons.map(addon => <button className={addonIds.includes(addon.id) ? 'is-selected' : ''} type="button" key={addon.id} onClick={() => toggleAddon(addon.id)} aria-pressed={addonIds.includes(addon.id)}>
         <span className="quote-flow-check">{addonIds.includes(addon.id) && <Check size={13} />}</span>
-        <span><strong>{addon.name}</strong><small>{addon.description}</small>{addon.estimated_annual_operating_uplift_usd > 0 && <small>Annual renewal: +{formatUsd(addon.estimated_annual_operating_uplift_usd)}</small>}</span>
-        <b>{addon.price_lkr ? formatLkr(addon.price_lkr) : 'Included'}</b>
+        <span><strong>{addon.name}{addon.featured && <em>Recommended</em>}</strong><small>{addon.description}</small>{addon.estimated_monthly_operating_uplift_usd > 0 ? <small className="quote-flow-recurring">Ongoing service: +{formatUsdMonthly(addon.estimated_monthly_operating_uplift_usd)} · billed annually as {formatUsd(addon.estimated_annual_operating_uplift_usd)}</small> : addon.estimated_annual_operating_uplift_usd > 0 && <small className="quote-flow-recurring">Annual renewal: +{formatUsd(addon.estimated_annual_operating_uplift_usd)}</small>}</span>
+        <b>{addon.price_lkr ? <>{addon.price_label && <small>{addon.price_label}</small>}{formatLkr(addon.price_lkr)}</> : 'Included'}</b>
       </button>)}</div>
       {!showAllAddons && !addonQuery && allAddons.length > visibleAddons.length && <button className="quote-flow-more" type="button" onClick={() => setShowAllAddons(true)}>Browse all {allAddons.length} compatible add-ons</button>}
       {!visibleAddons.length && <p className="quote-flow-empty">No compatible add-ons match that search.</p>}
@@ -257,10 +264,10 @@ export default function QuotationFlow({ onCancel, onDone, active = true, standal
       <div className="quote-flow-brief-preview"><p>{client.objective}</p><small>Preferred launch: {client.targetLaunch || 'To be discussed'}</small></div>
       <div className="quote-flow-review-items">
         <div><span><strong>{quote.package.name}</strong><small>Project foundation</small></span><b>{formatLkr(quote.basePrice)}</b></div>
-        {quote.addons.map(addon => <div key={addon.id}><span><strong>{addon.name}</strong><small>Optional enhancement</small></span><b>{formatLkr(addon.price_lkr)}</b></div>)}
+        {quote.addons.map(addon => <div key={addon.id}><span><strong>{addon.name}</strong><small>Optional enhancement{addon.estimated_monthly_operating_uplift_usd ? ` · ${formatUsdMonthly(addon.estimated_monthly_operating_uplift_usd)} ongoing` : ''}</small></span><b>{formatLkr(addon.price_lkr)}</b></div>)}
       </div>
       <div className="quote-flow-total"><span>Indicative project investment<small>One-time · Taxes excluded</small></span><strong>{formatLkr(quote.total)}</strong></div>
-      <div className="quote-flow-renewal"><span><strong>{formatUsd(quote.renewalUsd)}</strong><small>Separate consolidated annual renewal estimate · Usage-dependent</small></span><Sparkles size={16} /></div>
+      <div className="quote-flow-renewal"><span><strong>{formatUsd(quote.renewalUsd)}</strong><small>Separate annual renewal: {formatUsd(quote.renewalBase)} base service{quote.renewalUplift ? ` + ${formatUsd(quote.renewalUplift)} selected ongoing services` : ''}. Usage-dependent.</small></span><Sparkles size={16} /></div>
       <div className="quote-flow-milestones"><DetailHeading>Proposed payment stages</DetailHeading>{quote.milestones.map(stage => <div key={stage.title}><span><b>{stage.percentage}%</b>{stage.title}</span><strong>{formatLkr(stage.amount)}</strong></div>)}</div>
       <p className="quote-flow-share-note">Reference: {quote.reference} · Planning validity: {quote.validUntil}. Third-party processing, messaging and subscription fees are excluded unless agreed.</p>
       <p className="quote-flow-notice">This is a draft estimate, not a final quotation or contract. Validate the scope, pricing, timeline and terms with HICH before approval or payment.{quote.approvalRequired ? ' Custom or managed-service items also require technical review.' : ''}</p>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ArrowDown, ArrowUpRight, Check, FileCheck2, CreditCard, ChevronDown, Layers3, LockKeyhole } from 'lucide-react';
 import QuotationFlow from './QuotationFlow.jsx';
 import BrandSpark from './BrandSpark.jsx';
-import { formatLkr, formatUsd, projectCategories } from './quotation-engine.js';
+import { formatLkr, formatUsd, formatUsdMonthly, projectCategories } from './quotation-engine.js';
 import './assistant-chat.css';
 import './quotation-flow.css';
 import './quotation-page.css';
@@ -41,11 +41,11 @@ function ProjectSummary({ state }) {
           <section className="quotation-selection-addons" aria-label="Selected add-ons">
             <div className="quotation-selection-label"><h3>SELECTED ADD-ONS</h3><span className="quotation-selection-count">{quote.addons.length}</span></div>
             {quote.addons.length ? <ul>{quote.addons.map(addon => <li key={addon.id} className="quotation-selection-addon">
-              <div className="quotation-selection-addon-title"><span className="quotation-selection-icon">{addon.id === 'full_payment_gateway' ? <CreditCard size={16} aria-hidden="true" /> : <Check size={15} aria-hidden="true" />}</span><h4>{addon.name}</h4></div>
+              <div className="quotation-selection-addon-title"><span className="quotation-selection-icon">{addon.id === 'full_payment_gateway' || addon.uses_gateway_renewal ? <CreditCard size={16} aria-hidden="true" /> : <Check size={15} aria-hidden="true" />}</span><h4>{addon.name}</h4></div>
               <p>{addon.description}</p>
               <div className="quotation-selection-addon-cost"><strong>{addon.price_lkr ? `+ ${formatLkr(addon.price_lkr)}` : 'Included'}</strong><span>One-time</span></div>
-              {addon.estimated_annual_operating_uplift_usd > 0 && <small className="quotation-selection-uplift">Annual operating uplift: +{formatUsd(addon.estimated_annual_operating_uplift_usd)}</small>}
-              {addon.id === 'full_payment_gateway' && <small className="quotation-selection-uplift">Payment processing changes the annual renewal base; the updated renewal total is shown below.</small>}
+              {addon.estimated_monthly_operating_uplift_usd > 0 ? <small className="quotation-selection-uplift">Ongoing service: +{formatUsdMonthly(addon.estimated_monthly_operating_uplift_usd)}, billed annually as {formatUsd(addon.estimated_annual_operating_uplift_usd)}.</small> : addon.estimated_annual_operating_uplift_usd > 0 && <small className="quotation-selection-uplift">Annual operating uplift: +{formatUsd(addon.estimated_annual_operating_uplift_usd)}</small>}
+              {(addon.id === 'full_payment_gateway' || addon.uses_gateway_renewal) && <small className="quotation-selection-uplift">Payment processing changes the annual renewal base; the updated renewal total is shown below.</small>}
             </li>)}</ul> : <p className="quotation-selection-hint">Package only for now. Select any optional extras to see each service and its price here.</p>}
           </section>
           <dl className="quotation-summary-breakdown">
@@ -53,7 +53,7 @@ function ProjectSummary({ state }) {
             <div><dt>Add-ons ({quote.addons.length})</dt><dd>{formatLkr(quote.addonsTotal)}</dd></div>
           </dl>
           <div className="quotation-summary-total"><span>INDICATIVE INVESTMENT</span><strong key={quote.total}>{formatLkr(quote.total)}</strong><small>One-time project cost · Taxes excluded</small></div>
-          <div className="quotation-summary-renewal"><span>Separate annual renewal</span><strong key={quote.renewalUsd}>{formatUsd(quote.renewalUsd)}</strong><small>Includes applicable operating uplifts. Usage-dependent estimate.</small></div>
+          <div className="quotation-summary-renewal"><span>Separate annual renewal</span><strong key={quote.renewalUsd}>{formatUsd(quote.renewalUsd)}</strong><small>{formatUsd(quote.renewalBase)} base service{quote.renewalUplift ? ` + ${formatUsd(quote.renewalUplift)} selected ongoing services` : ''}. Usage-dependent.</small></div>
         </> : <div className="quotation-selection-pending">
           <span className="quotation-selection-check">02</span><div><h3>{category ? 'Choose your package next.' : 'Your package comes next.'}</h3><p>{category ? `Explore the packages for ${categoryName}. Your included services and prices will appear here as soon as you select one.` : 'Start with a project type. Then choose a package and tailor it with the services you need.'}</p></div>
         </div>}
@@ -92,6 +92,7 @@ export default function QuotationPage() {
         <div className="quotation-details-list">
           <details><summary>What will my quotation include?<span aria-hidden="true">+</span></summary><p>Your selected package, compatible add-ons, project brief, one-time investment, separate annual renewal estimate and proposed payment stages. Prepare a branded PDF, then choose whether to send the full details to HICH through WhatsApp.</p></details>
           <details><summary>Is this the final price?<span aria-hidden="true">+</span></summary><p>This is a draft estimate for planning. Taxes are excluded and annual renewal is shown separately. HICH reviews your scope, price, timeline and terms before anything is approved. Custom and managed-service items can require a technical review.</p></details>
+          <details><summary>What is one-time, monthly or annual?<span aria-hidden="true">+</span></summary><p>The LKR project total is the one-time amount for building the selected scope. Hosting and ongoing services are separate. If an add-on has a monthly operating price, the builder also shows the annual billed amount and includes it in the consolidated USD annual renewal—so you can see the full yearly commitment before sharing.</p></details>
           <details><summary>Does creating this send an enquiry?<span aria-hidden="true">+</span></summary><p>No. Building or downloading a quotation does not submit your brief to HICH. You decide when to share it. A WhatsApp link opens a prepared message; you review and press Send in WhatsApp. Attach your PDF separately if needed.</p></details>
           <details><summary>Can I change my choices?<span aria-hidden="true">+</span></summary><p>Yes. Go back to any completed step to adjust your scope or brief. You can also edit the quotation after preparing your PDF and generate an updated copy. Save your PDF before leaving this page; your draft is not stored when you refresh or close it.</p></details>
         </div>

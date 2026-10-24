@@ -1,4 +1,4 @@
-import { formatLkr, formatUsd, quotationCatalog } from './quotation-engine.js';
+import { formatLkr, formatUsd, formatUsdMonthly, quotationCatalog } from './quotation-engine.js';
 
 // These are the canonical HICH website tokens from styles.css.
 export const QUOTATION_PDF_THEME = Object.freeze({
@@ -387,7 +387,12 @@ export async function generateQuotationPdf(quote) {
     quote.addons.forEach((addon, index) => {
       const textWidth = 119;
       const addonNameLines = splitLines(addon.name, textWidth, { size: 8.9, style: 'bold' });
-      const addonDescriptionLines = splitLines(addon.description || 'Selected project enhancement.', textWidth, { size: 7.3, color: COLORS.muted });
+      const recurringCopy = addon.estimated_monthly_operating_uplift_usd > 0
+        ? ` Ongoing service: +${formatUsdMonthly(addon.estimated_monthly_operating_uplift_usd)}, billed annually as ${formatUsd(addon.estimated_annual_operating_uplift_usd)}.`
+        : addon.estimated_annual_operating_uplift_usd > 0
+          ? ` Annual renewal addition: +${formatUsd(addon.estimated_annual_operating_uplift_usd)}.`
+          : '';
+      const addonDescriptionLines = splitLines(`${addon.description || 'Selected project enhancement.'}${recurringCopy}`, textWidth, { size: 7.3, color: COLORS.muted });
       const rowHeight = Math.max(20, 8 + addonNameLines.length * lineHeight(8.9, 1.3) + addonDescriptionLines.length * lineHeight(7.3, 1.4));
       ensureSpace(rowHeight, { number: 3, title: 'Selected enhancements' });
       if (index % 2 === 0) {
@@ -444,7 +449,7 @@ export async function generateQuotationPdf(quote) {
   doc.text('CONSOLIDATED ANNUAL RENEWAL ESTIMATE', margin + 8, y + 10);
   setText(20, COLORS.white, 'normal', 'display');
   doc.text(formatUsd(quote.renewalUsd).toUpperCase(), margin + 8, y + 25);
-  wrapped('Configured domain allowance, hosting and standard service are combined into one planning estimate. Provider pricing, usage and the validated production architecture may change the final renewal.', 102, y + 10, 86, { size: 7.4, color: [230, 235, 255], lineHeightFactor: 1.45 });
+  wrapped(`Base hosting and service: ${formatUsd(quote.renewalBase)}.${quote.renewalUplift ? ` Selected ongoing services: +${formatUsd(quote.renewalUplift)}.` : ''} Provider pricing, usage and the validated production architecture may change the final renewal.`, 102, y + 10, 86, { size: 7.4, color: [230, 235, 255], lineHeightFactor: 1.45 });
   y += 56;
 
   if (y + 52 <= contentBottom) {

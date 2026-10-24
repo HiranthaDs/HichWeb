@@ -29,9 +29,10 @@ const featuredAddonIds = {
   restaurant: ['booking_engine_general', 'loyalty', 'full_payment_gateway', 'advanced_seo'],
   furniture: ['ecommerce_product_import', 'advanced_seo', 'full_payment_gateway', 'multilanguage'],
   pos: ['pos_addon_offline_sync', 'pos_addon_ecom_bridge', 'pos_addon_loyalty_sms', 'pos_addon_hardware_setup'],
-  erp: ['erp_mod_09_hr_payroll', 'erp_mod_10_crm_leads', 'erp_mod_11_multi_warehouse', 'erp_mod_13_procurement_po'],
+  erp: ['three_region_backup', 'erp_mod_09_hr_payroll', 'erp_mod_10_crm_leads', 'erp_mod_11_multi_warehouse', 'erp_mod_13_procurement_po'],
   crm: ['mobile_salesman_android', 'multi_branch', 'supplier_rfq', 'analytics_dashboard'],
   logistics: ['mobile_salesman_android', 'mobile_security_android', 'maps_geolocation', 'analytics_dashboard'],
+  saas: ['saas_payment_gateway', 'three_region_backup', 'ai_support_chatbot', 'analytics_dashboard'],
 };
 
 const fixText = value => String(value || '').replace(/Â·/g, '·').replace(/â€“|â€”/g, '–');
@@ -54,6 +55,7 @@ export const projectCategories = categoryOrder
 
 export const formatLkr = value => `LKR ${Math.round(Number(value) || 0).toLocaleString('en-LK')}`;
 export const formatUsd = value => `USD ${Math.round(Number(value) || 0).toLocaleString('en-US')} / year`;
+export const formatUsdMonthly = value => `USD ${Math.round(Number(value) || 0).toLocaleString('en-US')} / month`;
 export const packageById = id => quotationCatalog.packages.find(item => item.id === id) || null;
 export const addonById = id => quotationCatalog.addons.find(item => item.id === id) || null;
 export const packagesForCategory = category => quotationCatalog.packages.filter(item => item.category === category);
@@ -70,6 +72,22 @@ export function compatibleAddons(selectedPackage) {
     .filter(addon => !addon.allowed_categories?.length || addon.allowed_categories.includes(selectedPackage.category))
     .map(addon => ({ ...addon, featured: featured.length ? featured.includes(addon.id) : addon.allowed_categories?.includes(selectedPackage.category) }))
     .sort((a, b) => Number(b.featured) - Number(a.featured) || featured.indexOf(a.id) - featured.indexOf(b.id) || a.name.localeCompare(b.name));
+}
+
+export function calculateAnnualRenewal(selectedPackage, selectedAddons = []) {
+  if (!selectedPackage) return { hasGateway: false, renewalBase: 0, renewalUplift: 0, renewalUsd: 0 };
+  const renewalPolicy = quotationCatalog.policy.consolidated_renewal;
+  const hasGateway = selectedAddons.some(addon => addon.id === 'full_payment_gateway' || addon.uses_gateway_renewal);
+  const hosting = renewalPolicy.hosting_usd_year_by_tier[selectedPackage.renewal_hosting_tier]
+    || renewalPolicy.hosting_usd_year_by_tier.basic;
+  const packageRenewal = Number(selectedPackage.annual_renewal_usd);
+  const renewalBase = hasGateway
+    ? renewalPolicy.gateway_base_total_usd_year
+    : Number.isFinite(packageRenewal) && packageRenewal > 0
+      ? packageRenewal
+      : renewalPolicy.domain_allowance_usd_year + renewalPolicy.service_fee_usd_year + hosting;
+  const renewalUplift = selectedAddons.reduce((sum, addon) => sum + (Number(addon.estimated_annual_operating_uplift_usd) || 0), 0);
+  return { hasGateway, renewalBase, renewalUplift, renewalUsd: renewalBase + renewalUplift };
 }
 
 function localDate(value) {
@@ -99,14 +117,7 @@ export function buildQuotation({ packageId, addonIds = [], client = {}, now = ne
   const discountPct = 0;
   const discount = 0;
   const total = subtotal;
-  const renewalPolicy = quotationCatalog.policy.consolidated_renewal;
-  const hasGateway = selectedAddons.some(addon => addon.id === 'full_payment_gateway');
-  const hosting = renewalPolicy.hosting_usd_year_by_tier[selectedPackage.renewal_hosting_tier] || renewalPolicy.hosting_usd_year_by_tier.basic;
-  const renewalBase = hasGateway
-    ? renewalPolicy.gateway_base_total_usd_year
-    : renewalPolicy.domain_allowance_usd_year + renewalPolicy.service_fee_usd_year + hosting;
-  const renewalUplift = selectedAddons.reduce((sum, addon) => sum + (Number(addon.estimated_annual_operating_uplift_usd) || 0), 0);
-  const renewalUsd = renewalBase + renewalUplift;
+  const { hasGateway, renewalBase, renewalUplift, renewalUsd } = calculateAnnualRenewal(selectedPackage, selectedAddons);
   const milestoneSet = total >= quotationCatalog.milestones.large.from_lkr ? quotationCatalog.milestones.large : quotationCatalog.milestones.small;
   const milestones = milestoneSet.stages.map(stage => ({
     ...stage,
@@ -140,6 +151,8 @@ export function buildQuotation({ packageId, addonIds = [], client = {}, now = ne
     discountPct,
     discount,
     total,
+    renewalBase,
+    renewalUplift,
     renewalUsd,
     milestones,
     approvalRequired,

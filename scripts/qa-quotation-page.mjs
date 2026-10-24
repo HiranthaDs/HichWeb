@@ -42,6 +42,8 @@ async function accessible(page) {
 async function wizard(page, width) {
   const flow = page.locator('.quote-flow');
   await flow.getByRole('button', { name: 'E-commerce', exact: true }).click();
+  assert.equal(await flow.locator('.quote-flow-cost-guide').count(), 0);
+  assert.equal(await flow.locator('.quote-flow-package-renewal').count(), 0);
   const card = flow.locator('.quote-flow-package-card').filter({ hasText: 'WhatsApp order checkout' });
   await card.locator('summary').click();
   assert.match(await card.innerText(), /Responsive storefront/);
@@ -159,6 +161,51 @@ try {
       } finally { await context.close(); }
     });
   }
+
+  await check('Custom SaaS, Company ERP and restaurant pricing are clear and usable', async () => {
+    const { context, page } = await session({ viewport: { width: 1440, height: 1100 } });
+    try {
+      await page.goto(`${base}/quotation.html`, { waitUntil: 'networkidle' });
+      const flow = page.locator('.quote-flow');
+
+      await flow.getByRole('button', { name: 'Custom SaaS', exact: true }).click();
+      const saas = flow.locator('.quote-flow-package-card').filter({ hasText: 'Custom SaaS multi-tenant platform' });
+      assert.match(await saas.innerText(), /LKR 490,000/);
+      assert.match(await saas.innerText(), /12 included features/);
+      await saas.getByRole('button', { name: 'Choose package', exact: true }).click();
+      const saasGateway = flow.locator('.quote-flow-addon-list > button').filter({ hasText: 'SaaS payment gateway and subscription billing' });
+      const saasBackup = flow.locator('.quote-flow-addon-list > button').filter({ hasText: 'Three independent backup destinations' });
+      assert.match(await saasGateway.innerText(), /Starting at\s+LKR 480,000/);
+      assert.match(await saasBackup.innerText(), /LKR 400,000/);
+      assert.match(await saasBackup.innerText(), /USD 140 \/ month/);
+      assert.match(await saasBackup.innerText(), /USD 1,680 \/ year/);
+      await saasBackup.click();
+      assert.match(await flow.locator('.quote-flow-running-total').innerText(), /LKR 890,000/);
+      assert.match(await flow.locator('.quote-flow-running-total').innerText(), /USD 2,003/);
+
+      await flow.getByRole('button', { name: 'Project', exact: true }).click();
+      await flow.getByRole('button', { name: 'ERP', exact: true }).click();
+      const companyErp = flow.locator('.quote-flow-package-card').filter({ hasText: 'Company ERP' });
+      assert.match(await companyErp.innerText(), /LKR 535,000/);
+      await companyErp.getByRole('button', { name: 'Choose package', exact: true }).click();
+      assert.match(await flow.locator('.quote-flow-addon-list > button').filter({ hasText: 'Three independent backup destinations' }).innerText(), /LKR 400,000/);
+
+      await flow.getByRole('button', { name: 'Project', exact: true }).click();
+      await flow.getByRole('button', { name: 'Restaurant / cafe', exact: true }).click();
+      const restaurant = flow.locator('.quote-flow-package-card').filter({ hasText: 'Restaurant table, QR and kitchen ordering system' });
+      assert.match(await restaurant.innerText(), /LKR 419,000/);
+      assert.doesNotMatch(await restaurant.innerText(), /USD 400 \/ year/);
+      await restaurant.locator('summary').click();
+      assert.match(await restaurant.innerText(), /Unique QR code for every table/);
+      assert.match(await restaurant.innerText(), /Live kitchen screen for new orders/);
+      assert.match(await restaurant.innerText(), /Automatic invoice/);
+      await restaurant.getByRole('button', { name: 'Choose package', exact: true }).click();
+      assert.match(await flow.locator('.quote-flow-running-total').innerText(), /LKR 419,000/);
+      assert.match(await flow.locator('.quote-flow-running-total').innerText(), /USD 400/);
+      await layout(page, 'Updated commercial journeys');
+      await accessible(page);
+    } finally { await context.close(); }
+  });
 
   await check('No-JavaScript visitors can read the page and reach contact details', async () => {
     const { context, page } = await session({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });

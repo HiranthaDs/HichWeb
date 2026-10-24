@@ -354,6 +354,36 @@
       "price_review_note": "Revised indicative starting point, informed by October 2026 Sri Lankan public pricing ranges; management must approve final scope and price."
     },
     {
+      "id": "restaurant_table_qr_ordering",
+      "name": "Restaurant table, QR and kitchen ordering system",
+      "category": "restaurant",
+      "base_price_lkr": 419000,
+      "summary": "A complete dine-in ordering flow: staff use a tablet or guests scan a table QR code, the kitchen receives the order instantly, and the system prepares the invoice.",
+      "best_for": "Restaurants and cafes that want fewer handwritten orders, a clearer kitchen queue and faster billing.",
+      "features": [
+        "Unique QR code for every table",
+        "Tablet ordering for waiters and counter staff",
+        "Customer-friendly digital menu with item options",
+        "Automatic table number and order time capture",
+        "Live kitchen screen for new orders",
+        "Kitchen status updates: new, preparing, ready and served",
+        "Automatic invoice and printable receipt generation",
+        "Table, menu, price and availability management",
+        "Daily sales summary and order history",
+        "Staff access levels for cashier, kitchen and management",
+        "Mobile, tablet and desktop-ready interface",
+        "Setup guidance and basic team handover"
+      ],
+      "pricing_status": "user_2026_10_24",
+      "includes": [],
+      "optional_modules": [],
+      "renewal_hosting_tier": "managed",
+      "annual_renewal_usd": 400,
+      "annual_renewal_label": "Annual hosting and standard service",
+      "renewal_estimated": true,
+      "price_review_note": "LKR 419,000 starting project price and USD 400 annual hosting requested on 2026-10-24; final scope and third-party costs require review."
+    },
+    {
       "id": "salon_website",
       "name": "Salon / beauty business website",
       "category": "beauty",
@@ -668,7 +698,7 @@
       "id": "erp_spare_parts",
       "name": "Automotive spare-parts ERP / supplier CRM",
       "category": "erp",
-      "base_price_lkr": 225000,
+      "base_price_lkr": 270000,
       "summary": "Customer/vehicle profiles, suppliers, quotation history and part warranties.",
       "features": [
         "Supplier RFQ comparison",
@@ -697,7 +727,7 @@
       "id": "erp_manufacturing",
       "name": "8-module manufacturing ERP",
       "category": "erp",
-      "base_price_lkr": 240000,
+      "base_price_lkr": 285000,
       "summary": "Raw materials, WIP, finished goods, orders, accounting and user roles.",
       "features": [
         "Raw materials and GRN",
@@ -727,7 +757,7 @@
       "id": "erp_sales_distribution",
       "name": "Sales, inventory and distribution ERP",
       "category": "erp",
-      "base_price_lkr": 245000,
+      "base_price_lkr": 290000,
       "summary": "Procurement, warehouse sales, dispatch and finance integration.",
       "features": [
         "Supplier master",
@@ -754,9 +784,9 @@
     },
     {
       "id": "erp_enterprise",
-      "name": "Enterprise ERP · HR, finance, field team and stores",
+      "name": "Company ERP · HR, finance, field team and stores",
       "category": "erp",
-      "base_price_lkr": 490000,
+      "base_price_lkr": 535000,
       "summary": "Full ERP with field sales, security and warehouse operations. Android modules separate.",
       "features": [
         "Inventory and sales",
@@ -1007,14 +1037,21 @@
       "name": "Custom SaaS multi-tenant platform · discovery baseline",
       "category": "saas",
       "base_price_lkr": 490000,
-      "summary": "Multi-tenant product baseline; final price follows scope discovery.",
+      "summary": "A secure online product for serving multiple customer organisations from one managed platform; final price follows scope discovery.",
+      "best_for": "Businesses launching a subscription product, client portal or online service used by many separate customer accounts.",
       "features": [
-        "Workspace accounts",
-        "Tenant data isolation",
-        "Roles",
-        "Subscription logic",
-        "Central admin",
-        "Usage reports"
+        "Secure customer sign-up and sign-in",
+        "Separate workspace for every customer organisation",
+        "Protected customer data separation",
+        "Owner, manager, staff and customer access levels",
+        "Subscription plans, trials and account status controls",
+        "Customer self-service dashboard",
+        "Central admin panel for all accounts",
+        "Automated account and service emails",
+        "Usage, customer and activity reports",
+        "API-ready structure for future integrations",
+        "Mobile, tablet and desktop-ready interface",
+        "Admin guidance and handover documentation"
       ],
       "pricing_status": "illustrative_estimate_needs_approval",
       "includes": [],
@@ -1437,6 +1474,26 @@
       "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
     },
     {
+      "id": "saas_payment_gateway",
+      "name": "SaaS payment gateway and subscription billing",
+      "price_lkr": 480000,
+      "price_label": "Starting at",
+      "category": "payments",
+      "description": "Accept online payments, manage subscription plans and payment status, verify provider callbacks, issue payment records and support failed-payment follow-up. Requires a client-owned merchant account.",
+      "allowed_categories": [
+        "saas"
+      ],
+      "pricing_status": "user_2026_10_24",
+      "uses_gateway_renewal": true,
+      "exclusive_with": [],
+      "legacy_annual_impact_lkr_reference": {
+        "currency": "LKR",
+        "amount": 0
+      },
+      "estimated_annual_operating_uplift_usd": 0,
+      "renewal_uplift_status": "included_in_bundle_or_external_provider_fees_excluded"
+    },
+    {
       "id": "whatsapp_order_checkout",
       "name": "WhatsApp cart and enquiry handoff",
       "price_lkr": 0,
@@ -1717,22 +1774,24 @@
     {
       "id": "three_region_backup",
       "name": "Three independent backup destinations",
-      "price_lkr": 42000,
+      "price_lkr": 400000,
       "category": "infrastructure",
-      "description": "Encrypted backups in independent destinations, retention and recovery drill.",
+      "description": "Encrypted copies stored in three separate destinations, automatic backup monitoring, agreed retention, restore access and a recovery drill so the team knows the data can be recovered.",
       "allowed_categories": [
         "erp",
         "saas",
         "crm"
       ],
-      "pricing_status": "illustrative_estimate_needs_approval",
+      "pricing_status": "user_2026_10_24",
       "exclusive_with": [],
       "legacy_annual_impact_lkr_reference": {
         "currency": "LKR",
         "amount": 15000
       },
-      "estimated_annual_operating_uplift_usd": 180,
-      "renewal_uplift_status": "illustrative_estimate_needs_approval"
+      "estimated_monthly_operating_uplift_usd": 140,
+      "estimated_annual_operating_uplift_usd": 1680,
+      "renewal_billing_note": "USD 140 per month, billed annually as USD 1,680",
+      "renewal_uplift_status": "user_2026_10_24"
     },
     {
       "id": "csv_sync",
@@ -2194,13 +2253,14 @@
     "erp_mod_07_user_roles",
     "erp_mod_08_deployment_training"
   ],
-  "references_last_updated": "2026-10-22",
+  "references_last_updated": "2026-10-24",
   "notes_for_quote_reviewer": [
     "Do not treat client-specific benchmark pricing as a general offer.",
     "Review any indicative prices before client release.",
     "Annual hosting estimates are usage-dependent.",
     "GST/VAT or local tax is not added automatically.",
-    "2026-10-22: Replace legacy mixed LKR annual charges and old USD 360 gateway quote with one renewal total in USD. USD 63/year basic; USD 511/year when payment gateway selected before explicitly estimated operating uplifts. Prices on new proposals may differ from historical offers."
+    "2026-10-22: Replace legacy mixed LKR annual charges and old USD 360 gateway quote with one renewal total in USD. USD 63/year basic; USD 511/year when payment gateway selected before explicitly estimated operating uplifts. Prices on new proposals may differ from historical offers.",
+    "2026-10-24: ERP package prices increased by LKR 45,000 each. Three-destination backup is LKR 400,000 plus USD 140/month billed annually. Custom SaaS gateway starts at LKR 480,000. Restaurant table/QR ordering is LKR 419,000 plus USD 400/year hosting."
   ],
   "renewal_user_instructions_2026_10_22": {
     "domain_usd_year": 18,

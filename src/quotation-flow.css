@@ -17,11 +17,19 @@
 .quote-flow-running-total>p { grid-column:1/-1; margin:0; font-size:10px; color:var(--chat-muted); line-height:1.6; }
 .quote-flow-category-grid>button { min-height:48px; font-size:11px; }
 .quote-flow-category-grid>button[aria-pressed=true] { border-color:var(--chat-accent); background:var(--chat-tint); }
+.quote-flow-cost-guide { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:18px 0 8px; }
+.quote-flow-cost-guide>span { display:flex; flex-direction:column; gap:6px; padding:12px; border:1px solid var(--chat-line); border-radius:10px; background:var(--chat-surface); }
+.quote-flow-cost-guide b { color:var(--chat-accent-text); font-size:8px; letter-spacing:.06em; }
+.quote-flow-cost-guide small { color:var(--chat-muted); font-size:9px; line-height:1.55; }
 .quote-flow-package-card { display:grid; gap:12px; min-width:0; padding:19px; border:1px solid var(--chat-line); border-radius:14px; background:var(--chat-paper); transition:border-color .2s,box-shadow .2s; }
 .quote-flow-package-card:hover,.quote-flow-package-card.is-selected { border-color:var(--chat-accent); box-shadow:0 6px 20px #1043f909; }
 .quote-flow-package-card .quote-flow-package-top strong { font-size:13px; }
-.quote-flow-package-card .quote-flow-package-top b { font-size:11px; }
+.quote-flow-package-card .quote-flow-package-top b { display:flex; flex:none; flex-direction:column; align-items:flex-end; gap:2px; font-size:11px; white-space:nowrap; }
+.quote-flow-package-card .quote-flow-package-top b small { color:var(--chat-muted); font-size:7px; font-weight:500; letter-spacing:.06em; text-transform:uppercase; }
 .quote-flow-package-card>p { margin:0; color:var(--chat-muted); font-size:12px; line-height:1.6; }
+.quote-flow-package-card>p.quote-flow-best-for { padding:10px 12px; border-left:3px solid var(--chat-accent); background:var(--chat-tint); color:var(--chat-ink); }
+.quote-flow-package-card>p.quote-flow-best-for strong,.quote-flow-package-card>p.quote-flow-package-renewal strong { color:var(--chat-ink); }
+.quote-flow-package-card>p.quote-flow-package-renewal { font-size:10px; }
 .quote-flow-package-card details { font-size:11px; line-height:1.8; }
 .quote-flow-package-card summary,.quote-flow-share-preview summary { cursor:pointer; color:var(--chat-accent-text); padding:5px 0; }
 .quote-flow-package-card ul { margin:10px 0 0; padding-left:18px; color:var(--chat-muted); }
@@ -31,8 +39,11 @@
 .quote-flow-search { min-height:44px; }
 .quote-flow-search input { font-size:12px; }
 .quote-flow-addon-list strong { font-size:12px; }
+.quote-flow-addon-list strong em { display:inline-block; margin-left:7px; padding:2px 5px; border-radius:20px; background:var(--chat-tint); color:var(--chat-accent-text); font-size:7px; font-style:normal; font-weight:700; letter-spacing:.04em; text-transform:uppercase; vertical-align:middle; }
 .quote-flow-addon-list small { display:block; font-size:10px; line-height:1.6; }
-.quote-flow-addon-list b { font-size:10px; }
+.quote-flow-addon-list small.quote-flow-recurring { margin-top:3px; color:var(--chat-accent-text); font-weight:600; }
+.quote-flow-addon-list b { display:flex; flex-direction:column; align-items:flex-end; gap:2px; font-size:10px; }
+.quote-flow-addon-list b small { color:var(--chat-muted); font-size:7px; font-weight:500; }
 .quote-flow-more,.quote-flow-text,.quote-flow-cancel { font-size:11px; min-height:40px; }
 .quote-flow-fields label { font-size:11px; }
 .quote-flow-fields input,.quote-flow-fields textarea { font-size:13px; min-height:44px; }
@@ -72,6 +83,7 @@
   .quote-flow-running-total { padding:14px; }
   .quote-flow-running-total strong { font-size:15px; }
   .quote-flow-package-card { padding:15px; }
+  .quote-flow-cost-guide { grid-template-columns:1fr; }
   .quote-flow-package-top { flex-wrap:wrap; gap:7px; }
   .quote-flow-search input,.quote-flow-fields input,.quote-flow-fields textarea,.quote-flow-share-preview textarea { font-size:16px; }
   .quote-flow-total { flex-wrap:wrap; gap:9px; }
