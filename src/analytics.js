@@ -314,13 +314,17 @@ function loadGoogleAnalytics() {
     send_page_view: false,
     allow_google_signals: false,
     allow_ad_personalization_signals: false,
-    debug_mode: debugMode,
+    ...(debugMode ? { debug_mode: true } : {}),
   });
   const script = document.createElement('script');
   script.async = true;
   script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
   script.dataset.hichAnalytics = measurementId;
   document.head.append(script);
+}
+
+function startAnalyticsCollection() {
+  if (getAnalyticsConsent() !== 'granted') return;
   startEngagementTracking();
   trackPageView();
 }
@@ -330,7 +334,8 @@ export function setAnalyticsConsent(value) {
   memoryConsent = value;
   try { window.localStorage.setItem(consentKey, value); } catch { /* Consent still applies to this page. */ }
   updateGoogleConsent(value);
-  if (value === 'granted') loadGoogleAnalytics();
+  loadGoogleAnalytics();
+  if (value === 'granted') startAnalyticsCollection();
   window.dispatchEvent(new CustomEvent(consentEvent, { detail: value }));
 }
 
@@ -351,5 +356,9 @@ export function initAnalytics() {
   setDefaultConsent();
   const consent = getAnalyticsConsent();
   if (consent !== 'unknown') updateGoogleConsent(consent);
-  if (consent === 'granted') loadGoogleAnalytics();
+  // Advanced Consent Mode: load the Google tag after the denied default so
+  // Tag Assistant can connect and Google can receive cookieless consent pings.
+  // HICH interaction events and analytics storage remain gated by permission.
+  loadGoogleAnalytics();
+  if (consent === 'granted') startAnalyticsCollection();
 }

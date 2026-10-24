@@ -32,7 +32,7 @@ export default function AnalyticsConsent() {
     {showPanel && <section className="analytics-consent" role="dialog" aria-label="Analytics privacy choices" aria-live="polite">
       <div>
         <strong>YOUR PRIVACY. YOUR CHOICE.</strong>
-        <p>With your permission, Google Analytics helps us understand page visits, useful actions and site performance. Advertising signals are off, and we never send your form entries, quotation details or search text.</p>
+        <p>The Google tag starts without analytics cookies and may send cookieless consent and status signals. If you allow analytics, it also helps us understand page visits, useful actions and site performance. Advertising signals are off, and we never send your form entries, quotation details or search text.</p>
         <a href="/privacy-policy.html">Read the privacy notice</a>
       </div>
       <div className="analytics-consent-actions">

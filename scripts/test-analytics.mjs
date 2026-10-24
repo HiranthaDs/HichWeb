@@ -41,17 +41,17 @@ try {
   const page = await context.newPage();
   await page.goto(base, { waitUntil: 'networkidle' });
 
-  assert.equal(await page.locator('script[data-hich-analytics]').count(), 0, 'Google tag must not load before consent');
+  await page.locator(`script[data-hich-analytics="${measurementId}"]`).waitFor({ state: 'attached' });
   await page.getByRole('dialog', { name: 'Analytics privacy choices' }).waitFor();
   let commands = await page.evaluate(() => window.dataLayer || []);
   assert.ok(commands.some(command => command[0] === 'consent' && command[1] === 'default' && command[2].analytics_storage === 'denied'), 'Consent defaults to denied');
+  assert.ok(commands.some(command => command[0] === 'config' && command[1] === measurementId && command[2].send_page_view === false), 'Google tag is configured in advanced consent mode');
+  assert.ok(!commands.some(command => command[0] === 'event'), 'HICH analytics events remain blocked before consent');
 
   await page.getByRole('button', { name: 'Allow analytics' }).click();
-  await page.locator(`script[data-hich-analytics="${measurementId}"]`).waitFor({ state: 'attached' });
   assert.equal(await page.evaluate(() => localStorage.getItem('hich.analytics-consent.v1')), 'granted');
   commands = await page.evaluate(() => window.dataLayer);
   assert.ok(commands.some(command => command[0] === 'consent' && command[1] === 'update' && command[2].analytics_storage === 'granted'), 'Consent updates to granted');
-  assert.ok(commands.some(command => command[0] === 'config' && command[1] === measurementId && command[2].send_page_view === false), 'GA4 is configured without an automatic duplicate page view');
   assert.ok(commands.some(command => command[0] === 'event' && command[1] === 'page_view' && command[2].page_location === 'https://hichweb.com/'), 'A canonical page view is queued');
 
   await page.evaluate(() => {
