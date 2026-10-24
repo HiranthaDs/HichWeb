@@ -9,7 +9,6 @@ qa/*.json
 .env
 .env.*
 !.env.example
-!.env.production
 .dev.vars*
 .wrangler/
 .wrangler-dry-run/

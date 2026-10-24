@@ -1,7 +1,6 @@
 import { ArrowUpRight, ArrowDown, Check, Plus, Copy, Undo2 } from 'lucide-react';
 import BrandSpark from './BrandSpark.jsx';
 import { useEffect, useId, useRef, useState } from 'react';
-import { trackEvent } from './analytics.js';
 
 const STORAGE_KEY = 'hich-project-preferences-v1';
 const PROJECT_TYPES = [
@@ -113,28 +112,17 @@ export default function ProjectPlanner() {
       });
       return;
     }
-    trackEvent('planner_progress', { step_number: step + 2, step_name: step === 3 ? 'Review' : STEPS[step + 1], direction: 'forward' });
-    if (step === 3) {
-      trackEvent('planner_complete', {
-        goal_count: preferences.goals.length,
-        has_budget: Boolean(preferences.budget),
-        has_timing: Boolean(preferences.timing),
-        has_project_notes: Boolean(details.trim()),
-      });
-    }
     setStep((current) => current + 1);
     setAnnouncement(step === 3 ? 'Your project brief is ready to review. It has not been sent.' : `Step ${step + 2} of 4: ${STEPS[step + 1]}.`);
   }
 
   function goBack() {
-    trackEvent('planner_progress', { step_number: step, step_name: STEPS[step - 1], direction: 'back' });
     setErrors({});
     setStep((current) => Math.max(0, current - 1));
     setAnnouncement('');
   }
 
   function reset() {
-    trackEvent('planner_restart');
     setPreferences({ ...EMPTY, goals: [] });
     setRemember(false);
     setDetails('');
@@ -167,7 +155,6 @@ export default function ProjectPlanner() {
   async function copyBrief() {
     try {
       await navigator.clipboard.writeText(brief);
-      trackEvent('planner_action', { action_name: 'copy_brief' });
       setAnnouncement('Project brief copied. Paste it into your preferred messaging app.');
     } catch {
       briefRef.current?.focus();
@@ -210,7 +197,7 @@ export default function ProjectPlanner() {
           {STEPS.map((label, index) => <li key={label} className={`${index === step ? 'is-current' : ''} ${index < step ? 'is-complete' : ''}`} aria-current={index === step ? 'step' : undefined}><span className="hich-planner-step-number" aria-hidden="true">{index < step ? <Check size={13} /> : `0${index + 1}`}</span><span>{label}</span><span className="hich-planner-sr-only">{index < step ? ', completed' : index === step ? ', current step' : ''}</span></li>)}
         </ol>
 
-        {!isReview ? <form ref={formRef} data-analytics-form="project_planner" onSubmit={advance} noValidate>
+        {!isReview ? <form ref={formRef} onSubmit={advance} noValidate>
           <div className="hich-planner-stage-header">
             <p className="hich-planner-stage-kicker">STEP 0{step + 1} / 04</p>
             <h3 ref={titleRef} tabIndex={-1}>{['What are we building?', 'What would success look like?', 'A little more direction.', 'Let’s put a name to the idea.'][step]}</h3>

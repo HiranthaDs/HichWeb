@@ -6,7 +6,6 @@ import {
 } from './quotation-engine.js';
 import { generateQuotationPdf } from './quotation-pdf.js';
 import { quotationWhatsApp } from './quotation-share.js';
-import { trackEvent } from './analytics.js';
 
 const steps = ['Project', 'Package', 'Add-ons', 'Brief', 'Review'];
 const emptyClient = { name: '', company: '', email: '', phone: '', objective: '', targetLaunch: '' };
@@ -110,29 +109,23 @@ export default function QuotationFlow({ onCancel, onDone, active = true, standal
 
   const go = next => {
     if (working.current) return;
-    if (next !== step) trackEvent('quotation_progress', { step_number: next + 1, step_name: steps[next], direction: next > step ? 'forward' : 'back' });
     setError('');
     setStep(next);
   };
   const selectCategory = id => {
     if (id !== category) { setPackageId(''); setAddonIds([]); }
-    trackEvent('select_content', { content_type: 'quotation_project_type', item_id: id });
     setCategory(id);
     go(1);
   };
   const selectPackage = id => {
     if (id !== packageId) setAddonIds([]);
-    trackEvent('select_content', { content_type: 'quotation_package', item_id: id });
     setPackageId(id);
     setShowAllAddons(false);
     setAddonQuery('');
     go(2);
   };
   const toggleAddon = id => setAddonIds(current => {
-    const selected = !current.includes(id);
-    const next = selected ? [...current, id] : current.filter(addonId => addonId !== id);
-    trackEvent('quotation_addon_update', { item_id: id, selected, addon_count: next.length });
-    return next;
+    return current.includes(id) ? current.filter(addonId => addonId !== id) : [...current, id];
   });
   const updateClient = event => setClient(current => ({ ...current, [event.target.name]: event.target.value }));
   const clearFile = () => {
@@ -142,7 +135,6 @@ export default function QuotationFlow({ onCancel, onDone, active = true, standal
   };
   const prepare = async () => {
     if (!quote || !canContinueBrief || working.current) return;
-    trackEvent('quotation_pdf_started', { project_type: category, package_id: packageId, addon_count: addonIds.length });
     working.current = true;
     const request = ++generation.current;
     setGenerating(true);
@@ -154,11 +146,9 @@ export default function QuotationFlow({ onCancel, onDone, active = true, standal
       if (fileUrl.current) URL.revokeObjectURL(fileUrl.current);
       fileUrl.current = url;
       setGenerated({ ...result, url, quote });
-      trackEvent('quotation_complete', { project_type: category, package_id: packageId, addon_count: addonIds.length, value: quote.total, currency: 'LKR' });
       onDone?.(quote);
     } catch {
       if (request === generation.current) {
-        trackEvent('exception', { description: 'quotation_pdf_generation_failed', error_type: 'PdfGenerationError', fatal: false });
         setError('The PDF could not be prepared. Your quotation is still here. Try again, or share the full details below. If this page was open during a site update, copy your quotation before refreshing.');
       }
     } finally {
@@ -166,7 +156,6 @@ export default function QuotationFlow({ onCancel, onDone, active = true, standal
     }
   };
   const startAgain = () => {
-    trackEvent('quotation_restart');
     clearFile();
     setIdentity({ now: new Date(), reference: createQuoteReference() });
     setCategory(''); setCategoryQuery(''); setPackageId(''); setAddonIds([]); setClient(emptyClient);
@@ -245,7 +234,7 @@ export default function QuotationFlow({ onCancel, onDone, active = true, standal
       <div className="quote-flow-nav"><button className="quote-flow-back" type="button" onClick={() => go(1)}><ArrowLeft size={14} />Back</button><button className="quote-flow-primary" type="button" onClick={() => go(3)}>{addonIds.length ? `Continue with ${addonIds.length} add-on${addonIds.length > 1 ? 's' : ''}` : 'Continue without add-ons'}<ArrowRight size={14} /></button></div>
     </div>}
 
-    {step === 3 && <form className="quote-flow-stage quote-flow-form" data-analytics-form="quotation_brief" onSubmit={event => { event.preventDefault(); if (canContinueBrief) go(4); }}>
+    {step === 3 && <form className="quote-flow-stage quote-flow-form" onSubmit={event => { event.preventDefault(); if (canContinueBrief) go(4); }}>
       <p className="quote-flow-kicker">A LITTLE CONTEXT GOES A LONG WAY</p>
       <Heading tabIndex={-1}>Tell us about your idea.</Heading>
       <p>Only your name and project goal are required. Your details appear in the PDF and in the message you choose to share.</p>

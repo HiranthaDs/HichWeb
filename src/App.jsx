@@ -25,8 +25,6 @@ import SeoVisibilityDemo from './SeoVisibilityDemo.jsx';
 import Folder from './Folder.jsx';
 import ClientMarquee from './ClientMarquee.jsx';
 import QuotationPage from './QuotationPage.jsx';
-import AnalyticsConsent from './AnalyticsConsent.jsx';
-import { trackEvent } from './analytics.js';
 import './quotation-navigation.css';
 import './industry-folder-inline.css';
 
@@ -41,15 +39,12 @@ function Wordmark({ footer = false, caption = false }) { return <a className={`w
 
 function Header({ path }) {
   const menu = useRef(null), searchDialog = useRef(null), searchInput = useRef(null);
-  const searchTracked = useRef(false);
   const [query, setQuery] = useState(''), [menuOpen, setMenuOpen] = useState(false), [searchOpen, setSearchOpen] = useState(false);
   const allResults = [...[['Contact', '/contact.html'], ['Our process', '/process.html'], ['Careers', '/job.html'], ['Privacy policy', '/privacy-policy.html'], ['Website terms', '/terms-and-conditions.html']].map(([title, href]) => ({ title, href, category: 'Explore' })), ...navItems.map(([title, href]) => ({ title, href, category: 'Explore' })), ...services.map(s => ({ title: s.title, href: pathFor(s), category: 'Capability' })), ...insights.map(s => ({ title: s.title, href: pathFor(s), category: 'Guide' }))];
   const filtered = allResults.filter(r => `${r.title} ${r.category}`.toLowerCase().includes(query.toLowerCase())).slice(0, 9);
   const closeMenu = () => { menu.current?.close(); setMenuOpen(false); };
-  const openSearch = (trigger = 'header') => {
+  const openSearch = () => {
     closeMenu();
-    searchTracked.current = false;
-    trackEvent('site_search_open', { trigger });
     searchDialog.current?.showModal();
     setSearchOpen(true);
     setTimeout(() => searchInput.current?.focus(), 30);
@@ -59,14 +54,6 @@ function Header({ path }) {
     document.addEventListener('keydown', key);
     return () => document.removeEventListener('keydown', key);
   }, []);
-  useEffect(() => {
-    if (!searchOpen || searchTracked.current || query.trim().length < 2) return undefined;
-    const timer = window.setTimeout(() => {
-      searchTracked.current = true;
-      trackEvent('site_search', { results_count: filtered.length, has_results: filtered.length > 0 });
-    }, 400);
-    return () => window.clearTimeout(timer);
-  }, [query, filtered.length, searchOpen]);
   useEffect(() => { document.body.style.overflow = menuOpen || searchOpen ? 'hidden' : ''; return () => { document.body.style.overflow = ''; }; }, [menuOpen, searchOpen]);
   return <>
     <a href="#main" className="skip-link">Skip to content</a>
@@ -196,7 +183,7 @@ function LegalPage({ terms = false }) {
     ['Interactive previews and page transitions', 'Service prototypes, planning checklists and creative previews keep your choices in the current page. They use illustrative records and do not send those choices to HICH or connect to external business systems. Reloading the page resets them. Animated navigation briefly uses session storage for the destination URL and a timestamp; this record is removed when the next page loads. It is not used for analytics or advertising.'],
     ['Motion and seasonal preferences', 'The contribution display responds to your interactions on this page without sending them to HICH. During December, the website can show decorative snowfall. Its pause preference is stored in session storage for this browser tab and removed when that session ends. The website uses the Sri Lankan calendar date and your browser’s reduced-motion preference to decide whether to animate. No location permission is requested.'],
     ['Email, WhatsApp and other providers', 'Email, WhatsApp, LinkedIn and linked project websites have their own privacy practices. Opening a WhatsApp draft passes the prepared brief to WhatsApp in the link URL, even before you send it to HICH. Other external links send a request to their provider. A prepared email or WhatsApp message is only delivered when you send it in the corresponding application.'],
-    ['Analytics choices, cookies and hosting', 'Fonts and website assets are hosted with this website. If Google Analytics is configured, its tag loads with analytics storage denied and may send cookieless consent and operational signals to Google. It does not set analytics cookies or send HICH behavioural events until you choose Allow analytics. With permission, Google Analytics measures page visits, broad interaction events, referral information, device and browser information, approximate location and site performance. HICH disables Google advertising signals and does not send form fields, quotation details, email addresses, telephone numbers or site-search text. Your choice is stored in this browser so the website can remember it; use the Privacy choices control to change it. Your hosting provider may also maintain standard access and security logs, including request and network information.'],
+    ['Cookies and hosting', 'Fonts and website assets are hosted with this website. This website does not load Google Analytics or set analytics cookies. Your hosting provider may maintain standard access and security logs, including request and network information.'],
     ['Your correspondence and requests', 'Information you choose to send to HICH can be used to respond to your enquiry and discuss the project. Email info@hichweb.com to ask about your correspondence or request correction or deletion. Please avoid including unnecessary sensitive information.'],
     ['Updates', 'This notice describes the functionality of the October 2026 website build. It should be reviewed if the deployed site later adds analytics, a form server, accounts, new providers or other data handling.'],
   ];
@@ -227,5 +214,5 @@ export default function App({ path = '/' }) {
     case '/job.html': page = <><PageHero label="CAREERS & COLLABORATION" title="GOOD PEOPLE." blue="GREAT POSSIBILITIES." description="Designers, developers and curious thinkers: introduce yourself and the work you’re proud of." /><section className="shell careers-copy"><h2>LET’S KEEP IN TOUCH.</h2><p>We aren’t listing specific vacancies here. If you’d like to explore a future collaboration, send your portfolio and a short introduction to the studio.</p><LinkButton href="mailto:info@hichweb.com?subject=HICH%20collaboration%20introduction">Introduce yourself</LinkButton></section></>; break;
     default: page = <><PageHero label="404 / A LITTLE OFF TRACK" title="LOST THE LINK?" blue="FIND THE POSSIBILITIES." description="That page isn’t here. There’s plenty more to explore." /><div className="shell not-found-actions"><LinkButton href="/">Back to home</LinkButton><LinkButton href="/allprojects.html" light>Explore our work</LinkButton></div></>;
   }
-  return <div ref={root}><ServicesGitTransition /><PageTransition /><Header path={normalized} /><main id="main" tabIndex={-1}>{page}{meta.type !== 'service' && <PageDepth path={meta.path} />}</main><Footer contact={meta.path === '/contact.html'} />{meta.path !== '/quotation.html' && <><SeasonalSnow /><SiteAssistant home={meta.type === 'home'} /></>}<AnalyticsConsent /></div>;
+  return <div ref={root}><ServicesGitTransition /><PageTransition /><Header path={normalized} /><main id="main" tabIndex={-1}>{page}{meta.type !== 'service' && <PageDepth path={meta.path} />}</main><Footer contact={meta.path === '/contact.html'} />{meta.path !== '/quotation.html' && <><SeasonalSnow /><SiteAssistant home={meta.type === 'home'} /></>}</div>;
 }

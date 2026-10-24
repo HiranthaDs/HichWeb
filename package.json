@@ -22,7 +22,6 @@
     "test:quotation-page": "node scripts/qa-quotation-page.mjs",
     "test:experiences": "node scripts/qa-experiences.mjs",
     "test:chat": "node scripts/qa-chat.mjs",
-    "test:analytics": "node scripts/test-analytics.mjs",
     "zip": "npm run build && node scripts/package.mjs"
   },
   "dependencies": {
