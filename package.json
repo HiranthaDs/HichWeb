@@ -9,8 +9,10 @@
   "scripts": {
     "dev": "vite",
     "dev:react": "vite",
-    "build": "vite build && vite build --ssr src/entry-server.jsx --outDir .ssr && node scripts/prerender.mjs",
-    "build:cloudflare": "npm run build && node scripts/prepare-cloudflare.mjs",
+    "build": "npm run build:cloudflare",
+    "build:site": "vite build && vite build --ssr src/entry-server.jsx --outDir .ssr && node scripts/prerender.mjs",
+    "build:cloudflare": "npm run build:site && node scripts/prepare-cloudflare.mjs",
+    "build:netlify": "npm run build:site",
     "preview": "vite preview",
     "preview:cloudflare": "npm run build:cloudflare && wrangler dev",
     "deploy:cloudflare": "npm run build:cloudflare && wrangler deploy",
@@ -22,7 +24,7 @@
     "test:quotation-page": "node scripts/qa-quotation-page.mjs",
     "test:experiences": "node scripts/qa-experiences.mjs",
     "test:chat": "node scripts/qa-chat.mjs",
-    "zip": "npm run build && node scripts/package.mjs"
+    "zip": "npm run build:netlify && node scripts/package.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0",
