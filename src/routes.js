@@ -3,6 +3,7 @@ import { company, services, insights, faqs } from './data.js';
 export const base = 'https://hichweb.com';
 
 const pages = {
+  '/quotation.html': ['Create Your Project Quotation | HICH', 'Build your HICH project estimate: compare packages, tailor your scope, review costs and payment stages, then download a PDF quotation or share your brief.', 'Quotation studio'],
   '/': ['HICH | Web Development & Digital Design in Sri Lanka', 'HICH (Hich Web Development) designs and builds websites, online stores, apps and business systems in Sri Lanka for businesses worldwide.', 'Home'],
   '/services.html': ['Our Capabilities — Websites, Apps & Digital Systems | HICH', 'Explore HICH web development, UI/UX design, e-commerce, ERP, automation and digital growth services.', 'Capabilities'],
   '/allprojects.html': ['Selected Websites & Digital Projects | HICH', 'Explore HICH website, commerce and digital product work, with concept projects clearly identified.', 'Selected work'],

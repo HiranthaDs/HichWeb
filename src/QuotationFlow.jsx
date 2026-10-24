@@ -6,6 +6,7 @@ import {
 } from './quotation-engine.js';
 import { generateQuotationPdf } from './quotation-pdf.js';
 import { quotationWhatsApp } from './quotation-share.js';
+import { trackEvent } from './analytics.js';
 
 const steps = ['Project', 'Package', 'Add-ons', 'Brief', 'Review'];
 const emptyClient = { name: '', company: '', email: '', phone: '', objective: '', targetLaunch: '' };
@@ -50,7 +51,9 @@ function ShareQuotation({ quote }) {
   </div>;
 }
 
-export default function QuotationFlow({ onCancel, onDone, active = true }) {
+export default function QuotationFlow({ onCancel, onDone, active = true, standalone = false, onStateChange }) {
+  const Heading = standalone ? 'h2' : 'h4';
+  const DetailHeading = standalone ? 'h3' : 'h5';
   const [step, setStep] = useState(0);
   const [category, setCategory] = useState('');
   const [categoryQuery, setCategoryQuery] = useState('');
@@ -67,6 +70,7 @@ export default function QuotationFlow({ onCancel, onDone, active = true }) {
   const fileUrl = useRef(null);
   const generation = useRef(0);
   const working = useRef(false);
+  const previousStage = useRef(null);
   const selectedPackage = packageById(packageId);
   const packages = useMemo(() => packagesForCategory(category), [category]);
   const allAddons = useMemo(() => compatibleAddons(selectedPackage), [selectedPackage]);
@@ -80,6 +84,10 @@ export default function QuotationFlow({ onCancel, onDone, active = true }) {
   const categories = projectCategories.filter(item => `${item.label} ${item.id}`.toLowerCase().includes(categoryQuery.trim().toLowerCase()));
   const canContinueBrief = Boolean(client.name.trim() && client.objective.trim());
 
+  useEffect(() => {
+    onStateChange?.({ step, category, quote, generated: Boolean(generated) });
+  }, [step, category, quote, generated, onStateChange]);
+
   useEffect(() => () => {
     generation.current += 1;
     if (fileUrl.current) URL.revokeObjectURL(fileUrl.current);
@@ -87,23 +95,45 @@ export default function QuotationFlow({ onCancel, onDone, active = true }) {
 
   useEffect(() => {
     if (!active) return;
-    root.current?.closest('.assistant-chat-transcript')?.scrollTo({ top: 0 });
-    root.current?.querySelector('h4')?.focus({ preventScroll: true });
-  }, [step, generated, active]);
+    if (standalone) {
+      const stage = `${step}:${Boolean(generated)}`;
+      if (previousStage.current !== null && previousStage.current !== stage) {
+        root.current?.scrollIntoView({ block: 'start', behavior: 'instant' });
+        root.current?.querySelector('h2')?.focus({ preventScroll: true });
+      }
+      previousStage.current = stage;
+    } else {
+      root.current?.closest('.assistant-chat-transcript')?.scrollTo({ top: 0 });
+      root.current?.querySelector('h4')?.focus({ preventScroll: true });
+    }
+  }, [step, generated, active, standalone]);
 
-  const go = next => { if (!working.current) { setError(''); setStep(next); } };
+  const go = next => {
+    if (working.current) return;
+    if (next !== step) trackEvent('quotation_progress', { step_number: next + 1, step_name: steps[next], direction: next > step ? 'forward' : 'back' });
+    setError('');
+    setStep(next);
+  };
   const selectCategory = id => {
     if (id !== category) { setPackageId(''); setAddonIds([]); }
+    trackEvent('select_content', { content_type: 'quotation_project_type', item_id: id });
     setCategory(id);
     go(1);
   };
   const selectPackage = id => {
     if (id !== packageId) setAddonIds([]);
+    trackEvent('select_content', { content_type: 'quotation_package', item_id: id });
     setPackageId(id);
     setShowAllAddons(false);
     setAddonQuery('');
     go(2);
   };
+  const toggleAddon = id => setAddonIds(current => {
+    const selected = !current.includes(id);
+    const next = selected ? [...current, id] : current.filter(addonId => addonId !== id);
+    trackEvent('quotation_addon_update', { item_id: id, selected, addon_count: next.length });
+    return next;
+  });
   const updateClient = event => setClient(current => ({ ...current, [event.target.name]: event.target.value }));
   const clearFile = () => {
     if (fileUrl.current) URL.revokeObjectURL(fileUrl.current);
@@ -112,6 +142,7 @@ export default function QuotationFlow({ onCancel, onDone, active = true }) {
   };
   const prepare = async () => {
     if (!quote || !canContinueBrief || working.current) return;
+    trackEvent('quotation_pdf_started', { project_type: category, package_id: packageId, addon_count: addonIds.length });
     working.current = true;
     const request = ++generation.current;
     setGenerating(true);
@@ -123,14 +154,19 @@ export default function QuotationFlow({ onCancel, onDone, active = true }) {
       if (fileUrl.current) URL.revokeObjectURL(fileUrl.current);
       fileUrl.current = url;
       setGenerated({ ...result, url, quote });
+      trackEvent('quotation_complete', { project_type: category, package_id: packageId, addon_count: addonIds.length, value: quote.total, currency: 'LKR' });
       onDone?.(quote);
     } catch {
-      if (request === generation.current) setError('The PDF could not be prepared. Your quotation is still here. Try again, or share the full details below. If this page was open during a site update, copy your quotation before refreshing.');
+      if (request === generation.current) {
+        trackEvent('exception', { description: 'quotation_pdf_generation_failed', error_type: 'PdfGenerationError', fatal: false });
+        setError('The PDF could not be prepared. Your quotation is still here. Try again, or share the full details below. If this page was open during a site update, copy your quotation before refreshing.');
+      }
     } finally {
       if (request === generation.current) { working.current = false; setGenerating(false); }
     }
   };
   const startAgain = () => {
+    trackEvent('quotation_restart');
     clearFile();
     setIdentity({ now: new Date(), reference: createQuoteReference() });
     setCategory(''); setCategoryQuery(''); setPackageId(''); setAddonIds([]); setClient(emptyClient);
@@ -140,7 +176,7 @@ export default function QuotationFlow({ onCancel, onDone, active = true }) {
   if (generated) return <div className="quote-flow quote-flow-finished" ref={root}>
     <span className="quote-flow-success"><CheckCircle2 size={28} /></span>
     <p className="quote-flow-kicker">YOUR NEXT STEP, READY</p>
-    <h4 tabIndex={-1}>Your draft. Ready to move forward.</h4>
+    <Heading tabIndex={-1}>Your draft. Ready to move forward.</Heading>
     <p>Your quotation is prepared. Save the PDF, then send the details to HICH for a final scope and price review.</p>
     <div className="quote-flow-ready-card"><FileText size={23} /><span><strong>{generated.quote.reference}</strong><small>{generated.pages} pages · A4 PDF · {formatLkr(generated.quote.total)}</small></span><Check size={18} /></div>
     <a className="quote-flow-primary" href={generated.url} download={generated.filename}><Download size={16} />Download PDF</a>
@@ -152,7 +188,7 @@ export default function QuotationFlow({ onCancel, onDone, active = true }) {
       <button className="quote-flow-text" type="button" onClick={() => { clearFile(); setStep(4); }}>Edit this quotation</button>
       <button className="quote-flow-text" type="button" onClick={startAgain}>Start a new quotation</button>
     </div>
-    <button className="quote-flow-cancel" type="button" onClick={onCancel}>Back to Chathu</button>
+    {!standalone && <button className="quote-flow-cancel" type="button" onClick={onCancel}>Back to Chathu</button>}
   </div>;
 
   return <div className="quote-flow" ref={root} aria-busy={generating}>
@@ -165,34 +201,41 @@ export default function QuotationFlow({ onCancel, onDone, active = true }) {
 
     {step === 0 && <div className="quote-flow-stage">
       <p className="quote-flow-kicker">LET’S SHAPE YOUR NEXT CHAPTER</p>
-      <h4 tabIndex={-1}>What are you planning to build?</h4>
+      <Heading tabIndex={-1}>What are you planning to build?</Heading>
       <p>A clear scope, a transparent estimate, and something you can take to the team. Start with the closest project type.</p>
       <label className="quote-flow-search"><Search size={15} /><span className="assistant-chat-sr-only">Find a project type</span><input value={categoryQuery} onChange={event => setCategoryQuery(event.target.value)} placeholder="Search: e-commerce, hotel, ERP…" /></label>
       <div className="quote-flow-category-grid">{categories.map(item => <button type="button" key={item.id} aria-pressed={category === item.id} onClick={() => selectCategory(item.id)}><span>{item.label}</span><ArrowRight size={14} /></button>)}</div>
-      {!categories.length && <p className="quote-flow-empty">No exact match. Try a broader search, or ask Chathu about your project.</p>}
+      {!categories.length && <p className="quote-flow-empty">No exact match. Try a broader search{standalone ? ' or choose a related project type.' : ', or ask Chathu about your project.'}</p>}
       <p className="quote-flow-share-note">No payment or signup. Your brief is not submitted to HICH by this builder; you choose what to share.</p>
     </div>}
 
     {step === 1 && <div className="quote-flow-stage">
       <p className="quote-flow-kicker">YOUR PROJECT FOUNDATION</p>
-      <h4 tabIndex={-1}>Choose your starting point.</h4>
+      <Heading tabIndex={-1}>Choose your starting point.</Heading>
       <p>Options for <strong>{projectCategories.find(item => item.id === category)?.label}</strong>. Compare the scope before choosing; every price is an indicative draft estimate.</p>
       <div className="quote-flow-package-list">{packages.map(item => <div className={`quote-flow-package-card${packageId === item.id ? ' is-selected' : ''}`} key={item.id}>
         <span className="quote-flow-package-top"><strong>{item.name}</strong><b>{formatLkr(item.base_price_lkr)}</b></span>
         <p>{item.summary}</p>
         <details><summary>See all {item.features.length} included features</summary><ul>{item.features.map(feature => <li key={feature}>{feature}</li>)}</ul></details>
-        <button className="quote-flow-secondary" type="button" onClick={() => selectPackage(item.id)}>{packageId === item.id ? 'Keep this package' : 'Choose package'}<ArrowRight size={14} /></button>
+        <button
+          className={`quote-flow-secondary quote-flow-package-action${packageId === item.id ? ' is-current' : ''}`}
+          type="button"
+          aria-pressed={packageId === item.id}
+          onClick={() => selectPackage(item.id)}
+        >
+          {packageId === item.id ? <><Check size={14} />Keep this package</> : <>Choose package<ArrowRight size={14} /></>}
+        </button>
       </div>)}</div>
       <button className="quote-flow-back" type="button" onClick={() => go(0)}><ArrowLeft size={14} />Change project type</button>
     </div>}
 
     {step === 2 && <div className="quote-flow-stage">
       <p className="quote-flow-kicker">MAKE IT YOURS</p>
-      <h4 tabIndex={-1}>Add only what you need.</h4>
+      <Heading tabIndex={-1}>Add only what you need.</Heading>
       <p>Compatible extras for <strong>{selectedPackage.name}</strong>. Included features are never charged again. You can skip this step.</p>
       {selectedPackage.id === 'tourism_basic' && <button className="quote-flow-upgrade" type="button" onClick={() => selectPackage('tourism_booking')}><Sparkles size={15} /><span><strong>Need live bookings and automatic emails?</strong><small>Explore the complete Tourism booking package.</small></span><ArrowRight size={14} /></button>}
       <label className="quote-flow-search"><Search size={14} /><span className="assistant-chat-sr-only">Search add-ons</span><input value={addonQuery} onChange={event => setAddonQuery(event.target.value)} placeholder="Search all compatible add-ons" /></label>
-      <div className="quote-flow-addon-list">{visibleAddons.map(addon => <button className={addonIds.includes(addon.id) ? 'is-selected' : ''} type="button" key={addon.id} onClick={() => setAddonIds(current => current.includes(addon.id) ? current.filter(id => id !== addon.id) : [...current, addon.id])} aria-pressed={addonIds.includes(addon.id)}>
+      <div className="quote-flow-addon-list">{visibleAddons.map(addon => <button className={addonIds.includes(addon.id) ? 'is-selected' : ''} type="button" key={addon.id} onClick={() => toggleAddon(addon.id)} aria-pressed={addonIds.includes(addon.id)}>
         <span className="quote-flow-check">{addonIds.includes(addon.id) && <Check size={13} />}</span>
         <span><strong>{addon.name}</strong><small>{addon.description}</small>{addon.estimated_annual_operating_uplift_usd > 0 && <small>Annual renewal: +{formatUsd(addon.estimated_annual_operating_uplift_usd)}</small>}</span>
         <b>{addon.price_lkr ? formatLkr(addon.price_lkr) : 'Included'}</b>
@@ -202,9 +245,9 @@ export default function QuotationFlow({ onCancel, onDone, active = true }) {
       <div className="quote-flow-nav"><button className="quote-flow-back" type="button" onClick={() => go(1)}><ArrowLeft size={14} />Back</button><button className="quote-flow-primary" type="button" onClick={() => go(3)}>{addonIds.length ? `Continue with ${addonIds.length} add-on${addonIds.length > 1 ? 's' : ''}` : 'Continue without add-ons'}<ArrowRight size={14} /></button></div>
     </div>}
 
-    {step === 3 && <form className="quote-flow-stage quote-flow-form" onSubmit={event => { event.preventDefault(); if (canContinueBrief) go(4); }}>
+    {step === 3 && <form className="quote-flow-stage quote-flow-form" data-analytics-form="quotation_brief" onSubmit={event => { event.preventDefault(); if (canContinueBrief) go(4); }}>
       <p className="quote-flow-kicker">A LITTLE CONTEXT GOES A LONG WAY</p>
-      <h4 tabIndex={-1}>Tell us about your idea.</h4>
+      <Heading tabIndex={-1}>Tell us about your idea.</Heading>
       <p>Only your name and project goal are required. Your details appear in the PDF and in the message you choose to share.</p>
       <div className="quote-flow-fields">
         <label><span>Your name *</span><input name="name" autoComplete="name" value={client.name} onChange={updateClient} required maxLength={80} placeholder="Full name" /></label>
@@ -219,7 +262,7 @@ export default function QuotationFlow({ onCancel, onDone, active = true }) {
 
     {step === 4 && quote && <div className="quote-flow-stage quote-flow-review">
       <p className="quote-flow-kicker">THE COMPLETE PICTURE</p>
-      <h4 tabIndex={-1}>Make sure it feels right.</h4>
+      <Heading tabIndex={-1}>Make sure it feels right.</Heading>
       <p>Review your scope and separate one-time and annual costs. You can edit any earlier step before preparing the PDF.</p>
       <div className="quote-flow-review-client"><span>Prepared for</span><strong>{client.company || client.name}</strong><small>{[client.company && client.name, client.email, client.phone].filter(Boolean).join(' · ')}</small></div>
       <div className="quote-flow-brief-preview"><p>{client.objective}</p><small>Preferred launch: {client.targetLaunch || 'To be discussed'}</small></div>
@@ -229,7 +272,7 @@ export default function QuotationFlow({ onCancel, onDone, active = true }) {
       </div>
       <div className="quote-flow-total"><span>Indicative project investment<small>One-time · Taxes excluded</small></span><strong>{formatLkr(quote.total)}</strong></div>
       <div className="quote-flow-renewal"><span><strong>{formatUsd(quote.renewalUsd)}</strong><small>Separate consolidated annual renewal estimate · Usage-dependent</small></span><Sparkles size={16} /></div>
-      <div className="quote-flow-milestones"><h5>Proposed payment stages</h5>{quote.milestones.map(stage => <div key={stage.title}><span><b>{stage.percentage}%</b>{stage.title}</span><strong>{formatLkr(stage.amount)}</strong></div>)}</div>
+      <div className="quote-flow-milestones"><DetailHeading>Proposed payment stages</DetailHeading>{quote.milestones.map(stage => <div key={stage.title}><span><b>{stage.percentage}%</b>{stage.title}</span><strong>{formatLkr(stage.amount)}</strong></div>)}</div>
       <p className="quote-flow-share-note">Reference: {quote.reference} · Planning validity: {quote.validUntil}. Third-party processing, messaging and subscription fees are excluded unless agreed.</p>
       <p className="quote-flow-notice">This is a draft estimate, not a final quotation or contract. Validate the scope, pricing, timeline and terms with HICH before approval or payment.{quote.approvalRequired ? ' Custom or managed-service items also require technical review.' : ''}</p>
       {error && <p className="quote-flow-pdf-error" role="alert">{error}</p>}
@@ -237,7 +280,7 @@ export default function QuotationFlow({ onCancel, onDone, active = true }) {
       {generating && <p className="quote-flow-share-note" role="status">Preparing your document. Download and Open PDF links will appear when it is ready.</p>}
       {error && <ShareQuotation quote={quote} />}
     </div>}
-    <button className="quote-flow-cancel" type="button" onClick={onCancel} disabled={generating}>Back to chat · Keep this draft</button>
+    {!standalone && <button className="quote-flow-cancel" type="button" onClick={onCancel} disabled={generating}>Back to chat · Keep this draft</button>}
   </div>;
 }
 

@@ -1,8 +1,8 @@
 # HICH search launch guide
 
-Reviewed for **https://hichweb.com** on **6 October 2026**. This guide covers deployment checks and the account work that must happen after publication. A local build or ZIP cannot submit a site to a verified Search Console account, create brand recognition, or guarantee a search position.
+Reviewed for **https://hichweb.com** on **23 October 2026**. This guide covers deployment checks and the account work that must happen after publication. A local build or ZIP cannot submit a site to a verified Search Console account, create brand recognition, or guarantee a search position.
 
-The build produces 29 full HTML pages, including a noindex error page, plus two redirect aliases. Its sitemap lists the 28 canonical, indexable pages. Every build checks unique titles/descriptions, one primary heading and canonical per page, local asset and page links, the social preview image, and all 55 marked-up FAQ answers against rendered content. It omits unverified publication dates and sitemap `lastmod` dates. These are local acceptance checks; production response codes and indexing still need the checks below.
+The build produces 30 full HTML pages, including a noindex error page, plus two redirect aliases. Its sitemap lists the 29 canonical, indexable pages. Every build checks unique titles/descriptions, one primary heading and canonical per page, local asset and page links, the social preview image, and all marked-up FAQ answers against rendered content. It omits unverified publication dates and sitemap `lastmod` dates. These are local acceptance checks; production response codes and indexing still need the checks below.
 
 ## 1. Publish one canonical website
 
@@ -59,6 +59,8 @@ For Google AI Overviews and AI Mode, the established SEO foundations still apply
 Publish first-hand details from real HICH work over time: the problem, constraints, design decisions and verified outcome. Describe only what the business can substantiate. Keep helpful FAQs for visitors. The site retains accurate `FAQPage` semantic data, but **Google retired FAQ rich results in May 2026**; this markup does not unlock a Google FAQ display. [Google: Search documentation updates](https://developers.google.com/search/updates).
 
 ## 6. Measure progress after launch
+
+Follow [`GOOGLE-ANALYTICS-SETUP.md`](./GOOGLE-ANALYTICS-SETUP.md) to add the real GA4 Measurement ID, verify consent behaviour, define the lead key event and link the GA4 property to Search Console. The source intentionally loads no Google tag while the ID is absent.
 
 Track impressions, clicks and landing pages for `HICH`, `Hich Web`, `Hich Web Development`, `hichweb.com` and relevant service searches in Search Console. Compare equivalent periods and locations. Record enquiries separately so search traffic is connected to actual business value.
 

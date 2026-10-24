@@ -1,0 +1,38 @@
+.menu-small-links .mobile-quotation-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
+  min-height: 48px;
+  margin-bottom: 8px;
+  padding: 12px 16px;
+  border: 1px solid var(--pink);
+  border-radius: 999px;
+  background: var(--pink);
+  color: var(--ink);
+  font-weight: 600;
+}
+.menu-small-links .mobile-quotation-link:hover,
+.menu-small-links .mobile-quotation-link[aria-current="page"] {
+  border-color: #fff;
+  background: #fff;
+  color: var(--ink);
+}
+.menu-small-links .mobile-quotation-link svg { flex: none; }
+.footer-bottom a[href="/quotation.html"] {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 7px 12px;
+  border: 1px solid var(--pink);
+  border-radius: 999px;
+  color: var(--pink);
+  font-weight: 600;
+}
+.footer-bottom a[href="/quotation.html"]:hover { border-color: #fff; color: #fff; }
+.footer-bottom > div { flex-wrap: wrap; }
+@media (max-width: 760px) {
+  .menu-small-links .mobile-quotation-link { flex: 1 0 100%; min-height: 46px; margin-bottom: 2px; }
+  .footer-bottom > div { row-gap: 12px; }
+}

@@ -4,6 +4,7 @@ import { streamAssistantReply } from './chat-client.js';
 import { cleanContactActions, getContactActions } from './assistant-actions.js';
 import { siteQuickSearches } from './assistant-quick-search.js';
 import QuotationFlow from './QuotationFlow.jsx';
+import { trackEvent } from './analytics.js';
 import './assistant-chat.css';
 import './quotation-flow.css';
 
@@ -202,7 +203,11 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
   const lastUser = [...messages].reverse().find(message => message.role === 'user');
   const title = mode === 'terms' ? 'Chathu — Terms' : 'Chathu';
   const status = experience === 'quote' ? 'Your quotation workspace' : busy ? messages.at(-1)?.content ? 'Writing a response' : 'Thinking about your question' : 'Ready to help';
-  const openQuotation = () => { setQuoteStarted(true); setExperience('quote'); };
+  const openQuotation = () => {
+    trackEvent('assistant_quotation_open', { assistant_mode: mode, resumed: quoteStarted });
+    setQuoteStarted(true);
+    setExperience('quote');
+  };
   latest.current = { messages, engine, ready, busy };
   conversationCallback.current = onConversationChange;
 
@@ -281,6 +286,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
     followBottom.current = true;
     setNewMessages(false);
     let result = '';
+    let resultEngine = 'guide';
     const active = () => mounted.current && controller.current === abort && !abort.signal.aborted;
     try {
       await streamAssistantReply({
@@ -289,6 +295,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
           if (!active()) return;
           if (event.type === 'mode') {
             const answerEngine = event.mode === 'ai' ? 'ai' : 'guide';
+            resultEngine = answerEngine;
             setEngine(answerEngine);
             setMessages(current => current.map(message => message.id === assistantId ? { ...message, engine: answerEngine } : message));
           }
@@ -303,6 +310,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
       if (!active()) return;
       if (!result.trim()) throw new Error('Empty response');
       setMessages(current => current.map(message => message.id === assistantId ? { ...message, actions: cleanContactActions(message.actions?.length ? message.actions : getContactActions({ messages: base, content: result })) } : message));
+      trackEvent('assistant_response', { assistant_mode: mode, response_engine: resultEngine });
       setAnnouncement('Response ready.');
     } catch (caught) {
       if (!active() || caught?.name === 'AbortError') return;
@@ -310,6 +318,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
         ? caught.message.trim().slice(0, 240)
         : 'The response could not finish. Please try again.';
       setError(message);
+      trackEvent('exception', { description: 'assistant_response_failed', error_type: caught?.name || 'AssistantError', fatal: false });
       setAnnouncement(`${message} You can retry the response.`);
       setMessages(current => current.map(message => message.id === assistantId ? { ...message, failed: true } : message));
     } finally {
@@ -323,6 +332,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
   function send(text = input) {
     const content = text.trim().slice(0, MAX_INPUT);
     if (!content || controller.current || !ready) return;
+    trackEvent('assistant_message', { assistant_mode: mode, entry_method: text === input ? 'composer' : 'suggestion', message_number: messages.filter(message => message.role === 'user').length + 1 });
     setInput('');
     setExperience('chat');
     runReply([...messages.filter(message => message.content), { id: `user-${Date.now()}-${++sequence.current}`, role: 'user', content }]);
@@ -330,6 +340,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
   }
 
   function stop() {
+    trackEvent('assistant_response_stop', { assistant_mode: mode });
     controller.current?.abort();
     controller.current = null;
     setBusy(false);
@@ -340,7 +351,10 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
 
   function regenerate() {
     const userIndex = messages.findLastIndex(message => message.role === 'user');
-    if (userIndex >= 0) runReply(messages.slice(0, userIndex + 1));
+    if (userIndex >= 0) {
+      trackEvent('assistant_response_retry', { assistant_mode: mode });
+      runReply(messages.slice(0, userIndex + 1));
+    }
   }
 
   function reset() {
@@ -365,6 +379,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
     try {
       await navigator.clipboard.writeText(message.content);
       if (!mounted.current) return;
+      trackEvent('assistant_response_copy', { assistant_mode: mode });
       setCopied(message.id);
       setAnnouncement('Response copied.');
       clearTimeout(copyTimer.current);
@@ -432,7 +447,7 @@ export default function AssistantChat({ mode = 'site', compact = false, onConver
       {newMessages && <button className="assistant-chat-jump" type="button" onClick={scrollToBottom}><ArrowDown size={13} />Latest response</button>}
     </div>
 
-    {experience !== 'quote' && <form className="assistant-chat-composer" onSubmit={event => { event.preventDefault(); send(); }}>
+    {experience !== 'quote' && <form className="assistant-chat-composer" data-analytics-form="assistant_question" onSubmit={event => { event.preventDefault(); send(); }}>
       <div className="assistant-chat-input-wrap">
         <label className="assistant-chat-sr-only" htmlFor={`${id}-message`}>Your message</label>
         <textarea id={`${id}-message`} ref={textarea} value={input} onChange={event => setInput(event.target.value)} placeholder={mode === 'terms' ? 'Ask about the terms…' : 'Ask anything about HICH…'} rows={1} maxLength={MAX_INPUT} aria-describedby={`${id}-hint`} onKeyDown={event => {

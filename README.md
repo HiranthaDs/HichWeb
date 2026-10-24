@@ -32,9 +32,13 @@ Chathu is the homepage and website-wide HICH assistant; the terms view keeps its
 
 ## Editing the website
 
+The public quotation studio lives at `/quotation.html`, linked from the hamburger menu and the bottom footer. It reuses Chathu's quotation flow, catalog, pricing engine, PDF generation and sharing logic. Its layout uses the main website's typography, blue and pink accents, shared hero/scroll motion and standard page transitions. The builder opens immediately without a loading intro. Quotations remain draft estimates for HICH review; nothing is submitted until the visitor chooses to share.
+
 | Location | Purpose |
 | --- | --- |
 | `src/App.jsx` | Shared navigation, footer, page layouts and home sections |
+| `src/QuotationPage.jsx`, `src/quotation-page.css` | Dedicated quotation workspace and responsive presentation |
+| `src/QuotationFlow.jsx`, `src/quotation-engine.js` | Shared quotation workflow and pricing rules |
 | `src/data.js` | HICH details, services, portfolio, articles and FAQs |
 | `src/ServiceExperience.jsx` | Working demonstrations for each service |
 | `src/service-experience-data.js` | Service-specific editorial content |

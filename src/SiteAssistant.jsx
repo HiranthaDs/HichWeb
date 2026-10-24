@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { ArrowDownRight, MessageCircle, Sparkles } from 'lucide-react';
 import AssistantChat from './AssistantChat.jsx';
 import BrandSpark from './BrandSpark.jsx';
+import { trackEvent } from './analytics.js';
 import './site-assistant.css';
 
 const MOBILE_CHAT_QUERY = '(max-width: 760px)';
@@ -57,6 +58,7 @@ export default function SiteAssistant({ home = false }) {
   }, [inline]);
 
   const launch = () => {
+    trackEvent('assistant_open', { presentation: inline ? 'inline' : 'dialog' });
     if (inline) {
       const section = document.getElementById('hich-assistant');
       section?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'center' });

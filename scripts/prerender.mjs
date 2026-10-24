@@ -1,14 +1,23 @@
 import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import path from 'node:path';
+import { loadEnvFile } from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+for (const envFile of ['.env.local', '.env']) {
+  try { loadEnvFile(path.join(root, envFile)); }
+  catch (error) { if (error?.code !== 'ENOENT') throw error; }
+}
 const output = path.join(root, 'dist');
 const serverPath = path.join(root, '.ssr', 'entry-server.js');
 const origin = 'https://hichweb.com';
 const headMarker = '<!--hich-head-->';
 const appMarker = '<!--hich-app-->';
+const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim() || '';
+if (googleSiteVerification && !/^[A-Za-z0-9_-]+$/.test(googleSiteVerification)) {
+  throw new Error('GOOGLE_SITE_VERIFICATION contains unsupported characters. Paste only the meta tag content value.');
+}
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const safeJson = value => JSON.stringify(value).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 const plainText = value => String(value).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/&#x([a-f\d]+);/gi, (_, number) => String.fromCodePoint(parseInt(number, 16))).replace(/&#(\d+);/g, (_, number) => String.fromCodePoint(Number(number))).replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
@@ -73,6 +82,9 @@ function metadata(urlPath) {
     `<meta name="twitter:image" content="${origin}/social-card.png" />`,
     '<meta name="twitter:image:alt" content="HICH — Web development and digital experiences" />',
   ];
+  if (urlPath === '/' && googleSiteVerification) {
+    lines.push(`<meta name="google-site-verification" content="${escapeHtml(googleSiteVerification)}" />`);
+  }
   // Publication/update dates are omitted until they are verified and visible
   // on the article itself. Rebuilding must never invent freshness signals.
   if (!is404) lines.push(`<script type="application/ld+json">${safeJson(getSchema(urlPath))}</script>`);

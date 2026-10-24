@@ -19,8 +19,10 @@
     "test:chat-unit": "node scripts/test-assistant-knowledge.mjs && node scripts/test-chat-reveal.mjs && node scripts/test-chat-server.mjs && node scripts/test-chat-client.mjs && node scripts/test-cloudflare-worker.mjs",
     "test:quotation": "node scripts/test-quotation-engine.mjs && node scripts/test-quotation-pdf.mjs",
     "test:quotation-ui": "node scripts/qa-quotation.mjs",
+    "test:quotation-page": "node scripts/qa-quotation-page.mjs",
     "test:experiences": "node scripts/qa-experiences.mjs",
     "test:chat": "node scripts/qa-chat.mjs",
+    "test:analytics": "node scripts/test-analytics.mjs",
     "zip": "npm run build && node scripts/package.mjs"
   },
   "dependencies": {
